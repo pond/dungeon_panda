@@ -1,0 +1,485 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 51;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		2339710625FD6BC300ACFCF7 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2339710525FD6BC300ACFCF7 /* AppDelegate.swift */; };
+		2339710825FD6BC300ACFCF7 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2339710725FD6BC300ACFCF7 /* SceneDelegate.swift */; };
+		2339710A25FD6BC300ACFCF7 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2339710925FD6BC300ACFCF7 /* ViewController.swift */; };
+		2339710D25FD6BC300ACFCF7 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2339710B25FD6BC300ACFCF7 /* Main.storyboard */; };
+		2339711025FD6BC300ACFCF7 /* Dungeon_Panda.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 2339710E25FD6BC300ACFCF7 /* Dungeon_Panda.xcdatamodeld */; };
+		2339711225FD6BC500ACFCF7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2339711125FD6BC500ACFCF7 /* Assets.xcassets */; };
+		2339711525FD6BC500ACFCF7 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2339711325FD6BC500ACFCF7 /* LaunchScreen.storyboard */; };
+		2339712225FD7A3B00ACFCF7 /* AppleMusicAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2339712125FD7A3B00ACFCF7 /* AppleMusicAPI.swift */; };
+		2339712525FD7A6000ACFCF7 /* Song.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2339712425FD7A6000ACFCF7 /* Song.swift */; };
+		2339712925FDF1F700ACFCF7 /* LibraryPlaylist.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2339712825FDF1F700ACFCF7 /* LibraryPlaylist.swift */; };
+		237B42F625FEA100000D5666 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 237B42F425FEA100000D5666 /* README.md */; };
+		237B42F725FEA100000D5666 /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = 237B42F525FEA100000D5666 /* LICENSE */; };
+		62F3D4C17B2B4A841AEF4622 /* Pods_Dungeon_Panda.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B0A292A1198AB60CEC19805 /* Pods_Dungeon_Panda.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		2339710225FD6BC300ACFCF7 /* Dungeon Panda.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Dungeon Panda.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		2339710525FD6BC300ACFCF7 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		2339710725FD6BC300ACFCF7 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
+		2339710925FD6BC300ACFCF7 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		2339710C25FD6BC300ACFCF7 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		2339710F25FD6BC300ACFCF7 /* Dungeon_Panda.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Dungeon_Panda.xcdatamodel; sourceTree = "<group>"; };
+		2339711125FD6BC500ACFCF7 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		2339711425FD6BC500ACFCF7 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		2339711625FD6BC500ACFCF7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		2339712125FD7A3B00ACFCF7 /* AppleMusicAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleMusicAPI.swift; sourceTree = "<group>"; };
+		2339712425FD7A6000ACFCF7 /* Song.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Song.swift; sourceTree = "<group>"; };
+		2339712825FDF1F700ACFCF7 /* LibraryPlaylist.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryPlaylist.swift; sourceTree = "<group>"; };
+		237B42F425FEA100000D5666 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = SOURCE_ROOT; };
+		237B42F525FEA100000D5666 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = SOURCE_ROOT; };
+		3B0A292A1198AB60CEC19805 /* Pods_Dungeon_Panda.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Dungeon_Panda.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		67F6BEBF98F9A06DAEC68E47 /* Pods-Dungeon Panda.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Dungeon Panda.release.xcconfig"; path = "Target Support Files/Pods-Dungeon Panda/Pods-Dungeon Panda.release.xcconfig"; sourceTree = "<group>"; };
+		BF3CDA325AFA8CEA7F327259 /* Pods-Dungeon Panda.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Dungeon Panda.debug.xcconfig"; path = "Target Support Files/Pods-Dungeon Panda/Pods-Dungeon Panda.debug.xcconfig"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		233970FF25FD6BC300ACFCF7 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				62F3D4C17B2B4A841AEF4622 /* Pods_Dungeon_Panda.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		233970F925FD6BC300ACFCF7 = {
+			isa = PBXGroup;
+			children = (
+				2339713025FEA02900ACFCF7 /* Main code */,
+				237B42F325FEA0DD000D5666 /* Support code */,
+				2339713125FEA03000ACFCF7 /* Models */,
+				2339713225FEA03B00ACFCF7 /* UI */,
+				2339713325FEA04200ACFCF7 /* Resources */,
+				2339710325FD6BC300ACFCF7 /* Products */,
+				60B8E497AFA0FAE0047C310A /* Pods */,
+				7BDEC6E4220C762C973AECBE /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		2339710325FD6BC300ACFCF7 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				2339710225FD6BC300ACFCF7 /* Dungeon Panda.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		2339713025FEA02900ACFCF7 /* Main code */ = {
+			isa = PBXGroup;
+			children = (
+				2339710525FD6BC300ACFCF7 /* AppDelegate.swift */,
+				2339710725FD6BC300ACFCF7 /* SceneDelegate.swift */,
+				2339710925FD6BC300ACFCF7 /* ViewController.swift */,
+			);
+			path = "Main code";
+			sourceTree = "<group>";
+		};
+		2339713125FEA03000ACFCF7 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				2339710E25FD6BC300ACFCF7 /* Dungeon_Panda.xcdatamodeld */,
+				2339712425FD7A6000ACFCF7 /* Song.swift */,
+				2339712825FDF1F700ACFCF7 /* LibraryPlaylist.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		2339713225FEA03B00ACFCF7 /* UI */ = {
+			isa = PBXGroup;
+			children = (
+				2339710B25FD6BC300ACFCF7 /* Main.storyboard */,
+				2339711325FD6BC500ACFCF7 /* LaunchScreen.storyboard */,
+			);
+			path = UI;
+			sourceTree = "<group>";
+		};
+		2339713325FEA04200ACFCF7 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				2339711625FD6BC500ACFCF7 /* Info.plist */,
+				2339711125FD6BC500ACFCF7 /* Assets.xcassets */,
+				237B42F525FEA100000D5666 /* LICENSE */,
+				237B42F425FEA100000D5666 /* README.md */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		237B42F325FEA0DD000D5666 /* Support code */ = {
+			isa = PBXGroup;
+			children = (
+				2339712125FD7A3B00ACFCF7 /* AppleMusicAPI.swift */,
+			);
+			path = "Support code";
+			sourceTree = "<group>";
+		};
+		60B8E497AFA0FAE0047C310A /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				BF3CDA325AFA8CEA7F327259 /* Pods-Dungeon Panda.debug.xcconfig */,
+				67F6BEBF98F9A06DAEC68E47 /* Pods-Dungeon Panda.release.xcconfig */,
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
+		7BDEC6E4220C762C973AECBE /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				3B0A292A1198AB60CEC19805 /* Pods_Dungeon_Panda.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		2339710125FD6BC300ACFCF7 /* Dungeon Panda */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2339711925FD6BC500ACFCF7 /* Build configuration list for PBXNativeTarget "Dungeon Panda" */;
+			buildPhases = (
+				187BEDFA86EA54C189089577 /* [CP] Check Pods Manifest.lock */,
+				233970FE25FD6BC300ACFCF7 /* Sources */,
+				233970FF25FD6BC300ACFCF7 /* Frameworks */,
+				2339710025FD6BC300ACFCF7 /* Resources */,
+				2BD5BFD72D7B55A6D45DF580 /* [CP] Embed Pods Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Dungeon Panda";
+			productName = "Dungeon Panda";
+			productReference = 2339710225FD6BC300ACFCF7 /* Dungeon Panda.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		233970FA25FD6BC300ACFCF7 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 1240;
+				LastUpgradeCheck = 1240;
+				TargetAttributes = {
+					2339710125FD6BC300ACFCF7 = {
+						CreatedOnToolsVersion = 12.4;
+					};
+				};
+			};
+			buildConfigurationList = 233970FD25FD6BC300ACFCF7 /* Build configuration list for PBXProject "Dungeon Panda" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 233970F925FD6BC300ACFCF7;
+			productRefGroup = 2339710325FD6BC300ACFCF7 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				2339710125FD6BC300ACFCF7 /* Dungeon Panda */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		2339710025FD6BC300ACFCF7 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2339711525FD6BC500ACFCF7 /* LaunchScreen.storyboard in Resources */,
+				2339711225FD6BC500ACFCF7 /* Assets.xcassets in Resources */,
+				237B42F625FEA100000D5666 /* README.md in Resources */,
+				2339710D25FD6BC300ACFCF7 /* Main.storyboard in Resources */,
+				237B42F725FEA100000D5666 /* LICENSE in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		187BEDFA86EA54C189089577 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-Dungeon Panda-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		2BD5BFD72D7B55A6D45DF580 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Dungeon Panda/Pods-Dungeon Panda-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Dungeon Panda/Pods-Dungeon Panda-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Dungeon Panda/Pods-Dungeon Panda-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		233970FE25FD6BC300ACFCF7 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2339712525FD7A6000ACFCF7 /* Song.swift in Sources */,
+				2339712225FD7A3B00ACFCF7 /* AppleMusicAPI.swift in Sources */,
+				2339710A25FD6BC300ACFCF7 /* ViewController.swift in Sources */,
+				2339711025FD6BC300ACFCF7 /* Dungeon_Panda.xcdatamodeld in Sources */,
+				2339710625FD6BC300ACFCF7 /* AppDelegate.swift in Sources */,
+				2339710825FD6BC300ACFCF7 /* SceneDelegate.swift in Sources */,
+				2339712925FDF1F700ACFCF7 /* LibraryPlaylist.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		2339710B25FD6BC300ACFCF7 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				2339710C25FD6BC300ACFCF7 /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		2339711325FD6BC500ACFCF7 /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				2339711425FD6BC500ACFCF7 /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		2339711725FD6BC500ACFCF7 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.4;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		2339711825FD6BC500ACFCF7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.4;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		2339711A25FD6BC500ACFCF7 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = BF3CDA325AFA8CEA7F327259 /* Pods-Dungeon Panda.debug.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = XT4V976D8Y;
+				INFOPLIST_FILE = "Dungeon Panda/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "uk.org.pond.Dungeon-Panda";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		2339711B25FD6BC500ACFCF7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 67F6BEBF98F9A06DAEC68E47 /* Pods-Dungeon Panda.release.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = XT4V976D8Y;
+				INFOPLIST_FILE = "Dungeon Panda/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "uk.org.pond.Dungeon-Panda";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		233970FD25FD6BC300ACFCF7 /* Build configuration list for PBXProject "Dungeon Panda" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2339711725FD6BC500ACFCF7 /* Debug */,
+				2339711825FD6BC500ACFCF7 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		2339711925FD6BC500ACFCF7 /* Build configuration list for PBXNativeTarget "Dungeon Panda" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2339711A25FD6BC500ACFCF7 /* Debug */,
+				2339711B25FD6BC500ACFCF7 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		2339710E25FD6BC300ACFCF7 /* Dungeon_Panda.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				2339710F25FD6BC300ACFCF7 /* Dungeon_Panda.xcdatamodel */,
+			);
+			currentVersion = 2339710F25FD6BC300ACFCF7 /* Dungeon_Panda.xcdatamodel */;
+			path = Dungeon_Panda.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
+	};
+	rootObject = 233970FA25FD6BC300ACFCF7 /* Project object */;
+}
