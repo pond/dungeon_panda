@@ -147,6 +147,17 @@ class AppleMusicAPI {
                           completionHandler(.failure(urlError))
                         }
                         else if let json = try? JSON(data: data!) {
+                            if let errorArray = json["errors"].array {
+                                var firstError:String? = errorArray[0]["detail"].string
+                                if firstError == nil {
+                                    firstError = "Unknown problem encountered while fetching content from Apple Music"
+                                }
+                                
+                                let errorObject = MiscError(kind: .appleMusic, message: firstError!)
+                                completionHandler(.failure(errorObject))
+                                return
+                            }
+                            
                             let items = (json["data"]).array!
                             for item in items {
                                 let attributes = item["attributes"]
@@ -200,14 +211,15 @@ class AppleMusicAPI {
 
                             for item in items {
                                 let attributes   = item["attributes"]
+                                let localUserId  = attributes["playParams"]["id"].string
                                 let appleMusicId = attributes["playParams"]["catalogId"].string
                                 
-                                if appleMusicId != nil {
+                                if catalogueOnly == false || appleMusicId != nil {
                                     let song = Song(
-                                        id:         appleMusicId!,
+                                        id:         appleMusicId == nil ? localUserId! : appleMusicId!,
                                         name:       attributes["name"].string!,
-                                        artistName: attributes["artistName"].string!,
-                                        artworkURL: attributes["artwork"]["url"].string!
+                                        artistName: attributes["artistName"].string,
+                                        artworkURL: attributes["artwork"]["url"].string
                                     )
                                     songs.append(song)
                                 }

@@ -24,27 +24,41 @@ class ViewController: UIViewController {
                         case .failure(let error):
                             print("Failed:")
                             print(error)
+
                         case .success(let playlists):
+                            print("")
                             print("Success:")
-                            for playlist in playlists {
-                                print(playlist)
-                                if playlist.name.starts(with: "D&D") {
-                                    self.appleMusic.getLibraryPlaylistSongs(
-                                        playlistID:        playlist.id,
-                                        catalogueOnly:     false,
-                                        completionHandler: { result in
-                                            switch result {
-                                            case .failure(let error):
-                                                print("Failed:")
-                                                print(error)
-                                            case .success(let songs):
-                                                print("Success:")
-                                                for song in songs {
-                                                    print(song)
+
+                            let semaphore = DispatchSemaphore(value: 1)
+                            DispatchQueue.global().async {
+                                for playlist in playlists {
+                                    print(playlist)
+                                    if playlist.name.starts(with: "D&D") {
+                                        semaphore.wait()
+                                        print("")
+                                        print(String(repeating: "*", count: 80))
+                                        print(playlist.name)
+                                        print(String(repeating: "*", count: 80))
+                                        print("")
+                                        self.appleMusic.getLibraryPlaylistSongs(
+                                            playlistID:        playlist.id,
+                                            catalogueOnly:     false,
+                                            completionHandler: { result in
+                                                switch result {
+                                                case .failure(let error):
+                                                    print("Failed:")
+                                                    print(error)
+                                                case .success(let songs):
+                                                    print("Success:")
+                                                    for song in songs {
+                                                        print(song)
+                                                    }
                                                 }
+                                                
+                                                semaphore.signal()
                                             }
-                                        }
-                                    )
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -55,30 +69,46 @@ class ViewController: UIViewController {
         }
     }
 
-    @IBAction func playMusic(_ sender: Any) {
+    @IBAction func playMusic(_ sender: UIButton) {
         SKCloudServiceController.requestAuthorization { (status) in
             if status == .authorized {
                 print("User did authorize access to Apple Music")
 
-                self.appleMusic.searchAppleMusicWith(
-                    searchTerm: "The Forest of the Gods",
-                    completionHandler: { result in
-                        switch result {
-                        case .failure(let error):
-                            print("Failed:")
-                            print(error)
-                        case .success(let songs):
-                            print("Success:")
-                            for song in songs {
-                                print(song)
-                            }
-                            
-                            let musicPlayer = MPMusicPlayerController.applicationMusicPlayer
-                            musicPlayer.setQueue(with: [songs[0].id])
-                            musicPlayer.play()
-                        }
+                let appDelegate = UIApplication.shared.delegate as! AppDelegate
+                let playlistName = sender.accessibilityIdentifier
+                
+                if playlistName != nil {
+                    let playlist = appDelegate.staticPlaylistManager.playlists[playlistName!]
+                    
+                    if playlist != nil {
+                        print("PLAYING \(playlistName!)")
+                        print("TRACKS: \(playlist!.tracks.map {$0.id})")
+
+                        let musicPlayer = MPMusicPlayerApplicationController.applicationMusicPlayer
+                        musicPlayer.setQueue(with: playlist!.tracks.map {$0.id})
+                        musicPlayer.play()
                     }
-                )
+                }
+                    
+//                self.appleMusic.searchAppleMusicWith(
+//                    searchTerm: "The Forest of the Gods",
+//                    completionHandler: { result in
+//                        switch result {
+//                        case .failure(let error):
+//                            print("Failed:")
+//                            print(error)
+//                        case .success(let songs):
+//                            print("Success:")
+//                            for song in songs {
+//                                print(song)
+//                            }
+//
+//                            let musicPlayer = MPMusicPlayerController.applicationMusicPlayer
+//                            musicPlayer.setQueue(with: [songs[0].id])
+//                            musicPlayer.play()
+//                        }
+//                    }
+//                )
             }
         }
     }

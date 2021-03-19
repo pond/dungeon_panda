@@ -21,6 +21,8 @@
 		237B42F725FEA100000D5666 /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = 237B42F525FEA100000D5666 /* LICENSE */; };
 		238493B8260324A6005DA4D7 /* Track.swift in Sources */ = {isa = PBXBuildFile; fileRef = 238493B7260324A6005DA4D7 /* Track.swift */; };
 		238493BB260324FA005DA4D7 /* Playlist.swift in Sources */ = {isa = PBXBuildFile; fileRef = 238493BA260324FA005DA4D7 /* Playlist.swift */; };
+		23854C592604326000909DB1 /* StaticPlaylistManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23854C582604326000909DB1 /* StaticPlaylistManager.swift */; };
+		23854C5C260435D100909DB1 /* MiscError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23854C5B260435D100909DB1 /* MiscError.swift */; };
 		62F3D4C17B2B4A841AEF4622 /* Pods_Dungeon_Panda.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B0A292A1198AB60CEC19805 /* Pods_Dungeon_Panda.framework */; };
 /* End PBXBuildFile section */
 
@@ -42,6 +44,8 @@
 		237B430E25FF3B64000D5666 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		238493B7260324A6005DA4D7 /* Track.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Track.swift; sourceTree = "<group>"; };
 		238493BA260324FA005DA4D7 /* Playlist.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Playlist.swift; sourceTree = "<group>"; };
+		23854C582604326000909DB1 /* StaticPlaylistManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StaticPlaylistManager.swift; sourceTree = "<group>"; };
+		23854C5B260435D100909DB1 /* MiscError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MiscError.swift; sourceTree = "<group>"; };
 		3B0A292A1198AB60CEC19805 /* Pods_Dungeon_Panda.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Dungeon_Panda.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		67F6BEBF98F9A06DAEC68E47 /* Pods-Dungeon Panda.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Dungeon Panda.release.xcconfig"; path = "Target Support Files/Pods-Dungeon Panda/Pods-Dungeon Panda.release.xcconfig"; sourceTree = "<group>"; };
 		BF3CDA325AFA8CEA7F327259 /* Pods-Dungeon Panda.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Dungeon Panda.debug.xcconfig"; path = "Target Support Files/Pods-Dungeon Panda/Pods-Dungeon Panda.debug.xcconfig"; sourceTree = "<group>"; };
@@ -95,6 +99,7 @@
 				2339712825FDF1F700ACFCF7 /* LibraryPlaylist.swift */,
 				238493B7260324A6005DA4D7 /* Track.swift */,
 				238493BA260324FA005DA4D7 /* Playlist.swift */,
+				23854C5B260435D100909DB1 /* MiscError.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -122,6 +127,7 @@
 			isa = PBXGroup;
 			children = (
 				2339712125FD7A3B00ACFCF7 /* AppleMusicAPI.swift */,
+				23854C582604326000909DB1 /* StaticPlaylistManager.swift */,
 			);
 			path = "Support code";
 			sourceTree = "<group>";
@@ -282,6 +288,8 @@
 				2339710625FD6BC300ACFCF7 /* AppDelegate.swift in Sources */,
 				2339710825FD6BC300ACFCF7 /* SceneDelegate.swift in Sources */,
 				2339712925FDF1F700ACFCF7 /* LibraryPlaylist.swift in Sources */,
+				23854C5C260435D100909DB1 /* MiscError.swift in Sources */,
+				23854C592604326000909DB1 /* StaticPlaylistManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

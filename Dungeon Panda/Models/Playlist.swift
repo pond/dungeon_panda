@@ -10,4 +10,9 @@ import Foundation
 struct Playlist {
     var name: String
     var tracks: [Track]
+    
+    init(name: String, tracks: [Track]) {
+        self.name = name
+        self.tracks = tracks
+    }
 }

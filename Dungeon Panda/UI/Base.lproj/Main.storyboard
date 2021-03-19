@@ -35,6 +35,7 @@
                                             </label>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="tailTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="w2D-tk-wdk" userLabel="Good - Background">
                                                 <rect key="frame" x="0.0" y="40.5" width="108" height="38"/>
+                                                <accessibility key="accessibilityConfiguration" identifier="good-background"/>
                                                 <fontDescription key="fontDescription" name="Baskerville" family="Baskerville" pointSize="22"/>
                                                 <state key="normal" title="Background">
                                                     <color key="titleColor" red="0.2382225268" green="0.13274118130000001" blue="0.00049279963540000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -45,6 +46,7 @@
                                             </button>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="tailTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="aFw-DD-9Be" userLabel="Good - Tavern">
                                                 <rect key="frame" x="0.0" y="86.5" width="63" height="38"/>
+                                                <accessibility key="accessibilityConfiguration" identifier="good-tavern"/>
                                                 <fontDescription key="fontDescription" name="Baskerville" family="Baskerville" pointSize="22"/>
                                                 <state key="normal" title="Tavern">
                                                     <color key="titleColor" red="0.2382225268" green="0.13274118130000001" blue="0.00049279963540000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -55,6 +57,7 @@
                                             </button>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="tailTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1VI-Ix-X6m" userLabel="Good - Quirky">
                                                 <rect key="frame" x="0.0" y="132.5" width="63" height="38"/>
+                                                <accessibility key="accessibilityConfiguration" identifier="good-quirky"/>
                                                 <fontDescription key="fontDescription" name="Baskerville" family="Baskerville" pointSize="22"/>
                                                 <state key="normal" title="Quirky">
                                                     <color key="titleColor" red="0.2382225268" green="0.13274118130000001" blue="0.00049279963540000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -65,6 +68,7 @@
                                             </button>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="tailTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Y05-u1-3ZB" userLabel="Good - Victory">
                                                 <rect key="frame" x="0.0" y="178.5" width="66" height="38"/>
+                                                <accessibility key="accessibilityConfiguration" identifier="good-victory"/>
                                                 <fontDescription key="fontDescription" name="Baskerville" family="Baskerville" pointSize="22"/>
                                                 <state key="normal" title="Victory">
                                                     <color key="titleColor" red="0.2382225268" green="0.13274118130000001" blue="0.00049279963540000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -86,6 +90,7 @@
                                             </label>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="tailTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ajZ-fb-xu9" userLabel="Evil - Background">
                                                 <rect key="frame" x="0.0" y="40.5" width="108" height="38"/>
+                                                <accessibility key="accessibilityConfiguration" identifier="evil-background"/>
                                                 <fontDescription key="fontDescription" name="Baskerville" family="Baskerville" pointSize="22"/>
                                                 <state key="normal" title="Background">
                                                     <color key="titleColor" red="0.48931576510000002" green="0.073411678250000001" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -96,6 +101,7 @@
                                             </button>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="tailTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="PHK-nJ-a1h" userLabel="Evil - Battle">
                                                 <rect key="frame" x="0.0" y="86.5" width="52" height="38"/>
+                                                <accessibility key="accessibilityConfiguration" identifier="evil-battle"/>
                                                 <fontDescription key="fontDescription" name="Baskerville" family="Baskerville" pointSize="22"/>
                                                 <state key="normal" title="Battle">
                                                     <color key="titleColor" red="0.48931576510000002" green="0.073411678250000001" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -106,6 +112,7 @@
                                             </button>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="tailTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="rYW-sI-bSU" userLabel="Evil - Twisted">
                                                 <rect key="frame" x="0.0" y="132.5" width="69" height="38"/>
+                                                <accessibility key="accessibilityConfiguration" identifier="evil-twisted"/>
                                                 <fontDescription key="fontDescription" name="Baskerville" family="Baskerville" pointSize="22"/>
                                                 <state key="normal" title="Twisted">
                                                     <color key="titleColor" red="0.48931576510000002" green="0.073411678250000001" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -116,6 +123,7 @@
                                             </button>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="tailTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="HbU-kF-Xfb" userLabel="Evil - Failure">
                                                 <rect key="frame" x="0.0" y="178.5" width="61" height="38"/>
+                                                <accessibility key="accessibilityConfiguration" identifier="evil-failure"/>
                                                 <fontDescription key="fontDescription" name="Baskerville" family="Baskerville" pointSize="22"/>
                                                 <state key="normal" title="Failure">
                                                     <color key="titleColor" red="0.48931576510000002" green="0.073411678250000001" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -137,6 +145,7 @@
                                             </label>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="tailTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="POs-Zh-OyG" userLabel="All - Magic &amp; Mystery">
                                                 <rect key="frame" x="0.0" y="40.5" width="155" height="38"/>
+                                                <accessibility key="accessibilityConfiguration" identifier="any-magic-and-mystery"/>
                                                 <fontDescription key="fontDescription" name="Baskerville" family="Baskerville" pointSize="22"/>
                                                 <color key="tintColor" red="0.48931576507260099" green="0.0" blue="0.41869275338539891" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                 <state key="normal" title="Magic &amp; Mystery"/>
@@ -146,6 +155,7 @@
                                             </button>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="tailTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="CVl-XK-dKt" userLabel="All - Hurry!">
                                                 <rect key="frame" x="0.0" y="86.5" width="62" height="38"/>
+                                                <accessibility key="accessibilityConfiguration" identifier="any-hurry"/>
                                                 <fontDescription key="fontDescription" name="Baskerville" family="Baskerville" pointSize="22"/>
                                                 <color key="tintColor" red="0.25381871131873301" green="0.0" blue="0.48931576507260099" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                 <state key="normal" title="Hurry!"/>
@@ -155,6 +165,7 @@
                                             </button>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="tailTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="4is-T8-QA5" userLabel="All - Sorrow">
                                                 <rect key="frame" x="0.0" y="132.5" width="65" height="38"/>
+                                                <accessibility key="accessibilityConfiguration" identifier="any-sorrow"/>
                                                 <fontDescription key="fontDescription" name="Baskerville" family="Baskerville" pointSize="22"/>
                                                 <color key="tintColor" red="0.0" green="0.16117769090864059" blue="0.48931576507260099" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                 <state key="normal" title="Sorrow"/>
@@ -176,7 +187,7 @@
                                 </subviews>
                             </stackView>
                             <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="0.5" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="HN9-MX-FoI">
-                                <rect key="frame" x="-14" y="141" width="792" height="31"/>
+                                <rect key="frame" x="52" y="317" width="792" height="31"/>
                             </slider>
                             <stackView opaque="NO" contentMode="left" distribution="fillProportionally" translatesAutoresizingMaskIntoConstraints="NO" id="Wvk-Ek-x4l">
                                 <rect key="frame" x="54" y="357.5" width="788" height="25.5"/>
