@@ -7,19 +7,26 @@
 
 import Foundation
 
-struct Track {
-    var id: String
-    var startSeconds: UInt16
-    var endSeconds: UInt16
+/**
+ Statically initialised information about a Tracklist item, giving an identifier used for music playback
+ and providing parameters indicating how it should be played back/
+*/
+struct Track
+{
+    var storeID: String
+    var displayName: String
+    var startSeconds: Int
+    var endSeconds: Int
     var fadeIn: Bool
     var fadeOut: Bool
 
-    init(id: String, startSeconds: UInt16, endSeconds: UInt16, fadeIn: Bool, fadeOut: Bool) {
-        self.id = id
+    init(storeID: String, displayName: String, startSeconds: Int, endSeconds: Int, fadeIn: Bool, fadeOut: Bool)
+    {
+        self.storeID = storeID
+        self.displayName = displayName
         self.startSeconds = startSeconds
         self.endSeconds = endSeconds
         self.fadeIn = fadeIn
         self.fadeOut = fadeOut
     }
 }
-

@@ -11,14 +11,14 @@ import CoreData
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
-    var staticPlaylistManager: StaticPlaylistManager = StaticPlaylistManager()
-    
+    public var staticPlaylistManager: StaticPlaylistManager = StaticPlaylistManager()
+    public var musicPlaybackManager: MusicPlaybackManager = MusicPlaybackManager()
+
     func application(
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
         // Override point for customization after application launch.
-
         return true
     }
 

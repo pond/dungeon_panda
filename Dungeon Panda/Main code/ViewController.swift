@@ -12,7 +12,7 @@ import MediaPlayer
 class ViewController: UIViewController {
     @IBOutlet weak var playButton: UIButton!
     let appleMusic = AppleMusicAPI()
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -41,8 +41,8 @@ class ViewController: UIViewController {
                                         print(String(repeating: "*", count: 80))
                                         print("")
                                         self.appleMusic.getLibraryPlaylistSongs(
-                                            playlistID:        playlist.id,
-                                            catalogueOnly:     false,
+                                            playlistID: playlist.id,
+                                            catalogueOnly: false,
                                             completionHandler: { result in
                                                 switch result {
                                                 case .failure(let error):
@@ -72,22 +72,12 @@ class ViewController: UIViewController {
     @IBAction func playMusic(_ sender: UIButton) {
         SKCloudServiceController.requestAuthorization { (status) in
             if status == .authorized {
-                print("User did authorize access to Apple Music")
+                print("User authorized access to Apple Music")
 
                 let appDelegate = UIApplication.shared.delegate as! AppDelegate
-                let playlistName = sender.accessibilityIdentifier
-                
-                if playlistName != nil {
-                    let playlist = appDelegate.staticPlaylistManager.playlists[playlistName!]
-                    
-                    if playlist != nil {
-                        print("PLAYING \(playlistName!)")
-                        print("TRACKS: \(playlist!.tracks.map {$0.id})")
 
-                        let musicPlayer = MPMusicPlayerApplicationController.applicationMusicPlayer
-                        musicPlayer.setQueue(with: playlist!.tracks.map {$0.id})
-                        musicPlayer.play()
-                    }
+                if let playlistID = sender.accessibilityIdentifier {
+                    appDelegate.musicPlaybackManager.changePlaylist(playlistID: playlistID)
                 }
                     
 //                self.appleMusic.searchAppleMusicWith(
