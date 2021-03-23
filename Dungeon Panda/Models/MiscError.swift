@@ -7,8 +7,13 @@
 
 import Foundation
 
-struct MiscError: Error {
-    enum ErrorKind {
+/**
+ Encapsulate details of miscellaneous error conditions.
+*/
+struct MiscError: Error
+{
+    enum ErrorKind
+    {
         case appleMusic
     }
 

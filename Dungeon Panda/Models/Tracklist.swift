@@ -14,25 +14,35 @@ import Foundation
  Tracklist and Playlist objects share common IDs - if the IDs match, they are related. The
  IDs can and almost always are used interchangeably.
 */
-struct Tracklist {
+class Tracklist
+{
     var id: String
     var displayName: String
     var tracks: [String:Track] = [:]
 
-    init(id: String, displayName: String, tracks: [Track]) {
+    init(id: String, displayName: String, tracks: [Track])
+    {
         self.id = id
         self.displayName = displayName
         
-        for track in tracks {
-            self.tracks[track.storeID] = track
+        for track in tracks
+        {
+            self.add(track)
         }
     }
     
-    func getTrackBy(storeID: String) -> Track? {
-        tracks[storeID]
+    func add(_ track: Track)
+    {
+        self.tracks[track.storeID] = track
+    }
+
+    func getStoreIDArray() -> [String]
+    {
+        return Array(tracks.keys.sorted())
     }
     
-    func getTrackIndexFor(storeID: String) -> Int? {
-        return self.tracks.firstIndex(where: { $0.id == storeID })
+    func getTrackBy(storeID: String) -> Track?
+    {
+        tracks[storeID]
     }
 }

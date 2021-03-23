@@ -20,11 +20,12 @@ protocol MusicPlaybackManagerDelegate {
 
 class MusicPlaybackManager {
 
-    public var delegates : [MusicPlaybackManagerDelegate] = []
+    public var delegates: [MusicPlaybackManagerDelegate] = []
 
-    let mediaPlayer = MPMusicPlayerApplicationController.applicationQueuePlayer
     let appDelegate = UIApplication.shared.delegate as! AppDelegate
-    let playlistManager = (UIApplication.shared.delegate as! AppDelegate).staticPlaylistManager
+    let mediaPlayer = MPMusicPlayerApplicationController.applicationQueuePlayer
+
+    var playlistManager: PlaylistManager
 
     // Set to whatever we've actually successfully started
     //
@@ -43,7 +44,10 @@ class MusicPlaybackManager {
     //
     var timer: Timer?
 
-    init() {
+    init(playlistManager: PlaylistManager)
+    {
+        self.playlistManager = playlistManager
+
         // TODO: info from CoreData & if none, sets up a new one. Then gets
         // TODO: the most recently played thing if any and starts it. Else
         // TODO: no point guessing on prepare-to-play
@@ -62,15 +66,15 @@ class MusicPlaybackManager {
     }
 
     func changePlaylist(playlistID: String) {
-        if let targetPlaylist = self.playlistManager.getPlaylistWith(playlistID: playlistID) {
-            self.targetPlaylistID = playlistID
-            self.targetPlaylistIndex = getNextIndexForPlaylist(playlistID: playlistID)
-
-            print("CHANGING TO: \(targetPlaylist.name)")
-            print("WITH TRACKS: \(targetPlaylist.tracks.map {$0.storeID})")
-
-            transitionToNextSongWithFadeOutIfRequired()
-        }
+//        if let targetPlaylist = self.playlistManager.getPlaylistWith(playlistID: playlistID) {
+//            self.targetPlaylistID = playlistID
+//            self.targetPlaylistIndex = getNextIndexForPlaylist(playlistID: playlistID)
+//
+//            print("CHANGING TO: \(targetPlaylist.name)")
+//            print("WITH TRACKS: \(targetPlaylist.tracks.map {$0.storeID})")
+//
+//            transitionToNextSongWithFadeOutIfRequired()
+//        }
     }
     
     func skipTrack() {
@@ -87,19 +91,19 @@ class MusicPlaybackManager {
     // MARK: - Handle playback events
 
     @objc func playbackProgressChanged(timer: Timer) {
-        if self.mediaPlayer.playbackState == .playing,
-           let currentPlayist = getCurrentPlaylist(),
-           let currentTrack = currentPlayist.getTrackAt(trackIndex: self.currentPlaylistIndex) {
-            let position = mediaPlayer.currentPlaybackTime
-            self.delegates.forEach { (delegate) in
-                delegate.playbackProgressChanged(
-                    playbackManager: self,
-                    inPlaylist: currentPlayist,
-                    withTrack: currentTrack,
-                    position: position
-                )
-            }
-        }
+//        if self.mediaPlayer.playbackState == .playing,
+//           let currentPlayist = getCurrentPlaylist(),
+//           let currentTrack = currentPlayist.getTrackAt(trackIndex: self.currentPlaylistIndex) {
+//            let position = mediaPlayer.currentPlaybackTime
+//            self.delegates.forEach { (delegate) in
+//                delegate.playbackProgressChanged(
+//                    playbackManager: self,
+//                    inPlaylist: currentPlayist,
+//                    withTrack: currentTrack,
+//                    position: position
+//                )
+//            }
+//        }
     }
     @objc func playbackStateDidChange() {
         switch mediaPlayer.playbackState {
@@ -122,24 +126,24 @@ class MusicPlaybackManager {
     }
 
     @objc func nowPlayingItemDidChange() {
-        if let currentPlaylist = getCurrentPlaylist(),
-           let currentTrackByOurIndex = currentPlaylist.getTrackAt(trackIndex: self.currentPlaylistIndex),
-           let currentTrackByMusicPlayer = getCurrentTrackFromMusicPlayer()
-        {
-            if currentTrackByOurIndex.storeID != currentTrackByMusicPlayer.storeID,
-               let updatedPlaylistIndex = currentPlaylist.getTrackIndexFor(storeID: currentTrackByMusicPlayer.storeID)
-            {
-                self.currentPlaylistIndex = updatedPlaylistIndex
-
-                delegates.forEach { (delegate) in
-                    delegate.playbackStarted(
-                        playbackManager: self,
-                        inPlaylist: currentPlaylist,
-                        withTrack: currentTrackByMusicPlayer
-                    )
-                }
-            }
-        }
+//        if let currentPlaylist = getCurrentPlaylist(),
+//           let currentTrackByOurIndex = currentPlaylist.getTrackAt(trackIndex: self.currentPlaylistIndex),
+//           let currentTrackByMusicPlayer = getCurrentTrackFromMusicPlayer()
+//        {
+//            if currentTrackByOurIndex.storeID != currentTrackByMusicPlayer.storeID,
+//               let updatedPlaylistIndex = currentPlaylist.getTrackIndexFor(storeID: currentTrackByMusicPlayer.storeID)
+//            {
+//                self.currentPlaylistIndex = updatedPlaylistIndex
+//
+//                delegates.forEach { (delegate) in
+//                    delegate.playbackStarted(
+//                        playbackManager: self,
+//                        inPlaylist: currentPlaylist,
+//                        withTrack: currentTrackByMusicPlayer
+//                    )
+//                }
+//            }
+//        }
     }
     
 private
@@ -173,43 +177,43 @@ it once
 */
     }
     
-    func enqueueSong(songId: String) {
-    }
-    
-    func startSongWithFadeInIfRequired() {
-        self.mediaPlayer.play()
-    }
-    
-    func transitionToNextSongWithFadeOutIfRequired() {
-        if mediaPlayer.playbackState == .playing {
-            // TODO: Fade out first somehow
-        }
-
-        self.currentPlaylistID = self.targetPlaylistID!
-        self.currentPlaylistIndex = self.targetPlaylistIndex!
-        self.targetPlaylistID = nil
-        self.targetPlaylistIndex = nil
-
-        let currentPlaylist = self.playlistManager.getPlaylistWith(playlistID: self.currentPlaylistID)!
-        
-        self.mediaPlayer.beginGeneratingPlaybackNotifications()
-        self.mediaPlayer.setQueue(with: currentPlaylist.tracks.map {$0.storeID})
-        self.mediaPlayer.prepareToPlay()
-
-        self.startSongWithFadeInIfRequired()
-    }
-
-    func getCurrentPlaylist() -> Playlist? {
-        return playlistManager.getPlaylistWith(playlistID: self.currentPlaylistID)
-    }
-    
-    func getCurrentTrackFromMusicPlayer() -> Track? {
-        if let currentlyPlayingStoreID = mediaPlayer.nowPlayingItem?.playbackStoreID,
-           let currentPlayist = getCurrentPlaylist() {
-            return currentPlayist.getTrackBy(storeID: currentlyPlayingStoreID)
-        }
-        else {
-            return nil
-        }
-    }
+//    func enqueueSong(songId: String) {
+//    }
+//
+//    func startSongWithFadeInIfRequired() {
+//        self.mediaPlayer.play()
+//    }
+//
+//    func transitionToNextSongWithFadeOutIfRequired() {
+//        if mediaPlayer.playbackState == .playing {
+//            // TODO: Fade out first somehow
+//        }
+//
+//        self.currentPlaylistID = self.targetPlaylistID!
+//        self.currentPlaylistIndex = self.targetPlaylistIndex!
+//        self.targetPlaylistID = nil
+//        self.targetPlaylistIndex = nil
+//
+//        let currentPlaylist = self.playlistManager.getPlaylistWith(playlistID: self.currentPlaylistID)!
+//
+//        self.mediaPlayer.beginGeneratingPlaybackNotifications()
+//        self.mediaPlayer.setQueue(with: currentPlaylist.tracks.map {$0.storeID})
+//        self.mediaPlayer.prepareToPlay()
+//
+//        self.startSongWithFadeInIfRequired()
+//    }
+//
+//    func getCurrentPlaylist() -> Playlist? {
+//        return playlistManager.getPlaylistWith(playlistID: self.currentPlaylistID)
+//    }
+//
+//    func getCurrentTrackFromMusicPlayer() -> Track? {
+//        if let currentlyPlayingStoreID = mediaPlayer.nowPlayingItem?.playbackStoreID,
+//           let currentPlayist = getCurrentPlaylist() {
+//            return currentPlayist.getTrackBy(storeID: currentlyPlayingStoreID)
+//        }
+//        else {
+//            return nil
+//        }
+//    }
 }

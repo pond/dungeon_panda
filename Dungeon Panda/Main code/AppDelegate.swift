@@ -11,14 +11,19 @@ import CoreData
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
-    public var staticPlaylistManager: StaticPlaylistManager = StaticPlaylistManager()
-    public var musicPlaybackManager: MusicPlaybackManager = MusicPlaybackManager()
+    public var staticTracklistManager: StaticTracklistManager?
+    public var playlistManager: PlaylistManager?
+    public var musicPlaybackManager: MusicPlaybackManager?
 
     func application(
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
-    ) -> Bool {
-        // Override point for customization after application launch.
+    ) -> Bool
+    {
+        self.staticTracklistManager = StaticTracklistManager()
+        self.playlistManager = PlaylistManager(staticTracklistManager: self.staticTracklistManager!, persistentContainer: self.persistentContainer)
+        self.musicPlaybackManager = MusicPlaybackManager(playlistManager: self.playlistManager!)
+
         return true
     }
 
@@ -28,7 +33,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         _ application: UIApplication,
         configurationForConnecting connectingSceneSession: UISceneSession,
         options: UIScene.ConnectionOptions
-    ) -> UISceneConfiguration {
+    ) -> UISceneConfiguration
+    {
         // Called when a new scene session is being created.
         // Use this method to select a configuration to create the new scene with.
         return UISceneConfiguration(name: "Default Configuration", sessionRole: connectingSceneSession.role)

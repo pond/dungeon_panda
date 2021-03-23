@@ -77,9 +77,13 @@ class ViewController: UIViewController {
                 let appDelegate = UIApplication.shared.delegate as! AppDelegate
 
                 if let playlistID = sender.accessibilityIdentifier {
-                    appDelegate.musicPlaybackManager.changePlaylist(playlistID: playlistID)
+//                    appDelegate.musicPlaybackManager.changePlaylist(playlistID: playlistID)
                 }
-                    
+
+                
+                
+                
+                
 //                self.appleMusic.searchAppleMusicWith(
 //                    searchTerm: "The Forest of the Gods",
 //                    completionHandler: { result in
