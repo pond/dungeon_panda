@@ -20,7 +20,6 @@
 		237B42F625FEA100000D5666 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 237B42F425FEA100000D5666 /* README.md */; };
 		237B42F725FEA100000D5666 /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = 237B42F525FEA100000D5666 /* LICENSE */; };
 		238493B8260324A6005DA4D7 /* Track.swift in Sources */ = {isa = PBXBuildFile; fileRef = 238493B7260324A6005DA4D7 /* Track.swift */; };
-		238493BB260324FA005DA4D7 /* Playlist.swift in Sources */ = {isa = PBXBuildFile; fileRef = 238493BA260324FA005DA4D7 /* Playlist.swift */; };
 		23854C5C260435D100909DB1 /* MiscError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23854C5B260435D100909DB1 /* MiscError.swift */; };
 		23854C5F2607064500909DB1 /* MusicPlaybackManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23854C5E2607064500909DB1 /* MusicPlaybackManager.swift */; };
 		23854C6B26087FE900909DB1 /* StaticTracklistManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23854C6A26087FE900909DB1 /* StaticTracklistManager.swift */; };
@@ -47,7 +46,6 @@
 		237B430D25FF3B64000D5666 /* Base.lproj */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Base.lproj; sourceTree = "<group>"; };
 		237B430E25FF3B64000D5666 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		238493B7260324A6005DA4D7 /* Track.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Track.swift; sourceTree = "<group>"; };
-		238493BA260324FA005DA4D7 /* Playlist.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Playlist.swift; sourceTree = "<group>"; };
 		23854C5B260435D100909DB1 /* MiscError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MiscError.swift; sourceTree = "<group>"; };
 		23854C5E2607064500909DB1 /* MusicPlaybackManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MusicPlaybackManager.swift; sourceTree = "<group>"; };
 		23854C6A26087FE900909DB1 /* StaticTracklistManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StaticTracklistManager.swift; sourceTree = "<group>"; };
@@ -108,7 +106,6 @@
 				238493B7260324A6005DA4D7 /* Track.swift */,
 				23854C702608818400909DB1 /* Tracklist.swift */,
 				23854C5B260435D100909DB1 /* MiscError.swift */,
-				238493BA260324FA005DA4D7 /* Playlist.swift */,
 				23854C742609CAB800909DB1 /* Playlist+StoreIDs.swift */,
 			);
 			path = Models;
@@ -294,7 +291,6 @@
 				2339712525FD7A6000ACFCF7 /* Song.swift in Sources */,
 				2339712225FD7A3B00ACFCF7 /* AppleMusicAPI.swift in Sources */,
 				23854C6B26087FE900909DB1 /* StaticTracklistManager.swift in Sources */,
-				238493BB260324FA005DA4D7 /* Playlist.swift in Sources */,
 				2339710A25FD6BC300ACFCF7 /* ViewController.swift in Sources */,
 				238493B8260324A6005DA4D7 /* Track.swift in Sources */,
 				2339711025FD6BC300ACFCF7 /* Dungeon_Panda.xcdatamodeld in Sources */,

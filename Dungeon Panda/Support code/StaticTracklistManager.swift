@@ -24,7 +24,7 @@ class StaticTracklistManager
         // Good: Background
         //
         tracklist = add(id: "good-background", displayName: "Good - Backround")
-        
+
         tracklist.add(Track(storeID: "896588775",      displayName: "It's Not A Dream",          startSeconds: 0, endSeconds: 0, fadeIn: true, fadeOut: true))
         tracklist.add(Track(storeID: "896588704",      displayName: "Marnie",                    startSeconds: 0, endSeconds: 0, fadeIn: true, fadeOut: true))
         tracklist.add(Track(storeID: "i.NdlWQUPOgkpK", displayName: "Floating With The Crystal", startSeconds: 0, endSeconds: 0, fadeIn: true, fadeOut: true))
@@ -53,17 +53,17 @@ class StaticTracklistManager
 
     /**
      Retrieve an Array of all Tracklists
-     
+
      -Returns: Array of Tracklists.
     */
     func getTracklists() -> [Tracklist]
     {
         return Array(tracklists.values)
     }
-    
+
     /**
      Retrieve a Tracklist by ID.
-     
+
      - Parameter tracklistID: Tracklist ID to retrieve.
      - Returns: Optional Tracklist - `nil` if ID is unknown.
     */
@@ -71,7 +71,7 @@ class StaticTracklistManager
     {
         return tracklists[tracklistID]
     }
-    
+
     /**
      Add a given Tracklist, returning the same instance given. If a Tracklist with the same ID has
      already been added, it will be overwritten.
@@ -87,7 +87,7 @@ class StaticTracklistManager
 
     /**
      Construct and add a new Tracklist, returning the new instance.
-     
+
      - Parameter id: Tracklist ID
      - Parameter displayName: Human-facing Tracklist name
      - Returns: New Tracklist instance

@@ -16,7 +16,7 @@ struct LibraryPlaylist
     var id: String
     var name: String
     var artworkURL: String?
- 
+
     init(id: String, name: String, artworkURL: String?)
     {
         self.id = id

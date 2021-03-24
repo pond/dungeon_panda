@@ -17,7 +17,7 @@ class AppleMusicAPI {
     //
     let developerToken = "eyJhbGciOiJFUzI1NiIsImtpZCI6IjNDUkdZNjhYQTgifQ.eyJpc3MiOiJYVDRWOTc2RDhZIiwiaWF0IjoxNjE1Njc0NjY0LCJleHAiOjE2MzEyMjY2NjR9.IK9FCk6AglUgsTPmiMh4-veV-9euxLpisu0U3ewSDayi4ydlGeJ5ugf85vXFG9Iz9nsZ6Mc4C5312M8SSoxTrw"
     var storeFrontID: String?
-    
+
     init() {
     }
 
@@ -34,7 +34,7 @@ class AppleMusicAPI {
             }
         )
     }
-    
+
     func fetchStorefrontID(completionHandler: @escaping(Result<String, Error>) -> Void) -> Void {
         if self.storeFrontID != nil {
             completionHandler(.success(self.storeFrontID!))
@@ -46,7 +46,7 @@ class AppleMusicAPI {
                 switch result {
                 case .failure(let error):
                     completionHandler(.failure(error))
-     
+
                 case .success(let userToken):
                     let musicURL = URL(string: "https://api.music.apple.com/v1/me/storefront")!
                     var musicRequest = URLRequest(url: musicURL)
@@ -54,7 +54,7 @@ class AppleMusicAPI {
                     musicRequest.httpMethod = "GET"
                     musicRequest.addValue("Bearer \(self.developerToken)", forHTTPHeaderField: "Authorization")
                     musicRequest.addValue(userToken, forHTTPHeaderField: "Music-User-Token")
-                    
+
                     URLSession.shared.dataTask(with: musicRequest) { (data, response, error) in
                         if let urlError = error as? URLError {
                           completionHandler(.failure(urlError))
@@ -78,14 +78,14 @@ class AppleMusicAPI {
                 switch result {
                 case .failure(let error):
                     completionHandler(.failure(error))
-     
+
                 case .success(let storeFrontID):
                     self.getUserToken(
                         completionHandler: { result in
                             switch result {
                             case .failure(let error):
                                 completionHandler(.failure(error))
-                 
+
                             case .success(let userToken):
                                 var songs = [Song]()
                                 let musicURL = URL(string: "https://api.music.apple.com/v1/catalog/\(storeFrontID)/search?term=\(searchTerm.replacingOccurrences(of: " ", with: "+"))&types=songs&limit=25")!
@@ -132,7 +132,7 @@ class AppleMusicAPI {
                 switch result {
                 case .failure(let error):
                     completionHandler(.failure(error))
-     
+
                 case .success(let userToken):
                     var playlists = [LibraryPlaylist]()
                     let musicURL = URL(string: "https://api.music.apple.com/v1/me/library/playlists?limit=100")!
@@ -141,7 +141,7 @@ class AppleMusicAPI {
                     musicRequest.httpMethod = "GET"
                     musicRequest.addValue("Bearer \(self.developerToken)", forHTTPHeaderField: "Authorization")
                     musicRequest.addValue(userToken, forHTTPHeaderField: "Music-User-Token")
-                    
+
                     URLSession.shared.dataTask(with: musicRequest) { (data, response, error) in
                         if let urlError = error as? URLError {
                           completionHandler(.failure(urlError))
@@ -152,12 +152,12 @@ class AppleMusicAPI {
                                 if firstError == nil {
                                     firstError = "Unknown problem encountered while fetching content from Apple Music"
                                 }
-                                
+
                                 let errorObject = MiscError(kind: .appleMusic, message: firstError!)
                                 completionHandler(.failure(errorObject))
                                 return
                             }
-                            
+
                             let items = (json["data"]).array!
                             for item in items {
                                 let attributes = item["attributes"]
@@ -190,7 +190,7 @@ class AppleMusicAPI {
                 switch result {
                 case .failure(let error):
                     completionHandler(.failure(error))
-     
+
                 case .success(let userToken):
                     var songs = [Song]()
                     let musicURL = URL(string: "https://api.music.apple.com/v1/me/library/playlists/\(playlistID)?include=tracks")!
@@ -199,7 +199,7 @@ class AppleMusicAPI {
                     musicRequest.httpMethod = "GET"
                     musicRequest.addValue("Bearer \(self.developerToken)", forHTTPHeaderField: "Authorization")
                     musicRequest.addValue(userToken, forHTTPHeaderField: "Music-User-Token")
-                    
+
                     URLSession.shared.dataTask(with: musicRequest) { (data, response, error) in
                         if let urlError = error as? URLError {
                           completionHandler(.failure(urlError))
@@ -213,7 +213,7 @@ class AppleMusicAPI {
                                 let attributes   = item["attributes"]
                                 let localUserId  = attributes["playParams"]["id"].string
                                 let appleMusicId = attributes["playParams"]["catalogId"].string
-                                
+
                                 if catalogueOnly == false || appleMusicId != nil {
                                     let song = Song(
                                         id:         appleMusicId == nil ? localUserId! : appleMusicId!,

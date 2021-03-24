@@ -54,7 +54,7 @@ class ViewController: UIViewController {
                                                         print(song)
                                                     }
                                                 }
-                                                
+
                                                 semaphore.signal()
                                             }
                                         )
@@ -64,7 +64,7 @@ class ViewController: UIViewController {
                         }
                     }
                 )
-    
+
             }
         }
     }
@@ -80,10 +80,10 @@ class ViewController: UIViewController {
 //                    appDelegate.musicPlaybackManager.changePlaylist(playlistID: playlistID)
                 }
 
-                
-                
-                
-                
+
+
+
+
 //                self.appleMusic.searchAppleMusicWith(
 //                    searchTerm: "The Forest of the Gods",
 //                    completionHandler: { result in

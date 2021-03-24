@@ -21,8 +21,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     ) -> Bool
     {
         self.staticTracklistManager = StaticTracklistManager()
-        self.playlistManager = PlaylistManager(staticTracklistManager: self.staticTracklistManager!, persistentContainer: self.persistentContainer)
-        self.musicPlaybackManager = MusicPlaybackManager(playlistManager: self.playlistManager!)
+        self.playlistManager        = PlaylistManager(staticTracklistManager: self.staticTracklistManager!, persistentContainer: self.persistentContainer)
+        self.musicPlaybackManager   = MusicPlaybackManager(playlistManager: self.playlistManager!)
 
         return true
     }
@@ -63,7 +63,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             if let error = error as NSError? {
                 // Replace this implementation with code to handle the error appropriately.
                 // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
-                 
+
                 /*
                  Typical reasons for an error here include:
                  * The parent directory does not exist, cannot be created, or disallows writing.

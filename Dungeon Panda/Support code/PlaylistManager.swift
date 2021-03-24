@@ -27,12 +27,12 @@ class PlaylistManager {
 
     /**
      When created, a PlaylistManager fetches all static tracklists and for each:
-     
+
      * Determines if it has a shuffle order defined for it yet and, if not, builds one
      * Determines the current index last recorded in that shuffle order
-     
+
      iCloud-backed CoreData is used to retrieve and save the above data.
-     
+
      - Parameters:
         - staticTracklistManager: StaticTracklistManager instance to be used as a source of all tracklist information
         - persistentContainer: NSPersistentCloudKitContainer to be used for CoreData operations
@@ -74,7 +74,7 @@ class PlaylistManager {
         {
             print("WARNING: Unable to fetch positions from Core Data; creating new")
         }
-        
+
         // Make local lookup easy by creating a Dictionary mapping playlist IDs
         // to the various objects above.
         //
@@ -82,7 +82,7 @@ class PlaylistManager {
         {
             playlistsByID[playlist.id!] = playlist
         }
-        
+
         for position in currentPositionsInPlaylists
         {
             currentPositionsInPlaylistsByID[position.playlistID!] = position
@@ -103,7 +103,7 @@ class PlaylistManager {
                 playlists.append(newPlaylist)
                 playlistsByID[tracklist.id] = newPlaylist
             }
-            
+
             if currentPositionsInPlaylistsByID[tracklist.id] == nil
             {
                 let newPosition = CurrentPositionInPlaylist(context: context)
@@ -129,7 +129,7 @@ class PlaylistManager {
         {
             print("WARNING: Unable to current playlist from Core Data; creating new")
         }
-        
+
         // Initialise a new current playlist object if need be.
         //
         if currentPlaylist == nil
@@ -142,10 +142,23 @@ class PlaylistManager {
         //
         appDelegate.saveContext()
     }
-    
+
+    /**
+     Return a Playlist stored for the given ID.
+
+     - Parameter playlistID: ID of Playlist (or Tracklist). **Must be valid**.
+     - Returns: Playlist object corresponding to ID.
+
+     The playlist ID must be valid, else an internal exception and app shutdown will occur.
+     */
+    func getPlaylistForID(playlistID: String) -> Playlist
+    {
+        return playlistsByID[playlistID]!
+    }
+
     /**
      Retrieve the current playback index for a given playlist.
-     
+
      - Parameter playlistID: Playlist (or tracklist) ID of interest.
      - Returns: Current playback index, or 0 if the ID is unrecognised.
     */
@@ -163,10 +176,10 @@ class PlaylistManager {
 
     /**
      Call when a media player monitoring class notices that a track has finished.
-     
+
      - Parameter playlistID: ID of playlist in which playback completed.
      - Returns: Playlist index in that playlist of next item to be played.
-     
+
      Internally, if the end of the playlist has been reached, it is reshuffled and the returned index
      will be zero. Everything is persisted synchronously to Core Data.
     */
@@ -181,15 +194,17 @@ class PlaylistManager {
             currentPosition.currentIndex = 0
             bisectAndReshuffle(playlist: playlist)
         }
-        
+
         appDelegate.saveContext()
         return Int(currentPosition.currentIndex)
     }
 
+    // MARK: - PRIVATE
+
     /**
      Takes all Store IDs of Tracks in a given Tracklist and shuffles them into a random order, returning an
      Array of the shuffled Store ID Strings.
-     
+
      - Parameter tracklist: Tracklist to examine.
      - Returns: Shuffled order Array of Store IDs.
     */
@@ -200,16 +215,16 @@ class PlaylistManager {
         storeIDs.shuffle()
         storeIDs.shuffle()
         storeIDs.shuffle()
-        
+
         return storeIDs
     }
-    
+
     /**
      Takes a playlist and bisects its store ID array into two halves, shuffles each half, then
      rejoins them in reverse order.
-     
+
      - Parameter playlist: Playlist to alter (mutated in place).
-     
+
      The altered playlist is _not_ automatically saved back to Core Data.
     */
     private func bisectAndReshuffle(playlist: Playlist)
@@ -222,11 +237,11 @@ class PlaylistManager {
         sliceA.shuffle()
         sliceA.shuffle()
         sliceA.shuffle()
-        
+
         sliceB.shuffle()
         sliceB.shuffle()
         sliceB.shuffle()
-        
+
         playlist.storeIDs = Array(sliceB) + Array(sliceA)
     }
 }
