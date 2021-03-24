@@ -145,14 +145,12 @@ class MusicPlaybackManager {
 //            }
 //        }
     }
-    
-private
 
     // Given a playlist ID, which might be current or an intended next target,
     // return the in-playlist zero-based song index of the next item to play,
     // using pre-initialised random shuffle with never-repeat semantics.
     //
-    func getNextIndexForPlaylist(playlistID: String) -> Int {
+    private func getNextIndexForPlaylist(playlistID: String) -> Int {
         return 0
 
 /*
@@ -177,14 +175,14 @@ it once
 */
     }
     
-//    func enqueueSong(songId: String) {
+//    private func enqueueSong(songId: String) {
 //    }
 //
-//    func startSongWithFadeInIfRequired() {
+//    private func startSongWithFadeInIfRequired() {
 //        self.mediaPlayer.play()
 //    }
 //
-//    func transitionToNextSongWithFadeOutIfRequired() {
+//    private func transitionToNextSongWithFadeOutIfRequired() {
 //        if mediaPlayer.playbackState == .playing {
 //            // TODO: Fade out first somehow
 //        }
@@ -203,11 +201,11 @@ it once
 //        self.startSongWithFadeInIfRequired()
 //    }
 //
-//    func getCurrentPlaylist() -> Playlist? {
+//    private func getCurrentPlaylist() -> Playlist? {
 //        return playlistManager.getPlaylistWith(playlistID: self.currentPlaylistID)
 //    }
 //
-//    func getCurrentTrackFromMusicPlayer() -> Track? {
+//    private func getCurrentTrackFromMusicPlayer() -> Track? {
 //        if let currentlyPlayingStoreID = mediaPlayer.nowPlayingItem?.playbackStoreID,
 //           let currentPlayist = getCurrentPlaylist() {
 //            return currentPlayist.getTrackBy(storeID: currentlyPlayingStoreID)

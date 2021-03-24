@@ -10,7 +10,7 @@ import CoreData
 import UIKit
 
 /**
- A PlaylistManager keeps track of shuffled playback orders within 
+ A PlaylistManager keeps track of shuffled playback orders within Tracklists.
 */
 class PlaylistManager {
     let appDelegate = UIApplication.shared.delegate as! AppDelegate
@@ -33,8 +33,9 @@ class PlaylistManager {
      
      iCloud-backed CoreData is used to retrieve and save the above data.
      
-     - Parameter staticTracklistManager: StaticTracklistManager instance to be used as a source of all tracklist information
-     - Parameter persistentContainer: NSPersistentCloudKitContainer to be used for CoreData operations
+     - Parameters:
+        - staticTracklistManager: StaticTracklistManager instance to be used as a source of all tracklist information
+        - persistentContainer: NSPersistentCloudKitContainer to be used for CoreData operations
     */
     init(staticTracklistManager: StaticTracklistManager,
          persistentContainer: NSPersistentCloudKitContainer)
@@ -142,22 +143,48 @@ class PlaylistManager {
         appDelegate.saveContext()
     }
     
-    //    - Gets that from Core Data or inits a new object at 0
+    /**
+     Retrieve the current playback index for a given playlist.
+     
+     - Parameter playlistID: Playlist (or tracklist) ID of interest.
+     - Returns: Current playback index, or 0 if the ID is unrecognised.
+    */
     func getCurrentPlaybackIndexFor(playlistID: String) -> Int
     {
-        return 0
+        if let position = currentPositionsInPlaylistsByID[playlistID]
+        {
+            return Int(position.currentIndex)
+        }
+        else
+        {
+            return 0
+        }
     }
 
-    //    - Semaphore lock
-    //    - Gets from Core Data
-    //    - Increments
-    //    - If it goes beyond end of playlist, reshuffle and reset to zero
-    //    - Saves
-    //    - Unlock
-    func currentItemHasBeenPlayedIn(playlistID: String) {
-    }
+    /**
+     Call when a media player monitoring class notices that a track has finished.
+     
+     - Parameter playlistID: ID of playlist in which playback completed.
+     - Returns: Playlist index in that playlist of next item to be played.
+     
+     Internally, if the end of the playlist has been reached, it is reshuffled and the returned index
+     will be zero. Everything is persisted synchronously to Core Data.
+    */
+    func currentItemHasBeenPlayedIn(playlistID: String) -> Int {
+        let playlist        = playlistsByID[playlistID]!
+        let currentPosition = currentPositionsInPlaylistsByID[playlistID]!
 
-private
+        currentPosition.currentIndex += 1
+
+        if currentPosition.currentIndex >= playlist.storeIDs.count
+        {
+            currentPosition.currentIndex = 0
+            bisectAndReshuffle(playlist: playlist)
+        }
+        
+        appDelegate.saveContext()
+        return Int(currentPosition.currentIndex)
+    }
 
     /**
      Takes all Store IDs of Tracks in a given Tracklist and shuffles them into a random order, returning an
@@ -166,7 +193,7 @@ private
      - Parameter tracklist: Tracklist to examine.
      - Returns: Shuffled order Array of Store IDs.
     */
-    func shuffleStoreIDsWithin(tracklist: Tracklist) -> [String]
+    private func shuffleStoreIDsWithin(tracklist: Tracklist) -> [String]
     {
         var storeIDs = tracklist.getStoreIDArray()
 
@@ -177,11 +204,29 @@ private
         return storeIDs
     }
     
-    //    - Takes the first half of the existing playlist and shuffles it
-    //    - Takes the last half of the existing playlist and shuffles it
-    //    - Joins the two together
-    //    Yes this means a user is locked into the same first-set and second-set of tracks, but
-    //    definitively prevents a perceived repetition shortly after hearing prior tracks.
-    func bisectAndReshuffle(playlistID: String) {
+    /**
+     Takes a playlist and bisects its store ID array into two halves, shuffles each half, then
+     rejoins them in reverse order.
+     
+     - Parameter playlist: Playlist to alter (mutated in place).
+     
+     The altered playlist is _not_ automatically saved back to Core Data.
+    */
+    private func bisectAndReshuffle(playlist: Playlist)
+    {
+        let array    = playlist.storeIDs
+        let midpoint = Int(array.count / 2)
+        var sliceA   = array[0 ..< midpoint]
+        var sliceB   = array[midpoint ..< array.count]
+
+        sliceA.shuffle()
+        sliceA.shuffle()
+        sliceA.shuffle()
+        
+        sliceB.shuffle()
+        sliceB.shuffle()
+        sliceB.shuffle()
+        
+        playlist.storeIDs = Array(sliceB) + Array(sliceA)
     }
 }
