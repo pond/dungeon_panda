@@ -22,7 +22,7 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
         super.viewDidLoad()
 
         self.playlistAndTrackName.text = "Not playing"
-        self.playPosition.text = "-"
+        self.playPosition.text = "…"
         self.positionSlider.setValue(0, animated: false)
 
         appDelegate.musicPlaybackManager!.delegates.append(self)
@@ -59,7 +59,7 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
         labelText.append(trackText)
 
         self.playlistAndTrackName.attributedText = labelText
-        self.playPosition.text = ""
+        self.playPosition.text = "⏳"
         self.positionSlider.setValue(0, animated: false)
     }
 

@@ -16,14 +16,13 @@ class PlaylistManager {
     let appDelegate = UIApplication.shared.delegate as! AppDelegate
 
     let staticTracklistManager: StaticTracklistManager
-    let persistentContainer: NSPersistentCloudKitContainer
+    let persistentContainer:    NSPersistentCloudKitContainer
 
-    var playlists = [Playlist]()
-    var playlistsByID: [String:Playlist] = [:]
-    var currentPositionsInPlaylists = [CurrentPositionInPlaylist]()
+    var playlists:                       [Playlist]                         = [Playlist]()
+    var playlistsByID:                   [String:Playlist]                  = [:]
+    var currentPositionsInPlaylists:     [CurrentPositionInPlaylist]        = [CurrentPositionInPlaylist]()
     var currentPositionsInPlaylistsByID: [String:CurrentPositionInPlaylist] = [:]
-
-    var currentPlaylist: CurrentPlaylist?
+    var currentPlaylist:                 CurrentPlaylist?
 
     /**
      When created, a PlaylistManager fetches all static tracklists and for each:
@@ -43,7 +42,7 @@ class PlaylistManager {
         print("PlaylistManager init")
 
         self.staticTracklistManager = staticTracklistManager
-        self.persistentContainer = persistentContainer
+        self.persistentContainer    = persistentContainer
 
         let context = self.persistentContainer.viewContext
 
@@ -100,9 +99,10 @@ class PlaylistManager {
             if self.playlistsByID[tracklist.id] == nil
             {
                 let newPlaylist = Playlist(context: context)
-                newPlaylist.id = tracklist.id
+
+                newPlaylist.id          = tracklist.id
                 newPlaylist.displayName = tracklist.displayName
-                newPlaylist.storeIDs = shuffleStoreIDsWithin(tracklist: tracklist)
+                newPlaylist.storeIDs    = shuffleStoreIDsWithin(tracklist: tracklist)
 
                 self.playlists.append(newPlaylist)
                 self.playlistsByID[tracklist.id] = newPlaylist
@@ -111,7 +111,8 @@ class PlaylistManager {
             if self.currentPositionsInPlaylistsByID[tracklist.id] == nil
             {
                 let newPosition = CurrentPositionInPlaylist(context: context)
-                newPosition.playlistID = tracklist.id
+
+                newPosition.playlistID   = tracklist.id
                 newPosition.currentIndex = 0
 
                 self.currentPositionsInPlaylists.append(newPosition)
@@ -119,7 +120,7 @@ class PlaylistManager {
             }
         }
 
-        // Fetch the current playlist.
+        // Fetch the current playlist info, or create anew if necessary.
         //
         do
         {
@@ -135,11 +136,9 @@ class PlaylistManager {
             print("PlaylistManager init: Unable to current playlist from Core Data; creating new")
         }
 
-        // Initialise a new current playlist object if need be.
-        //
         if currentPlaylist == nil
         {
-            self.currentPlaylist = CurrentPlaylist(context: context)
+            self.currentPlaylist             = CurrentPlaylist(context: context)
             self.currentPlaylist!.playlistID = self.playlists.first!.id
         }
 
@@ -147,6 +146,64 @@ class PlaylistManager {
         //
         appDelegate.saveContext()
     }
+
+    // MARK: - CONVENIENCE ACCESSORS
+
+    /**
+     Find out about the currently playing, or most recently played music, according to Core Data.
+
+     - Returns: Playlist, Track and index in that Track into the Playlist's Store IDs array.
+    */
+    func nowPlaying() -> (Playlist, Track, Int)
+    {
+        let currentPlaylistId = self.currentPlaylist!.playlistID!
+        let currentPlaylist   = getPlaylistForID(playlistID: currentPlaylistId)
+        let currentIndex      = getCurrentPlaybackIndexFor(playlist: currentPlaylist)
+        let currentTrack      = getTrackByIndex(playlist: currentPlaylist, index: currentIndex)
+
+        return (currentPlaylist, currentTrack, currentIndex)
+    }
+
+    /**
+     Return the current Playlist, according to Core Data.
+
+     - Returns: Playlist.
+    */
+    func getPlayingPlaylist() -> Playlist
+    {
+        let (playlist, _, _) = nowPlaying()
+        return playlist
+    }
+
+    /**
+     Update the notion of the currently or most recently played playlist in Core Data.
+    */
+    func setPlayingPlayist(playlist: Playlist)
+    {
+        self.currentPlaylist!.playlistID = playlist.id!
+        appDelegate.saveContext()
+    }
+
+    /**
+     Return the current Track being played in the current Playlist, according to Core Data.
+     */
+    func getPlayingTrack() -> Track
+    {
+        let (_, track, _) = nowPlaying()
+        return track
+    }
+
+    /**
+     Return the index in the currently playing Playlist's store ID array of the Track being played,
+     according to Core Data.
+     */
+    func getPlayingTrackIndex() -> Int
+    {
+        let (_, _, index) = nowPlaying()
+        return index
+    }
+
+    // MARK: - GEMERAL INTERFACE
 
     /**
      Return a Playlist stored for the given ID.
@@ -183,19 +240,21 @@ class PlaylistManager {
          - playlist: The Playlist to examine
          - index: The playlist position (index)
 
-     - Returns: Track if found, else `nil`.
+     - Returns: Found Track.
+
+     If given an out of range index, assumes zero and returns the first Track in the Playlist.
     */
-    func getTrackByCurrentPosition(playlist: Playlist, index: Int) -> Track?
+    func getTrackByIndex(playlist: Playlist, index: Int) -> Track
     {
-        if index >= 0 && index < playlist.storeIDs.count
+        var safeIndex = index
+
+        if index < 0 || index >= playlist.storeIDs.count
         {
-            let storeID = playlist.storeIDs[index]
-            return getTrackByStoreID(playlist: playlist, storeID: storeID)
+            safeIndex = 0
         }
-        else
-        {
-            return nil
-        }
+
+        let storeID = playlist.storeIDs[safeIndex]
+        return getTrackByStoreID(playlist: playlist, storeID: storeID)!
     }
 
     /**
@@ -215,18 +274,39 @@ class PlaylistManager {
     /**
      Retrieve the current playback index for a given playlist.
 
-     - Parameter playlistID: Playlist (or tracklist) ID of interest.
+     - Parameter playlist: Playlist (or tracklist) of interest.
      - Returns: Current playback index, or 0 if the ID is unrecognised.
     */
-    func getCurrentPlaybackPositionFor(playlistID: String) -> Int
+    func getCurrentPlaybackIndexFor(playlist: Playlist?) -> Int
     {
-        if let position = self.currentPositionsInPlaylistsByID[playlistID]
+        if playlist != nil,
+           let position = self.currentPositionsInPlaylistsByID[playlist!.id!]
         {
             return Int(position.currentIndex)
         }
         else
         {
             return 0
+        }
+    }
+
+    /**
+     Set the current playback index for a given playlist, resetting the track playback time interval
+     for that playlist.
+
+     - Parameters:
+         - playlist: Playlist (or tracklist) of interest.
+         - index: Index to set as the currently playing track.
+     */
+    func setCurrentPlaybackIndexFor(playlist: Playlist?, index: Int)
+    {
+        if playlist != nil,
+           let position = self.currentPositionsInPlaylistsByID[playlist!.id!]
+        {
+            position.currentIndex        = Int32(index)
+            position.currentPlaybackTime = 0
+
+            appDelegate.saveContext()
         }
     }
 
@@ -240,19 +320,20 @@ class PlaylistManager {
      will be zero. Everything is persisted synchronously to Core Data.
     */
     func currentItemHasBeenPlayedIn(playlistID: String) -> Int {
-        let playlist        = self.playlistsByID[playlistID]!
-        let currentPosition = self.currentPositionsInPlaylistsByID[playlistID]!
+        let playingPlaylist = self.playlistsByID[playlistID]!
+        let justPlayedIndex = getCurrentPlaybackIndexFor(playlist: playingPlaylist)
+        var nextIndexToPlay = justPlayedIndex + 1
 
-        currentPosition.currentIndex += 1
-
-        if currentPosition.currentIndex >= playlist.storeIDs.count
+        if nextIndexToPlay >= playingPlaylist.storeIDs.count
         {
-            currentPosition.currentIndex = 0
-            bisectAndReshuffle(playlist: playlist)
+            nextIndexToPlay = 0
+            bisectAndReshuffle(playlist: playingPlaylist)
         }
 
+        setCurrentPlaybackIndexFor(playlist: playingPlaylist, index: nextIndexToPlay)
+
         appDelegate.saveContext()
-        return Int(currentPosition.currentIndex)
+        return Int(nextIndexToPlay)
     }
 
     // MARK: - PRIVATE
