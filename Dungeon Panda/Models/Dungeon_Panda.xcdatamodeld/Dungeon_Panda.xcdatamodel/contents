@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="17709" systemVersion="20D80" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithCloudKit="YES" userDefinedModelVersionIdentifier="">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="17709" systemVersion="20D91" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithCloudKit="YES" userDefinedModelVersionIdentifier="">
     <entity name="CurrentPlaylist" representedClassName="CurrentPlaylist" syncable="YES" codeGenerationType="class">
         <attribute name="playlistID" optional="YES" attributeType="String"/>
     </entity>
     <entity name="CurrentPositionInPlaylist" representedClassName="CurrentPositionInPlaylist" syncable="YES" codeGenerationType="class">
-        <attribute name="currentIndex" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="currentIndex" optional="YES" attributeType="Integer 32" usesScalarValueType="YES"/>
+        <attribute name="currentPlaybackTime" optional="YES" attributeType="Double" usesScalarValueType="YES"/>
         <attribute name="playlistID" optional="YES" attributeType="String"/>
     </entity>
     <entity name="Playlist" representedClassName="Playlist" syncable="YES" codeGenerationType="class">
@@ -13,8 +14,8 @@
         <attribute name="id" optional="YES" attributeType="String"/>
     </entity>
     <elements>
-        <element name="CurrentPositionInPlaylist" positionX="-63" positionY="-18" width="128" height="73"/>
-        <element name="Playlist" positionX="-63" positionY="0" width="128" height="88"/>
         <element name="CurrentPlaylist" positionX="-54" positionY="27" width="128" height="44"/>
+        <element name="CurrentPositionInPlaylist" positionX="-63" positionY="-18" width="128" height="74"/>
+        <element name="Playlist" positionX="-63" positionY="0" width="128" height="88"/>
     </elements>
 </model>

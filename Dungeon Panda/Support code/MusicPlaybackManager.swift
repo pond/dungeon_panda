@@ -12,10 +12,9 @@ import MediaPlayer
 
 protocol MusicPlaybackManagerDelegate {
     func playbackStarted(playbackManager: MusicPlaybackManager, inPlaylist: Playlist, withTrack: Track)
-    func playbackProgressChanged(playbackManager: MusicPlaybackManager, inPlaylist: Playlist, withTrack: Track, position: TimeInterval)
+    func playbackProgressChanged(playbackManager: MusicPlaybackManager, inPlaylist: Playlist, withTrack: Track, position: TimeInterval, duration: TimeInterval)
     func playbackPaused(playbackManager: MusicPlaybackManager)
     func playbackResumed(playbackManager: MusicPlaybackManager)
-    func playbackStopped(playbackManager: MusicPlaybackManager)
 }
 
 class MusicPlaybackManager {
@@ -32,7 +31,10 @@ class MusicPlaybackManager {
     var currentPlaylist: Playlist
 
     /// Index into the Playlist from which we have successfully started playing.
-    var currentPlaylistIndex: Int
+    var currentPlaylistPosition: Int
+
+    /// Play time from start of current track, if known.
+    var currentPlaylistPlaybackOffsetInSeconds: TimeInterval?
 
     /// Set to whatever we want to start doing, once we commence something
     /// like a next-track / fade-out operation. If the user keeps changing
@@ -41,7 +43,7 @@ class MusicPlaybackManager {
     var targetPlaylist: Playlist?
 
     /// Index tracking intended position in `targetPlaylist`.
-    var targetPlaylistIndex: Int?
+    var targetPlaylistPosition: Int?
 
     /// Keep up with playback position.
     var positionTimer: Timer?
@@ -52,21 +54,28 @@ class MusicPlaybackManager {
     /// Used to perform fade-out operations.
     var fadeOutTimer: Timer?
 
+    /// Watchdog used to try and restart on "failed to prepare to play" errors.
+    var watchdogTimer: Timer?
+
     init(playlistManager: PlaylistManager)
     {
-        self.playlistManager = playlistManager
+        self.playlistManager         = playlistManager
+        self.currentPlaylist         = playlistManager.getPlaylistForID(playlistID: playlistManager.currentPlaylist!.playlistID!)
+        self.currentPlaylistPosition = playlistManager.getCurrentPlaybackPositionFor(playlistID: currentPlaylist.id!)
 
-        NotificationCenter.default.addObserver(self, selector: #selector(playbackStateDidChange), name: .MPMusicPlayerControllerPlaybackStateDidChange, object: nil)
+        self.mediaPlayer.repeatMode  = .none
+        self.mediaPlayer.shuffleMode = .off
+
+        NotificationCenter.default.addObserver(self, selector: #selector(playbackStateDidChange ), name: .MPMusicPlayerControllerPlaybackStateDidChange,  object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(nowPlayingItemDidChange), name: .MPMusicPlayerControllerNowPlayingItemDidChange, object: nil)
 
-        self.mediaPlayer.repeatMode = .none
-        self.mediaPlayer.shuffleMode = .off
+        startPlayingFromCurrentPlaylist()
     }
 
-    func changePlaylist(playlistID: String) {
-        
-        self.targetPlaylist = self.playlistManager.getPlaylistForID(playlistID: playlistID)
-        self.targetPlaylistIndex = self.playlistManager.getCurrentPlaybackIndexFor(playlistID: playlistID)
+    func changePlaylist(playlistID: String)
+    {
+        self.targetPlaylist         = self.playlistManager.getPlaylistForID(playlistID: playlistID)
+        self.targetPlaylistPosition = self.playlistManager.getCurrentPlaybackPositionFor(playlistID: playlistID)
 
         print("CHANGING TO: \(targetPlaylist!.displayName!)")
         print("WITH TRACKS: \(targetPlaylist!.storeIDs)")
@@ -74,139 +83,181 @@ class MusicPlaybackManager {
         transitionToNextSongWithFadeOutIfRequired()
     }
 
-    func skipTrack() {
+    func skipTrack()
+    {
     }
 
-    func pause() {
+    func pause()
+    {
         self.mediaPlayer.pause()
     }
 
-    func resume() {
+    func resume()
+    {
         self.mediaPlayer.play()
     }
 
     // MARK: - PLAYBACK EVENTS
 
-    @objc func playbackProgressChanged(timer: Timer) {
-//        if self.mediaPlayer.playbackState == .playing,
-//           let currentPlayist = getCurrentPlaylist(),
-//           let currentTrack = currentPlayist.getTrackAt(trackIndex: self.currentPlaylistIndex) {
-//            let position = mediaPlayer.currentPlaybackTime
-//            self.delegates.forEach { (delegate) in
-//                delegate.playbackProgressChanged(
-//                    playbackManager: self,
-//                    inPlaylist: currentPlayist,
-//                    withTrack: currentTrack,
-//                    position: position
-//                )
-//            }
-//        }
-    }
-    @objc func playbackStateDidChange() {
-        switch mediaPlayer.playbackState {
-        case .stopped, .interrupted, .paused:
-            self.timer?.invalidate()
-            self.timer = nil
-            self.delegates.forEach { (delegate) in
-                delegate.playbackPaused(playbackManager: self)
+    @objc func playbackProgressChanged(timer: Timer)
+    {
+        if self.mediaPlayer.playbackState == .playing,
+           let currentTrack = self.playlistManager.getTrackByCurrentPosition(playlist: self.currentPlaylist, index: self.currentPlaylistPosition)
+        {
+            self.currentPlaylistPlaybackOffsetInSeconds = self.mediaPlayer.currentPlaybackTime
+            self.delegates.forEach
+            { (delegate) in
+                delegate.playbackProgressChanged(
+                    playbackManager: self,
+                    inPlaylist: currentPlaylist,
+                    withTrack: currentTrack,
+                    // TODO: Account for track's start and end offsets for duration
+                    position: self.currentPlaylistPlaybackOffsetInSeconds!,
+                    duration: self.mediaPlayer.nowPlayingItem!.playbackDuration
+                )
             }
-        case .playing:
-            let newTimer = Timer(timeInterval: 1, target: self, selector: #selector(playbackProgressChanged), userInfo: nil, repeats: true)
-            RunLoop.current.add(newTimer, forMode: RunLoop.Mode.common)
-            self.timer = newTimer
-            self.delegates.forEach { (delegate) in
-                delegate.playbackResumed(playbackManager: self)
-            }
-        default:
-            print("Unsupported Event")
         }
     }
 
-    @objc func nowPlayingItemDidChange() {
-//        if let currentPlaylist = getCurrentPlaylist(),
-//           let currentTrackByOurIndex = currentPlaylist.getTrackAt(trackIndex: self.currentPlaylistIndex),
-//           let currentTrackByMusicPlayer = getCurrentTrackFromMusicPlayer()
-//        {
-//            if currentTrackByOurIndex.storeID != currentTrackByMusicPlayer.storeID,
-//               let updatedPlaylistIndex = currentPlaylist.getTrackIndexFor(storeID: currentTrackByMusicPlayer.storeID)
-//            {
-//                self.currentPlaylistIndex = updatedPlaylistIndex
-//
-//                delegates.forEach { (delegate) in
-//                    delegate.playbackStarted(
-//                        playbackManager: self,
-//                        inPlaylist: currentPlaylist,
-//                        withTrack: currentTrackByMusicPlayer
-//                    )
-//                }
-//            }
-//        }
+    @objc func playbackStateDidChange()
+    {
+        let newState = self.mediaPlayer.playbackState
+
+        print("playbackStateDidChange")
+        print("playbackStateDidChange: State is now \(String(describing: newState))")
+
+        switch newState
+        {
+            case .stopped, .interrupted, .paused:
+                self.positionTimer?.invalidate()
+                self.positionTimer = nil
+                self.delegates.forEach
+                { (delegate) in
+                    delegate.playbackPaused(playbackManager: self)
+                }
+
+            case .playing:
+                self.watchdogTimer?.invalidate()
+                self.watchdogTimer = nil
+                self.positionTimer = Timer(
+                    timeInterval: 1,
+                    target: self,
+                    selector: #selector(playbackProgressChanged),
+                    userInfo: nil,
+                    repeats: true
+                )
+
+                RunLoop.current.add(self.positionTimer!, forMode: RunLoop.Mode.common)
+
+                self.delegates.forEach
+                { (delegate) in
+                    delegate.playbackResumed(playbackManager: self)
+                }
+
+            default:
+                print("Unsupported Event")
+        }
+    }
+
+    @objc func nowPlayingItemDidChange()
+    {
+        print("nowPlayingItemDidChange")
+
+        if let currentTrackByMusicPlayer = getCurrentTrackFromMusicPlayer(),
+           let updatedPlaylistIndex = self.playlistManager.getTrackIndexFor(playlist: self.currentPlaylist, storeID: currentTrackByMusicPlayer.storeID)
+        {
+            print("nowPlayingItemDidChange: store ID \(currentTrackByMusicPlayer.storeID) yielding position \(updatedPlaylistIndex)")
+
+            self.currentPlaylistPosition = updatedPlaylistIndex
+            self.delegates.forEach
+            { (delegate) in
+                delegate.playbackStarted(
+                    playbackManager: self,
+                    inPlaylist: currentPlaylist,
+                    withTrack: currentTrackByMusicPlayer
+                )
+            }
+        }
+    }
+
+    @objc func playbackWatchdogFired(timer: Timer)
+    {
+        print("playbackWatchdogFired")
+
+        if self.mediaPlayer.playbackState != .playing
+        {
+            print("WARNING: playbackWatchdogFired: Media player says 'not playing' - skipping to next track")
+            transitionToNextSongWithFadeOutIfRequired()
+        }
     }
 
     // MARK: - PRIVATE
 
-    // Given a playlist ID, which might be current or an intended next target,
-    // return the in-playlist zero-based song index of the next item to play,
-    // using pre-initialised random shuffle with never-repeat semantics.
-    //
-    private func getNextIndexForPlaylist(playlistID: String) -> Int {
-        return 0
+    private func startPlayingFromCurrentPlaylist()
+    {
+        print("startPlayingFromCurrentPlaylist")
 
-/*
+        if let track = self.playlistManager.getTrackByCurrentPosition(
+            playlist: self.currentPlaylist,
+            index:    self.currentPlaylistPosition
+        )
+        {
+            print("startPlayingFromCurrentPlaylist: Store ID \(track.storeID) on playlist \(String(describing: self.currentPlaylist.id)) at position \(self.currentPlaylistPosition)")
 
-So I need to generate a list of random order indices into the static
-and is THIS which we use to build the song IDs but that means all the
-lookups will be wrong.
+            self.mediaPlayer.beginGeneratingPlaybackNotifications()
+            self.mediaPlayer.setQueue(with: [track.storeID])
+            self.mediaPlayer.prepareToPlay()
 
-Instead we could have the static playlist manager self-shuffle on 1st
-launch, but how would it know when to reshuffle? Maybe it only does
-it once
-
-
-         The core data model say "playlist foo index 0"
-         If this is missing for a playlist, shuffle and add it
-         Reshuffle algorithm:
-
-
-
-
-
-*/
+            startSongWithFadeInIfRequired()
+        }
     }
 
-//    private func enqueueSong(songId: String) {
-//    }
-//
-    private func startSongWithFadeInIfRequired()
+    private func transitionToNextSongWithFadeOutIfRequired(forceImmediate: Bool = false)
     {
-        self.mediaPlayer.play()
-    }
-
-    private func transitionToNextSongWithFadeOutIfRequired()
-    {
-        if mediaPlayer.playbackState == .playing {
+        if self.mediaPlayer.playbackState == .playing && forceImmediate == false {
             // TODO: Fade out first somehow
         }
 
-        self.playlistManager.currentItemHasBeenPlayedIn(playlistID: self.currentPlaylist.id!)
+        _ = self.playlistManager.currentItemHasBeenPlayedIn(playlistID: self.currentPlaylist.id!)
 
-        self.currentPlaylist = self.targetPlaylist!
-        self.currentPlaylistIndex = self.targetPlaylistIndex!
-        self.targetPlaylist = nil
-        self.targetPlaylistIndex = nil
+        self.currentPlaylist         = self.targetPlaylist!
+        self.currentPlaylistPosition = self.playlistManager.getCurrentPlaybackPositionFor(playlistID: self.currentPlaylist.id!)
+        self.targetPlaylist          = nil
+        self.targetPlaylistPosition  = nil
 
-        self.mediaPlayer.beginGeneratingPlaybackNotifications()
-        self.mediaPlayer.setQueue(with: currentPlaylist.storeIDs)
+        startPlayingFromCurrentPlaylist()
+    }
+
+    private func startSongWithFadeInIfRequired()
+    {
+        // Set volume to zero, set a flag saying "fading in"
+        startSongNow()
+        // ONce playback position changes start to happen, kick off fade-in.
+    }
+
+    // TODO - add start offset for playback
+    //
+    private func startSongNow()
+    {
+        self.watchdogTimer = Timer(
+            timeInterval: 10,
+            target: self,
+            selector: #selector(playbackWatchdogFired),
+            userInfo: nil,
+            repeats: false
+        )
+
+        RunLoop.current.add(self.watchdogTimer!, forMode: RunLoop.Mode.common)
+
         self.mediaPlayer.prepareToPlay()
-
-        startSongWithFadeInIfRequired()
+        self.mediaPlayer.play()
     }
 
     private func getCurrentTrackFromMusicPlayer() -> Track?
     {
-        if let currentlyPlayingStoreID = mediaPlayer.nowPlayingItem?.playbackStoreID
+        if let currentlyPlayingStoreID = self.mediaPlayer.nowPlayingItem?.playbackStoreID
         {
-            return self.currentPlaylist.getTrackBy(storeID: currentlyPlayingStoreID)
+            return self.playlistManager.getTrackByStoreID(playlist: self.currentPlaylist, storeID: currentlyPlayingStoreID)
         }
         else
         {

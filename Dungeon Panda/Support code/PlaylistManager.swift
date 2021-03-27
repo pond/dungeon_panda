@@ -40,6 +40,8 @@ class PlaylistManager {
     init(staticTracklistManager: StaticTracklistManager,
          persistentContainer: NSPersistentCloudKitContainer)
     {
+        print("PlaylistManager init")
+
         self.staticTracklistManager = staticTracklistManager
         self.persistentContainer = persistentContainer
 
@@ -52,12 +54,13 @@ class PlaylistManager {
             let records = try context.fetch(Playlist.fetchRequest())
             if let records = records as? [Playlist]
             {
-                playlists = records
+                print("PlaylistManager init: Successfully fetched playlists from Core Data")
+                self.playlists = records
             }
         }
         catch
         {
-            print("WARNING: Unable to fetch playlists from Core Data; creating new")
+            print("PlaylistManager init: Unable to fetch playlists from Core Data; creating new")
         }
 
         // Fetch all play positions within the playlists.
@@ -67,25 +70,26 @@ class PlaylistManager {
             let records = try context.fetch(CurrentPositionInPlaylist.fetchRequest())
             if let records = records as? [CurrentPositionInPlaylist]
             {
-                currentPositionsInPlaylists = records
+                print("PlaylistManager init: Successfully fetched positions from Core Data")
+                self.currentPositionsInPlaylists = records
             }
         }
         catch
         {
-            print("WARNING: Unable to fetch positions from Core Data; creating new")
+            print("PlaylistManager init: Unable to fetch positions from Core Data; creating new")
         }
 
         // Make local lookup easy by creating a Dictionary mapping playlist IDs
         // to the various objects above.
         //
-        for playlist in playlists
+        for playlist in self.playlists
         {
-            playlistsByID[playlist.id!] = playlist
+            self.playlistsByID[playlist.id!] = playlist
         }
 
-        for position in currentPositionsInPlaylists
+        for position in self.currentPositionsInPlaylists
         {
-            currentPositionsInPlaylistsByID[position.playlistID!] = position
+            self.currentPositionsInPlaylistsByID[position.playlistID!] = position
         }
 
         // For all Tracklists, see if we have a Playlist defined and create one
@@ -93,25 +97,25 @@ class PlaylistManager {
         //
         for tracklist in staticTracklistManager.getTracklists()
         {
-            if playlistsByID[tracklist.id] == nil
+            if self.playlistsByID[tracklist.id] == nil
             {
                 let newPlaylist = Playlist(context: context)
                 newPlaylist.id = tracklist.id
                 newPlaylist.displayName = tracklist.displayName
                 newPlaylist.storeIDs = shuffleStoreIDsWithin(tracklist: tracklist)
 
-                playlists.append(newPlaylist)
-                playlistsByID[tracklist.id] = newPlaylist
+                self.playlists.append(newPlaylist)
+                self.playlistsByID[tracklist.id] = newPlaylist
             }
 
-            if currentPositionsInPlaylistsByID[tracklist.id] == nil
+            if self.currentPositionsInPlaylistsByID[tracklist.id] == nil
             {
                 let newPosition = CurrentPositionInPlaylist(context: context)
                 newPosition.playlistID = tracklist.id
                 newPosition.currentIndex = 0
 
-                currentPositionsInPlaylists.append(newPosition)
-                currentPositionsInPlaylistsByID[tracklist.id] = newPosition
+                self.currentPositionsInPlaylists.append(newPosition)
+                self.currentPositionsInPlaylistsByID[tracklist.id] = newPosition
             }
         }
 
@@ -122,20 +126,21 @@ class PlaylistManager {
             let records = try context.fetch(CurrentPlaylist.fetchRequest())
             if let records = records as? [CurrentPlaylist]
             {
+                print("PlaylistManager init: Successfully fetched current playlist from Core Data")
                 currentPlaylist = records.first
             }
         }
         catch
         {
-            print("WARNING: Unable to current playlist from Core Data; creating new")
+            print("PlaylistManager init: Unable to current playlist from Core Data; creating new")
         }
 
         // Initialise a new current playlist object if need be.
         //
         if currentPlaylist == nil
         {
-            let newCurrentPlaylist = CurrentPlaylist(context: context)
-            newCurrentPlaylist.playlistID = playlists.first!.id
+            self.currentPlaylist = CurrentPlaylist(context: context)
+            self.currentPlaylist!.playlistID = self.playlists.first!.id
         }
 
         // Finally, save any changes made above.
@@ -153,7 +158,58 @@ class PlaylistManager {
      */
     func getPlaylistForID(playlistID: String) -> Playlist
     {
-        return playlistsByID[playlistID]!
+        return self.playlistsByID[playlistID]!
+    }
+
+    /**
+     Return a Track in a given Playlist based on a Store ID.
+
+     - Parameters:
+         - playlist: The Playlist to examine
+         - storeID: Store ID of track
+
+     - Returns: Track if found, else `nil`.
+    */
+    func getTrackByStoreID(playlist: Playlist, storeID: String) -> Track?
+    {
+        let tracklist = self.staticTracklistManager.getTracklistBy(tracklistID: playlist.id!)!
+        return tracklist.getTrackBy(storeID: storeID)
+    }
+
+    /**
+     Return a Track in a given Playlist based on playback index.
+
+     - Parameters:
+         - playlist: The Playlist to examine
+         - index: The playlist position (index)
+
+     - Returns: Track if found, else `nil`.
+    */
+    func getTrackByCurrentPosition(playlist: Playlist, index: Int) -> Track?
+    {
+        if index >= 0 && index < playlist.storeIDs.count
+        {
+            let storeID = playlist.storeIDs[index]
+            return getTrackByStoreID(playlist: playlist, storeID: storeID)
+        }
+        else
+        {
+            return nil
+        }
+    }
+
+    /**
+     Given a Playlist and Store ID, return the position (index) in the Playlist of the identified Track.
+
+     - Parameters:
+         - playlist: The Playlist to examine
+         - storeID: Store ID of track
+
+     - Returns: Position (index) of identified Track if found, else `nil`.
+    */
+    func getTrackIndexFor(playlist: Playlist, storeID: String) -> Int?
+    {
+        return playlist.storeIDs.firstIndex(of: storeID)
     }
 
     /**
@@ -162,9 +218,9 @@ class PlaylistManager {
      - Parameter playlistID: Playlist (or tracklist) ID of interest.
      - Returns: Current playback index, or 0 if the ID is unrecognised.
     */
-    func getCurrentPlaybackIndexFor(playlistID: String) -> Int
+    func getCurrentPlaybackPositionFor(playlistID: String) -> Int
     {
-        if let position = currentPositionsInPlaylistsByID[playlistID]
+        if let position = self.currentPositionsInPlaylistsByID[playlistID]
         {
             return Int(position.currentIndex)
         }
@@ -184,8 +240,8 @@ class PlaylistManager {
      will be zero. Everything is persisted synchronously to Core Data.
     */
     func currentItemHasBeenPlayedIn(playlistID: String) -> Int {
-        let playlist        = playlistsByID[playlistID]!
-        let currentPosition = currentPositionsInPlaylistsByID[playlistID]!
+        let playlist        = self.playlistsByID[playlistID]!
+        let currentPosition = self.currentPositionsInPlaylistsByID[playlistID]!
 
         currentPosition.currentIndex += 1
 
@@ -221,7 +277,10 @@ class PlaylistManager {
 
     /**
      Takes a playlist and bisects its store ID array into two halves, shuffles each half, then
-     rejoins them in reverse order.
+     rejoins them. This means that you don't risk having a song only just recently played near
+     the end of the playlist, appearing near the very start of the new shuffle order; on the other
+     hand, it does mean that the original first and last half of the list are always the first and
+     last half (just with each in a new shuffle order).
 
      - Parameter playlist: Playlist to alter (mutated in place).
 
@@ -242,6 +301,6 @@ class PlaylistManager {
         sliceB.shuffle()
         sliceB.shuffle()
 
-        playlist.storeIDs = Array(sliceB) + Array(sliceA)
+        playlist.storeIDs = Array(sliceA) + Array(sliceB)
     }
 }

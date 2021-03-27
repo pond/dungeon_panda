@@ -13,19 +13,30 @@ import Foundation
 */
 struct Track
 {
+    /// Apple Music store ID for the track.
     var storeID: String
+
+    /// Human-facing display name.
     var displayName: String
-    var startSeconds: Int
-    var endSeconds: Int
+
+    /// Offset from start of track to begin playback, in seconds.
+    var startOffset: TimeInterval
+
+    /// Offset from end of track (positive backwards, towards track start) in seconds.
+    var endOffset: TimeInterval
+
+    /// If `true`, track should be faded in, else started normally.
     var fadeIn: Bool
+
+    /// If `true`, should be faded out at its endpoint, else allowed to stop abruptly.
     var fadeOut: Bool
 
-    init(storeID: String, displayName: String, startSeconds: Int, endSeconds: Int, fadeIn: Bool, fadeOut: Bool)
+    init(storeID: String, displayName: String, startOffset: TimeInterval, endOffset: TimeInterval, fadeIn: Bool, fadeOut: Bool)
     {
         self.storeID = storeID
         self.displayName = displayName
-        self.startSeconds = startSeconds
-        self.endSeconds = endSeconds
+        self.startOffset = startOffset
+        self.endOffset = endOffset
         self.fadeIn = fadeIn
         self.fadeOut = fadeOut
     }
