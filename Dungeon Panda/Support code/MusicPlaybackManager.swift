@@ -187,6 +187,10 @@ class MusicPlaybackManager {
         if self.mediaPlayer.playbackState != .playing
         {
             print("WARNING: playbackWatchdogFired: Media player says 'not playing' - skipping to next track")
+
+            self.targetPlaylist = self.currentPlaylist
+            self.targetPlaylistPosition = self.currentPlaylistPosition
+
             transitionToNextSongWithFadeOutIfRequired()
         }
     }

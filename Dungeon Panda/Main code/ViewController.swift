@@ -11,8 +11,7 @@ import MediaPlayer
 
 class ViewController: UIViewController, MusicPlaybackManagerDelegate {
     @IBOutlet weak var playButton: UIButton!
-    @IBOutlet weak var playlistName: UILabel!
-    @IBOutlet weak var songTitle: UILabel!
+    @IBOutlet weak var playlistAndTrackName: UILabel!
     @IBOutlet weak var playPosition: UILabel!
     @IBOutlet weak var positionSlider: UISlider!
     
@@ -21,6 +20,10 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        self.playlistAndTrackName.text = "Not playing"
+        self.playPosition.text = "-"
+        self.positionSlider.setValue(0, animated: false)
 
         appDelegate.musicPlaybackManager!.delegates.append(self)
     }
@@ -55,8 +58,7 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
         labelText.append(playlistText)
         labelText.append(trackText)
 
-        self.playlistName.attributedText = labelText
-        self.songTitle.text = ""//withTrack.displayName
+        self.playlistAndTrackName.attributedText = labelText
         self.playPosition.text = ""
         self.positionSlider.setValue(0, animated: false)
     }
