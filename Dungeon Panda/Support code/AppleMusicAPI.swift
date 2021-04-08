@@ -18,9 +18,6 @@ class AppleMusicAPI {
     let developerToken = "eyJhbGciOiJFUzI1NiIsImtpZCI6IjNDUkdZNjhYQTgifQ.eyJpc3MiOiJYVDRWOTc2RDhZIiwiaWF0IjoxNjE1Njc0NjY0LCJleHAiOjE2MzEyMjY2NjR9.IK9FCk6AglUgsTPmiMh4-veV-9euxLpisu0U3ewSDayi4ydlGeJ5ugf85vXFG9Iz9nsZ6Mc4C5312M8SSoxTrw"
     var storeFrontID: String?
 
-    init() {
-    }
-
     func getUserToken(completionHandler: @escaping(Result<String, Error>) -> Void) -> Void {
         SKCloudServiceController().requestUserToken(
             forDeveloperToken: developerToken,

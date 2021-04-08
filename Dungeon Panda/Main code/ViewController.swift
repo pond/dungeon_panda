@@ -14,9 +14,11 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
     @IBOutlet weak var playlistAndTrackName: UILabel!
     @IBOutlet weak var playPosition: UILabel!
     @IBOutlet weak var positionSlider: UISlider!
-    
-    let appleMusic = AppleMusicAPI()
+
+    let appleMusic  = AppleMusicAPI()
     let appDelegate = UIApplication.shared.delegate as! AppDelegate
+
+    var labelTimer: Timer?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -26,19 +28,30 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
         self.positionSlider.setValue(0, animated: false)
 
         appDelegate.musicPlaybackManager!.delegates.append(self)
+
+        let authorizationStatus = SKCloudServiceController.authorizationStatus()
+        if authorizationStatus == .authorized || authorizationStatus == .restricted
+        {
+            print("ViewController.viewDidLoad: User authorized access to Apple Music")
+            musicAuthorizationIsGranted()
+        }
+        else if authorizationStatus == .denied
+        {
+            print("ViewController.viewDidLoad: User prohibited access to Apple Music")
+            musicAuthorizationIsDenied()
+        }
+        else
+        {
+            print("ViewController.viewDidLoad: Requesting access to Apple Music")
+            getMusicAuthorizationFromUser()
+        }
     }
 
     @IBAction func playMusic(_ sender: UIButton) {
-        SKCloudServiceController.requestAuthorization { (status) in
-            if status == .authorized {
-                print("User authorized access to Apple Music")
-
-                if let musicPlaybackManager = self.appDelegate.musicPlaybackManager,
-                   let playlistID = sender.accessibilityIdentifier
-                {
-                    musicPlaybackManager.changePlaylist(playlistID: playlistID)
-                }
-            }
+        if let musicPlaybackManager = self.appDelegate.musicPlaybackManager,
+           let playlistID = sender.accessibilityIdentifier
+        {
+            musicPlaybackManager.changePlaylist(playlistID: playlistID)
         }
     }
 
@@ -46,32 +59,70 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
 
     func playbackStarted(playbackManager: MusicPlaybackManager, inPlaylist: Playlist, withTrack: Track)
     {
-        let fontSize = CGFloat(22)
-        let boldFont = UIFont(name: "Baskerville-Bold", size: fontSize) ?? UIFont.boldSystemFont(ofSize: fontSize)
-        let normalFont = UIFont(name: "Baskerville", size: fontSize) ?? UIFont.boldSystemFont(ofSize: fontSize)
-        let nameWithColon = inPlaylist.displayName == nil ? "" : "\(inPlaylist.displayName!): "
-
-        let playlistText = NSAttributedString(string: nameWithColon,         attributes: [.font: boldFont])
-        let trackText    = NSAttributedString(string: withTrack.displayName, attributes: [.font: normalFont])
-        let labelText    = NSMutableAttributedString()
-
-        labelText.append(playlistText)
-        labelText.append(trackText)
+        let labelText = attributedLabelText(playlistName: inPlaylist.displayName, trackTitle: withTrack.displayName)
 
         self.playlistAndTrackName.attributedText = labelText
         self.playPosition.text = "⏳"
         self.positionSlider.setValue(0, animated: false)
+
+        if self.labelTimer != nil
+        {
+            self.labelTimer!.invalidate()
+            self.labelTimer = nil
+        }
+
+
+        if let altDisplayName = withTrack.altDisplayName
+        {
+            var showingAlt = false
+
+            self.labelTimer = Timer.scheduledTimer(
+                withTimeInterval: 5.0,
+                         repeats: true
+            )
+            { timer in
+                var newLabelText : NSMutableAttributedString
+
+                newLabelText = showingAlt
+                             ? self.attributedLabelText(playlistName: inPlaylist.displayName, trackTitle: withTrack.displayName)
+                             : self.attributedLabelText(playlistName: inPlaylist.displayName, trackTitle: altDisplayName)
+
+                showingAlt = !showingAlt
+
+                UIView.transition(
+                          with: self.playlistAndTrackName,
+                      duration: 0.25,
+                       options: .transitionCrossDissolve,
+                    animations: { [weak self] in
+                                    self!.playlistAndTrackName.attributedText = newLabelText
+                                },
+                    completion: nil
+                )
+            }
+        }
     }
 
     func playbackProgressChanged(playbackManager: MusicPlaybackManager, inPlaylist: Playlist, withTrack: Track, position: TimeInterval, duration: TimeInterval)
     {
-        let relativeDuration = duration - withTrack.startOffset - withTrack.endOffset
         let relativePosition = position - withTrack.startOffset
-        let remainingTime = relativeDuration - relativePosition
-        let minutes = Int(remainingTime / 60)
-        let seconds = Int(remainingTime.truncatingRemainder(dividingBy: 60))
+        var relativeDuration: TimeInterval
 
-        self.playPosition.text = "-\(minutes)m \(seconds)s"
+        if withTrack.endOffset == nil
+        {
+            relativeDuration = duration - withTrack.startOffset
+        }
+        else
+        {
+            relativeDuration = (withTrack.endOffset! - withTrack.startOffset)
+        }
+
+        let remainingTime    = relativeDuration - relativePosition
+        let minutes          = Int(remainingTime / 60)
+        let seconds          = Int(remainingTime.truncatingRemainder(dividingBy: 60))
+        let minutesDisplay   = minutes > 0 ? "\(minutes)m " : ""
+        let secondsDisplay   = "\(seconds)s"
+
+        self.playPosition.text = "-\(minutesDisplay)\(secondsDisplay)"
         self.positionSlider.setValue(Float(relativePosition / (relativeDuration - 1)), animated: false)
     }
 
@@ -84,6 +135,71 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
     }
 
     // MARK: - PRIVATE
+
+    private func getMusicAuthorizationFromUser()
+    {
+        SKCloudServiceController.requestAuthorization { (status) in
+            if status == .authorized || status == .restricted
+            {
+                print("getMusicAuthorizationFromUser: User authorized access to Apple Music")
+
+                AppleMusicAPI().getUserToken(
+                    completionHandler: { result in
+                        switch result {
+                            case .failure(let error):
+                                print("getMusicAuthorizationFromUser: ERROR - User token failure - \(error)")
+                                UnfixableError().display(message: error.localizedDescription, using: self)
+
+                            case .success(let userToken):
+                                print("getMusicAuthorizationFromUser: User token \(userToken) retrieved; starting playback")
+                                self.musicAuthorizationIsGranted()
+                        }
+                    }
+                )
+            }
+            else
+            {
+                self.musicAuthorizationIsDenied()
+            }
+        }
+    }
+
+    private func musicAuthorizationIsGranted()
+    {
+        print("musicAuthorizationIsGranted: Starting initial playback")
+        self.appDelegate.musicPlaybackManager!.startInitialPlayback()
+    }
+
+    private func musicAuthorizationIsDenied()
+    {
+        UnfixableError().display(message: "You prohibited Dungeon Panda from accessing Apple Music.\n\nIt is forever doomed.", using: self)
+    }
+
+    /**
+     Return attributed text to assign to a UILabel which describes the given playlist name and track title.
+
+     - Parameters:
+     - playlistName: Optional playlist name to use.
+     - trackTitle: Title of track to use.
+
+     - Returns: Attributed text for use in e.g. a UILabel.
+     */
+    private func attributedLabelText(playlistName: String?, trackTitle: String) -> NSMutableAttributedString
+    {
+        let fontSize      = CGFloat(22)
+        let boldFont      = UIFont(name: "Baskerville-Bold", size: fontSize) ?? UIFont.boldSystemFont(ofSize: fontSize)
+        let normalFont    = UIFont(name: "Baskerville",      size: fontSize) ?? UIFont.boldSystemFont(ofSize: fontSize)
+        let nameWithColon = playlistName == nil ? "" : "\(playlistName!): "
+
+        let playlistText  = NSAttributedString(string: nameWithColon, attributes: [.font: boldFont  ])
+        let trackText     = NSAttributedString(string: trackTitle,    attributes: [.font: normalFont])
+        let labelText     = NSMutableAttributedString()
+
+        labelText.append(playlistText)
+        labelText.append(trackText)
+
+        return labelText
+    }
 
     private func searchFor(searchTerm: String)
     {
@@ -124,7 +240,9 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
                             print("Success:")
 
                             let semaphore = DispatchSemaphore(value: 1)
-                            DispatchQueue.global().async {
+
+                            DispatchQueue.global().async
+                            {
                                 for playlist in playlists {
                                     print(playlist)
                                     if playlist.name.starts(with: "D&D") {

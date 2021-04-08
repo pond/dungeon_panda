@@ -56,8 +56,18 @@ class MusicPlaybackManager {
 
         NotificationCenter.default.addObserver(self, selector: #selector(playbackStateDidChange ), name: .MPMusicPlayerControllerPlaybackStateDidChange,  object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(nowPlayingItemDidChange), name: .MPMusicPlayerControllerNowPlayingItemDidChange, object: nil)
+    }
 
-        startPlayingFromCurrentPlaylist()
+    /**
+     Start playback after initial application launch. Called externally, when the view layer
+     believes it is "safe" / sensible to do so. Can be called off main thread.
+    */
+    func startInitialPlayback()
+    {
+        DispatchQueue.main.async
+        {
+            self.startPlayingFromCurrentPlaylist()
+        }
     }
 
     func changePlaylist(playlistID: String)
@@ -139,44 +149,38 @@ class MusicPlaybackManager {
 
     @objc func nowPlayingItemDidChange()
     {
-        let (playingPlaylist, playingTrack, _) = self.playlistManager.nowPlaying()
+        print("nowPlayingItemDidChange: Called")
 
-        self.delegates.forEach { (delegate) in
-            delegate.playbackStarted(
-                playbackManager: self,
-                inPlaylist:      playingPlaylist,
-                withTrack:       playingTrack
-            )
+        var (playingPlaylist, playingTrack, playingIndex) = self.playlistManager.nowPlaying()
+
+        if let newPlaybackStoreID = mediaPlayer.nowPlayingItem?.playbackStoreID,
+           let newPlayingIndex    = self.playlistManager.getTrackIndexFor(
+             playlist: playingPlaylist,
+             storeID:  newPlaybackStoreID
+           )
+        {
+            if newPlayingIndex != playingIndex
+            {
+                print("nowPlayingItemDidChange: Store ID \(newPlaybackStoreID) yielding new playlist index \(newPlayingIndex)")
+
+                self.playlistManager.setCurrentPlaybackIndexFor(playlist: playingPlaylist, index: newPlayingIndex)
+                (playingPlaylist, playingTrack, playingIndex) = self.playlistManager.nowPlaying()
+            }
+
+            print("nowPlayingItemDidChange: At Playlist index \(playingIndex) with Track \(playingTrack)")
+
+            self.delegates.forEach { (delegate) in
+                delegate.playbackStarted(
+                    playbackManager: self,
+                    inPlaylist:      playingPlaylist,
+                    withTrack:       playingTrack
+                )
+            }
         }
-
-
-// TODO: IF WE EVER DO USE REAL INDICES IN THE QUEUE
-//
-//        let (playingPlaylist, playingTrack, playingIndex) = self.playlistManager.nowPlaying()
-//
-//        if let notificationIndex = self.playlistManager.getTrackIndexFor(
-//            playlist: playingPlaylist,
-//            storeID: playingTrack.storeID
-//        )
-//        {
-//            if notificationIndex != playingIndex
-//            {
-//                print("nowPlayingItemDidChange: store ID \(playingTrack.storeID) yielding new index \(notificationIndex)")
-//                self.playlistManager.setCurrentPlaybackIndexFor(playlist: playingPlaylist, index: notificationIndex)
-//            }
-//
-//            self.delegates.forEach { (delegate) in
-//                delegate.playbackStarted(
-//                    playbackManager: self,
-//                    inPlaylist:      playingPlaylist,
-//                    withTrack:       playingTrack
-//                )
-//            }
-//        }
-//        else
-//        {
-//            print("nowPlayingItemDidChange: ERROR - Could not get current track or updated playlist index")
-//        }
+        else
+        {
+            print("nowPlayingItemDidChange: ERROR - Could not get current track or updated playlist index")
+        }
     }
 
     @objc func playbackWatchdogFired()
@@ -202,10 +206,10 @@ class MusicPlaybackManager {
 
         self.positionTimer = Timer(
             timeInterval: 1,
-            target: self,
-            selector: #selector(playbackProgressChanged),
-            userInfo: nil,
-            repeats: true
+                  target: self,
+                selector: #selector(playbackProgressChanged),
+                userInfo: nil,
+                 repeats: true
         )
 
         RunLoop.current.add(self.positionTimer!, forMode: RunLoop.Mode.common)
@@ -249,7 +253,7 @@ class MusicPlaybackManager {
 
     // MARK: - PRIVATE: MISCELLANEOUS
 
-    private func startPlayingFromCurrentPlaylist()
+    func startPlayingFromCurrentPlaylist()
     {
         let (playlist, track, index) = self.playlistManager.nowPlaying()
 
@@ -263,10 +267,12 @@ class MusicPlaybackManager {
             )
         }
 
-        self.mediaPlayer.beginGeneratingPlaybackNotifications()
-        self.mediaPlayer.setQueue(with: [track.storeID])
+        let descriptor = self.playlistManager.getQueueDescriptorFor(playlist: playlist)
 
+        self.mediaPlayer.beginGeneratingPlaybackNotifications()
+        self.mediaPlayer.setQueue(with: descriptor)
         self.mediaPlayer.prepareToPlay()
+
         self.startSongWithFadeInIfRequired()
 //        self.mediaPlayer.prepareToPlay(
 //            completionHandler:
@@ -308,7 +314,9 @@ class MusicPlaybackManager {
         // playlist is unchanged, use the index given by the playlist manager.
         //
         let playingPlaylist = self.playlistManager.getPlayingPlaylist()
-        let nextTrackIndex  = self.playlistManager.currentItemHasBeenPlayedIn(playlistID: self.playlistManager.getPlayingPlaylist().id!)
+        let nextTrackIndex  = self.playlistManager.currentItemHasBeenPlayedIn(
+            playlistID: self.playlistManager.getPlayingPlaylist().id!
+        )
 
         if playingPlaylist.id != targetPlaylist!.id
         {

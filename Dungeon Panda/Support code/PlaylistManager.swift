@@ -8,6 +8,7 @@
 import Foundation
 import CoreData
 import UIKit
+import MediaPlayer
 
 /**
  A PlaylistManager keeps track of shuffled playback orders within Tracklists.
@@ -201,6 +202,42 @@ class PlaylistManager {
     {
         let (_, _, index) = nowPlaying()
         return index
+    }
+
+    /**
+     Return a media player queue descriptor for a given playlist, with the store IDs laid out in
+     playlist order, the start item set according to that playlist's current playback index and
+     start/end offsets configured for each track.
+
+     - Parameter playlist: Playlist of interest
+     - Returns: Media player queue descriptor, for use with e.g. "setQueue:with:".
+    */
+    func getQueueDescriptorFor(playlist: Playlist) -> MPMusicPlayerStoreQueueDescriptor
+    {
+        let descriptor = MPMusicPlayerStoreQueueDescriptor(storeIDs: playlist.storeIDs)
+        let tracklist  = staticTracklistManager.getTracklistBy(tracklistID: playlist.id!)!
+
+        for storeID in playlist.storeIDs
+        {
+            let track = tracklist.getTrackBy(storeID: storeID)!
+
+            if track.startOffset != 0
+            {
+                descriptor.setStartTime(track.startOffset, forItemWithStoreID: storeID)
+            }
+
+            if track.endOffset != nil
+            {
+                descriptor.setEndTime(track.endOffset!, forItemWithStoreID: storeID)
+            }
+        }
+
+        descriptor.startItemID = getTrackByIndex(
+            playlist: playlist,
+            index:    getCurrentPlaybackIndexFor(playlist: playlist)
+        ).storeID
+
+        return descriptor
     }
 
     // MARK: - GEMERAL INTERFACE
