@@ -27,8 +27,27 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
         self.playPosition.text = "…"
         self.positionSlider.setValue(0, animated: false)
 
-        appDelegate.musicPlaybackManager!.delegates.append(self)
+        self.appDelegate.musicPlaybackManager!.delegates.append(self)
 
+        // Hackery required for volume cahnges from MusicPlaybackManager.
+        //
+        UIApplication.shared.beginReceivingRemoteControlEvents()
+
+        let volumeView = MPVolumeView(frame: CGRect(x: -CGFloat.greatestFiniteMagnitude, y:0, width:0, height:0))
+        view.addSubview(volumeView)
+        let hiddenSystemVolumeSlider = volumeView.subviews.first(where: { $0 is UISlider }) as? UISlider
+
+        self.appDelegate.musicPlaybackManager!.setHiddenSystemVolumeSlider(hiddenSystemVolumeSlider)
+
+        NotificationCenter.default.addObserver(
+                self,
+            selector: #selector(systemVolumeDidChange(_ :)),
+                name: Notification.Name(rawValue: "AVSystemController_SystemVolumeDidChangeNotification"),
+             object: nil
+        )
+
+        // Obtain Apple Music authorisation if need be.
+        //
         let authorizationStatus = SKCloudServiceController.authorizationStatus()
         if authorizationStatus == .authorized || authorizationStatus == .restricted
         {
@@ -45,6 +64,14 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
             print("ViewController.viewDidLoad: Requesting access to Apple Music")
             getMusicAuthorizationFromUser()
         }
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        UIApplication.shared.endReceivingRemoteControlEvents()
+
+        NotificationCenter.default.removeObserver(self)
+
+        super.viewWillDisappear(animated)
     }
 
     @IBAction func playMusic(_ sender: UIButton) {
@@ -70,7 +97,6 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
             self.labelTimer!.invalidate()
             self.labelTimer = nil
         }
-
 
         if let altDisplayName = withTrack.altDisplayName
         {
@@ -199,6 +225,18 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
         labelText.append(trackText)
 
         return labelText
+    }
+
+    /**
+     Tell the MusicPlaybackManager instance that we detected a change in system volume.
+
+     - Parameter notification: Notification payload.
+    */
+    @objc func systemVolumeDidChange(_ notification: NSNotification) {
+        let userInfo = notification.userInfo!
+        let volume   = userInfo["AVSystemController_AudioVolumeNotificationParameter"] as! Double
+
+        appDelegate.musicPlaybackManager!.systemVolumeDidChange(volume: volume)
     }
 
     private func searchFor(searchTerm: String)

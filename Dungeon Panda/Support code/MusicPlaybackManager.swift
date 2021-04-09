@@ -24,6 +24,15 @@ class MusicPlaybackManager {
     let appDelegate = UIApplication.shared.delegate as! AppDelegate
     let mediaPlayer = MPMusicPlayerApplicationController.applicationQueuePlayer
 
+    /// A hidden volume slider given to us by the main view when it loads. This is
+    /// an horrific hack arising from the bewildering lack of any way to simply set
+    /// the playback volume for a MusicKit player.
+    var hiddenSystemVolumeSlider: UISlider?
+
+    /// Reference volume set by the user. Fading and track volumes are all scaled
+    /// relative to this.
+    var referenceSystemVolume: Double?
+
     /// The PlaylistManager used for all playlist operations; set via `init`.
     var playlistManager: PlaylistManager
 
@@ -45,6 +54,9 @@ class MusicPlaybackManager {
     /// Used to perform fade-in operations.
     var fadeInTimer: Timer?
 
+    /// Used to initiate a fade-out operation, if not done explicitly by e.g. track skip.
+    var startFadeOutTimer: Timer?
+
     /// Used to perform fade-out operations.
     var fadeOutTimer: Timer?
 
@@ -54,8 +66,19 @@ class MusicPlaybackManager {
         self.mediaPlayer.repeatMode  = .none
         self.mediaPlayer.shuffleMode = .off
 
-        NotificationCenter.default.addObserver(self, selector: #selector(playbackStateDidChange ), name: .MPMusicPlayerControllerPlaybackStateDidChange,  object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(nowPlayingItemDidChange), name: .MPMusicPlayerControllerNowPlayingItemDidChange, object: nil)
+        NotificationCenter.default.addObserver(
+                self,
+            selector: #selector(playbackStateDidChange),
+                name: .MPMusicPlayerControllerPlaybackStateDidChange,
+              object: nil
+        )
+
+        NotificationCenter.default.addObserver(
+                self,
+            selector: #selector(nowPlayingItemDidChange),
+                name: .MPMusicPlayerControllerNowPlayingItemDidChange,
+              object: nil
+        )
     }
 
     /**
@@ -93,6 +116,40 @@ class MusicPlaybackManager {
     {
         self.mediaPlayer.play()
     }
+
+    // MARK: - VOLUME
+
+    /**
+     Called by the view layer to tell us where the hidden volume slider is. We store the
+     reference and use it to read current system volume, taking this as the reference
+     value set by the user.
+
+     - Parameter _: UISlider to use for volume changes (optional).
+     */
+    func setHiddenSystemVolumeSlider(_ slider: UISlider?)
+    {
+        self.hiddenSystemVolumeSlider = slider
+
+        if slider != nil
+        {
+            self.referenceSystemVolume = Double(slider!.value)
+        }
+    }
+
+    /**
+     Called by the view layer to tell us that the system volume was changed.
+
+     - Parameter volume: Current system volume (from 0, silent, to 1, maximum).
+     */
+    func systemVolumeDidChange(volume: Double)
+    {
+        if fadeInTimer == nil && fadeOutTimer == nil
+        {
+            print("User changed system volume to \(volume)")
+            self.referenceSystemVolume = volume
+        }
+    }
+
 
     // MARK: - PLAYBACK EVENTS
 
@@ -273,7 +330,7 @@ class MusicPlaybackManager {
         self.mediaPlayer.setQueue(with: descriptor)
         self.mediaPlayer.prepareToPlay()
 
-        self.startSongWithFadeInIfRequired()
+        self.startSongWithFadeInIfRequired(fromTrack: track)
 //        self.mediaPlayer.prepareToPlay(
 //            completionHandler:
 //            { error in
@@ -304,10 +361,62 @@ class MusicPlaybackManager {
     {
         print("transitionToNextSongWithFadeOutIfRequired: Called, forceImmediate = \(forceImmediate)")
 
-        if self.mediaPlayer.playbackState == .playing && forceImmediate == false {
-            // TODO: Fade out first somehow
+        if self.mediaPlayer.playbackState == .playing && forceImmediate == false
+        {
+            fadeOut(completion: transitionToNextSongNow)
+        }
+        else
+        {
+            transitionToNextSongNow()
+        }
+    }
+
+    private func fadeOut(completion: @escaping ()->())
+    {
+        if self.hiddenSystemVolumeSlider == nil
+        {
+            print("fadeOut: ERROR - Volume control is not available")
+            return
         }
 
+        print("fadeOut: Fading out")
+
+        if self.fadeInTimer != nil
+        {
+            self.fadeInTimer!.invalidate()
+            self.fadeInTimer = nil
+        }
+
+        var step     = 20
+        let steps    = 20
+        let time     = 2.0 // seconds for overall fade
+        let starting = self.referenceSystemVolume ?? 1.0
+
+        self.fadeInTimer = Timer.scheduledTimer(
+            withTimeInterval: time / Double(steps),
+                     repeats: true
+        )
+        { timer in
+            step -= 1
+
+            let volume = (Double(step) / Double(steps)) * Double(starting)
+
+            print("fadeOut: Step \(steps - step) sets volume \(volume)")
+
+            self.hiddenSystemVolumeSlider!.value = Float(volume)
+
+            if step <= 0 || volume == 0
+            {
+                self.fadeInTimer!.invalidate()
+                self.fadeInTimer = nil
+
+                completion()
+            }
+        }
+    }
+
+    private func transitionToNextSongNow()
+    {
         // Work out the next index in this playlist now that the current item
         // has been played. If changing playlist, just switch that over and let
         // playback start from whatever the most recent index was there. If the
@@ -332,13 +441,62 @@ class MusicPlaybackManager {
         startPlayingFromCurrentPlaylist()
     }
 
-    private func startSongWithFadeInIfRequired()
+    private func startSongWithFadeInIfRequired(fromTrack: Track)
     {
         print("startSongWithFadeInIfRequired: Called")
 
-        // TODO - Set volume to zero, set a flag saying "fading in"
+        if fromTrack.fadeIn
+        {
+            print("startSongWithFadeInIfRequired: Fade in is required")
+            fadeIn()
+        }
+
         startSongNow()
-        // TODO - Once playback position changes start to happen, kick off fade-in.
+    }
+
+    private func fadeIn()
+    {
+        if self.hiddenSystemVolumeSlider == nil
+        {
+            print("fadeIn: ERROR - Volume control is not available")
+            return
+        }
+
+        print("fadeIn: Fading in")
+
+        if self.fadeInTimer != nil
+        {
+            self.fadeInTimer!.invalidate()
+            self.fadeInTimer = nil
+        }
+
+        self.hiddenSystemVolumeSlider!.value = 0
+
+        var step     = 1
+        let steps    = 20
+        let time     = 2.0 // seconds for overall fade
+        let target   = self.referenceSystemVolume ?? 1.0
+
+        self.fadeInTimer = Timer.scheduledTimer(
+            withTimeInterval: time / Double(steps),
+                     repeats: true
+        )
+        { timer in
+            var volume = (Double(step) / Double(steps)) * Double(target)
+            if volume > target { volume = target } // Allow for rounding errors
+
+            print("fadeIn: Step \(step) sets volume \(volume) for target \(target)")
+
+            self.hiddenSystemVolumeSlider!.value = Float(volume)
+
+            step += 1
+
+            if step >= steps || volume >= target
+            {
+                self.fadeInTimer!.invalidate()
+                self.fadeInTimer = nil
+            }
+        }
     }
 
     // TODO - add start offset for playback
