@@ -29,15 +29,18 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
 
         self.appDelegate.musicPlaybackManager!.delegates.append(self)
 
-        // Hackery required for volume cahnges from MusicPlaybackManager.
+        // Hackery required for volume changes from MusicPlaybackManager.
         //
-        UIApplication.shared.beginReceivingRemoteControlEvents()
-
         let volumeView = MPVolumeView(frame: CGRect(x: -CGFloat.greatestFiniteMagnitude, y:0, width:0, height:0))
         view.addSubview(volumeView)
         let hiddenSystemVolumeSlider = volumeView.subviews.first(where: { $0 is UISlider }) as? UISlider
 
         self.appDelegate.musicPlaybackManager!.setHiddenSystemVolumeSlider(hiddenSystemVolumeSlider)
+
+        // Track alterations in system volume by the user so that fade in/out
+        // etc. can all work relative to this user-chosen baseline.
+        //
+        UIApplication.shared.beginReceivingRemoteControlEvents()
 
         NotificationCenter.default.addObserver(
                 self,
@@ -66,7 +69,7 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
         }
     }
 
-    override func viewWillDisappear(_ animated: Bool) {
+    override func viewDidDisappear(_ animated: Bool) {
         UIApplication.shared.endReceivingRemoteControlEvents()
 
         NotificationCenter.default.removeObserver(self)
@@ -192,7 +195,7 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
 
     private func musicAuthorizationIsGranted()
     {
-        print("musicAuthorizationIsGranted: Starting initial playback")
+        print("musicAuthorizationIsGranted: Authorisation is available, kicking off initial playback start")
         self.appDelegate.musicPlaybackManager!.startInitialPlayback()
     }
 

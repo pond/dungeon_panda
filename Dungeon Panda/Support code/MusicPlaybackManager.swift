@@ -51,14 +51,18 @@ class MusicPlaybackManager {
     /// Watchdog used to try and restart on "failed to prepare to play" errors.
     var watchdogTimer: Timer?
 
-    /// Used to perform fade-in operations.
-    var fadeInTimer: Timer?
+    /// Used to perform fade-in and fade-out operations.
+    var fadeTimer: Timer?
 
     /// Used to initiate a fade-out operation, if not done explicitly by e.g. track skip.
     var startFadeOutTimer: Timer?
 
-    /// Used to perform fade-out operations.
-    var fadeOutTimer: Timer?
+    /// Marks that a track transition operation is underway and volume change events should
+    /// be ignored, since we're probably the source of them.
+    var transitionOperationUnderway: Bool = false
+
+    /// Marks that fade-in should run once actual playback starts on the next track.
+    var fadeInOnNextPlaybackStartedEvent: Bool = false
 
     init(playlistManager: PlaylistManager)
     {
@@ -87,8 +91,22 @@ class MusicPlaybackManager {
     */
     func startInitialPlayback()
     {
-        DispatchQueue.main.async
+        // As with all random wait loops, this is a hack. If we start too
+        // soon, system volume is not readable from the UI volume control
+        // even when we work off view-did-appear in the view layer.
+        //
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5)
         {
+            if let slider = self.hiddenSystemVolumeSlider
+            {
+                self.referenceSystemVolume = Double(slider.value)
+            }
+
+            if self.referenceSystemVolume == nil || self.referenceSystemVolume == 0
+            {
+                self.referenceSystemVolume = 0.5 // (Shrug)
+            }
+
             self.startPlayingFromCurrentPlaylist()
         }
     }
@@ -120,20 +138,13 @@ class MusicPlaybackManager {
     // MARK: - VOLUME
 
     /**
-     Called by the view layer to tell us where the hidden volume slider is. We store the
-     reference and use it to read current system volume, taking this as the reference
-     value set by the user.
+     Called by the view layer to tell us where the hidden volume slider is.
 
      - Parameter _: UISlider to use for volume changes (optional).
      */
     func setHiddenSystemVolumeSlider(_ slider: UISlider?)
     {
         self.hiddenSystemVolumeSlider = slider
-
-        if slider != nil
-        {
-            self.referenceSystemVolume = Double(slider!.value)
-        }
     }
 
     /**
@@ -143,13 +154,12 @@ class MusicPlaybackManager {
      */
     func systemVolumeDidChange(volume: Double)
     {
-        if fadeInTimer == nil && fadeOutTimer == nil
+        if transitionOperationUnderway == false
         {
             print("User changed system volume to \(volume)")
             self.referenceSystemVolume = volume
         }
     }
-
 
     // MARK: - PLAYBACK EVENTS
 
@@ -194,6 +204,22 @@ class MusicPlaybackManager {
 
                 stopWatchdogTimer()
                 startPositionTimer()
+
+                if self.fadeInOnNextPlaybackStartedEvent
+                {
+                    self.fadeInOnNextPlaybackStartedEvent = false
+
+                    fadeIn(
+                        completionHandler:
+                        {
+                            self.transitionOperationUnderway = false
+                        }
+                    )
+                }
+                else
+                {
+                    self.fadeInOnNextPlaybackStartedEvent = false
+                }
 
                 self.delegates.forEach { (delegate) in
                     delegate.playbackResumed(playbackManager: self)
@@ -314,6 +340,8 @@ class MusicPlaybackManager {
     {
         let (playlist, track, index) = self.playlistManager.nowPlaying()
 
+        self.transitionOperationUnderway = true
+
         print("startPlayingFromCurrentPlaylist: Store ID \(track.storeID) on playlist \(playlist.id!) at index \(index)")
 
         self.delegates.forEach { (delegate) in
@@ -331,6 +359,7 @@ class MusicPlaybackManager {
         self.mediaPlayer.prepareToPlay()
 
         self.startSongWithFadeInIfRequired(fromTrack: track)
+
 //        self.mediaPlayer.prepareToPlay(
 //            completionHandler:
 //            { error in
@@ -359,59 +388,56 @@ class MusicPlaybackManager {
 
     private func transitionToNextSongWithFadeOutIfRequired(forceImmediate: Bool = false)
     {
+        self.transitionOperationUnderway = true
+
         print("transitionToNextSongWithFadeOutIfRequired: Called, forceImmediate = \(forceImmediate)")
 
-        if self.mediaPlayer.playbackState == .playing && forceImmediate == false
+        let mediaIsPlaying        = self.mediaPlayer.playbackState == .playing
+        let currentItemDuration   = mediaIsPlaying ? self.mediaPlayer.nowPlayingItem?.playbackDuration : nil
+        let currentItemPosition   = mediaIsPlaying ? self.mediaPlayer.currentPlaybackTime              : nil
+        let trackEndOffset        = self.playlistManager.getPlayingTrack().endOffset
+        let effectiveItemDuration = trackEndOffset != nil && trackEndOffset != 0 ? trackEndOffset : currentItemDuration
+        let fadeOutDuration       = 2.0
+        let fadeOutIsWorthwhile   = effectiveItemDuration != nil &&
+                                    currentItemPosition   != nil &&
+                                    effectiveItemDuration! - currentItemPosition! >= fadeOutDuration + 0.5 // 0.5s wiggle room
+
+        if forceImmediate == false && mediaIsPlaying == true && fadeOutIsWorthwhile == true
         {
-            fadeOut(completion: transitionToNextSongNow)
+            fadeOut(
+                duration: fadeOutDuration,
+                completionHandler:
+                {
+                    // After this, the handler exits and the fade-out routine
+                    // will clear its timer. There might be transitions that
+                    // happen next which cause us to think system volume was
+                    // set to zero, but we'll fix that in the code below.
+                    //
+                    self.mediaPlayer.pause()
+
+                    // Without this hack, there is sometimes a brief loud spike
+                    // in music because when we tell the player to pause, it
+                    // doesn't do it immediately (obviously, because just doing
+                    // something synchronously in the same thread when asked to
+                    // is far too easy, isn't it... Rolls eyes).
+                    //
+                    // Since we reset to reference volume outside this thread
+                    // context, the fade timer will be gone and we know that the
+                    // change will be treated as a user-set event, making sure
+                    // that 'self.referenceSystemVolume' ends up back at the
+                    // prior level cached in variable 'resetSystemVolume' above.
+                    //
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.25)
+                    {
+                        self.hiddenSystemVolumeSlider!.value = Float(self.referenceSystemVolume!)
+                        self.transitionToNextSongNow()
+                    }
+                }
+            )
         }
         else
         {
             transitionToNextSongNow()
-        }
-    }
-
-    private func fadeOut(completion: @escaping ()->())
-    {
-        if self.hiddenSystemVolumeSlider == nil
-        {
-            print("fadeOut: ERROR - Volume control is not available")
-            return
-        }
-
-        print("fadeOut: Fading out")
-
-        if self.fadeInTimer != nil
-        {
-            self.fadeInTimer!.invalidate()
-            self.fadeInTimer = nil
-        }
-
-        var step     = 20
-        let steps    = 20
-        let time     = 2.0 // seconds for overall fade
-        let starting = self.referenceSystemVolume ?? 1.0
-
-        self.fadeInTimer = Timer.scheduledTimer(
-            withTimeInterval: time / Double(steps),
-                     repeats: true
-        )
-        { timer in
-            step -= 1
-
-            let volume = (Double(step) / Double(steps)) * Double(starting)
-
-            print("fadeOut: Step \(steps - step) sets volume \(volume)")
-
-            self.hiddenSystemVolumeSlider!.value = Float(volume)
-
-            if step <= 0 || volume == 0
-            {
-                self.fadeInTimer!.invalidate()
-                self.fadeInTimer = nil
-
-                completion()
-            }
         }
     }
 
@@ -445,57 +471,21 @@ class MusicPlaybackManager {
     {
         print("startSongWithFadeInIfRequired: Called")
 
+        self.transitionOperationUnderway = true
+
         if fromTrack.fadeIn
         {
             print("startSongWithFadeInIfRequired: Fade in is required")
-            fadeIn()
+
+            self.hiddenSystemVolumeSlider?.value = 0
+            self.fadeInOnNextPlaybackStartedEvent = true
+
+            startSongNow()
         }
-
-        startSongNow()
-    }
-
-    private func fadeIn()
-    {
-        if self.hiddenSystemVolumeSlider == nil
+        else
         {
-            print("fadeIn: ERROR - Volume control is not available")
-            return
-        }
-
-        print("fadeIn: Fading in")
-
-        if self.fadeInTimer != nil
-        {
-            self.fadeInTimer!.invalidate()
-            self.fadeInTimer = nil
-        }
-
-        self.hiddenSystemVolumeSlider!.value = 0
-
-        var step     = 1
-        let steps    = 20
-        let time     = 2.0 // seconds for overall fade
-        let target   = self.referenceSystemVolume ?? 1.0
-
-        self.fadeInTimer = Timer.scheduledTimer(
-            withTimeInterval: time / Double(steps),
-                     repeats: true
-        )
-        { timer in
-            var volume = (Double(step) / Double(steps)) * Double(target)
-            if volume > target { volume = target } // Allow for rounding errors
-
-            print("fadeIn: Step \(step) sets volume \(volume) for target \(target)")
-
-            self.hiddenSystemVolumeSlider!.value = Float(volume)
-
-            step += 1
-
-            if step >= steps || volume >= target
-            {
-                self.fadeInTimer!.invalidate()
-                self.fadeInTimer = nil
-            }
+            self.fadeInOnNextPlaybackStartedEvent = false
+            startSongNow()
         }
     }
 
@@ -522,5 +512,163 @@ class MusicPlaybackManager {
         {
             return nil
         }
+    }
+
+    // MARK: - FADING
+
+    /**
+     Fade in, calling a handler when completed. Note that volume is *NOT* set to zero prior. If callers
+     think system volume needs to be thus set, do that manually; ensure that the
+     `transitionOperationUnderway` is set to `true` prior.
+
+     - Parameters:
+     - duration: Duration in seconds for timer to run for full fade in; default is 2.0 seconds.
+     - completionHandler: Completion handler, invoked once volume has reached reference full.
+     */
+    private func fadeIn(duration: Double = 2.0, completionHandler: @escaping() -> Void)
+    {
+        fade(
+                   fromVolume: 0.0,
+                     toVolume: self.referenceSystemVolume ?? 0.5,
+                     duration: duration,
+                     velocity: 1.0,
+            completionHandler: completionHandler
+        )
+    }
+
+    /**
+     Fade out, calling a handler when completed.
+
+     - Parameters:
+        - duration: Duration in seconds for timer to run for full fade out; default is 2.0 seconds.
+        - completionHandler: Completion handler, invoked once volume has reached zero.
+    */
+    private func fadeOut(duration: Double = 2.0, completionHandler: @escaping() -> Void)
+    {
+        fade(
+                   fromVolume: self.referenceSystemVolume ?? 0.5,
+                     toVolume: 0.0,
+                     duration: duration,
+                     velocity: 0.2,
+            completionHandler: completionHandler
+        )
+    }
+
+    /// Adapted with thanks from `https://github.com/evgenyneu/Cephalopod/blob/master/Cephalopod/Cephalopod.swift`
+    /// (MIT `https://github.com/evgenyneu/Cephalopod/blob/master/LICENSE`).
+    ///
+    private func fade(
+               fromVolume: Double,
+                 toVolume: Double,
+                 duration: Double,
+                 velocity: Double = 2.0,
+        completionHandler: @escaping() -> Void
+    )
+    {
+        let fromVolume = makeSureValueIsBetween0and1(value: fromVolume)
+        let toVolume   = makeSureValueIsBetween0and1(value: toVolume)
+        let fadeIn     = fromVolume < toVolume
+
+        if self.fadeTimer != nil
+        {
+            self.fadeTimer!.invalidate()
+            self.fadeTimer = nil
+        }
+
+        let volumeAlterationsPerSecond = 15.0
+        var currentStep                = 0
+
+        self.fadeTimer = Timer.scheduledTimer(
+            withTimeInterval: 1.0 / volumeAlterationsPerSecond,
+                    repeats: true
+        )
+        { timer in
+
+            let currentTimeFrom0To1 = self.timeFrom0To1(
+                               currentStep: currentStep,
+                       fadeDurationSeconds: duration,
+                volumeAlterationsPerSecond: volumeAlterationsPerSecond
+            )
+
+            var volumeMultiplier: Double
+            var newVolume:        Double = 0
+
+            if fadeIn
+            {
+                volumeMultiplier = self.fadeInVolumeMultiplier(
+                    timeFrom0To1: currentTimeFrom0To1,
+                        velocity: velocity
+                )
+
+                newVolume = fromVolume + (toVolume - fromVolume) * volumeMultiplier
+                if newVolume > toVolume { newVolume = toVolume } // Allow for rounding
+            }
+            else
+            {
+                volumeMultiplier = self.fadeOutVolumeMultiplier(
+                    timeFrom0To1: currentTimeFrom0To1,
+                        velocity: velocity
+                )
+
+                newVolume = toVolume - (toVolume - fromVolume) * volumeMultiplier
+                if newVolume < toVolume { newVolume = toVolume } // Allow for rounding
+            }
+
+            print("fade (\(fadeIn ? "in" : "out")): Step \(currentStep) sets volume \(newVolume) for target \(toVolume)")
+
+            self.hiddenSystemVolumeSlider!.value = Float(newVolume)
+            currentStep += 1
+
+            if newVolume == toVolume
+            {
+                self.fadeTimer!.invalidate()
+                self.fadeTimer = nil
+
+                completionHandler()
+            }
+        }
+    }
+
+    /// Adapted with thanks from `https://github.com/evgenyneu/Cephalopod/blob/master/Cephalopod/Cephalopod.swift`
+    /// (MIT `https://github.com/evgenyneu/Cephalopod/blob/master/LICENSE`).
+    ///
+    private func makeSureValueIsBetween0and1(value: Double) -> Double {
+        if value < 0 { return 0 }
+        if value > 1 { return 1 }
+        return value
+    }
+
+    /// Adapted with thanks from `https://github.com/evgenyneu/Cephalopod/blob/master/Cephalopod/Cephalopod.swift`
+    /// (MIT `https://github.com/evgenyneu/Cephalopod/blob/master/LICENSE`).
+    ///
+    private func timeFrom0To1(currentStep: Int, fadeDurationSeconds: Double,
+                            volumeAlterationsPerSecond: Double) -> Double {
+
+        let totalSteps = fadeDurationSeconds * volumeAlterationsPerSecond
+        var result = Double(currentStep) / totalSteps
+
+        result = makeSureValueIsBetween0and1(value: result)
+
+        return result
+    }
+
+    /// Adapted with thanks from `https://github.com/evgenyneu/Cephalopod/blob/master/Cephalopod/Cephalopod.swift`
+    /// (MIT `https://github.com/evgenyneu/Cephalopod/blob/master/LICENSE`).
+    ///
+    /// Graph: `https://www.desmos.com/calculator/wnstesdf0h`.
+    ///
+    private func fadeInVolumeMultiplier(timeFrom0To1: Double, velocity: Double) -> Double {
+        let time = makeSureValueIsBetween0and1(value: timeFrom0To1)
+        return pow(M_E, velocity * (time - 1)) * time
+    }
+
+    /// Adapted with thanks from `https://github.com/evgenyneu/Cephalopod/blob/master/Cephalopod/Cephalopod.swift`
+    /// (MIT `https://github.com/evgenyneu/Cephalopod/blob/master/LICENSE`).
+    ///
+    /// Graph: `https://www.desmos.com/calculator/wnstesdf0h`.
+    ///
+    private func fadeOutVolumeMultiplier(timeFrom0To1: Double, velocity: Double) -> Double {
+        let time = makeSureValueIsBetween0and1(value: timeFrom0To1)
+        return pow(M_E, -velocity * time) * (1 - time)
     }
 }
