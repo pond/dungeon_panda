@@ -55,7 +55,7 @@ class MusicPlaybackManager {
     var fadeTimer: Timer?
 
     /// Used to initiate a fade-out operation, if not done explicitly by e.g. track skip.
-    var startFadeOutTimer: Timer?
+    var fadeOutInitiationTimer: Timer?
 
     /// Marks that a track transition operation is underway and volume change events should
     /// be ignored, since we're probably the source of them.
@@ -123,6 +123,7 @@ class MusicPlaybackManager {
 
     func skipTrack()
     {
+        transitionToNextSongWithFadeOutIfRequired()
     }
 
     func pause()
@@ -266,6 +267,33 @@ class MusicPlaybackManager {
 
                 print("nowPlayingItemDidChange: At Playlist index \(playingIndex) with Track \(playingTrack)")
 
+                // Set a timer to fade out just before the track moves on?
+                //
+                if playingTrack.fadeOut
+                {
+                    let currentItemDuration   = self.mediaPlayer.nowPlayingItem?.playbackDuration
+                    let currentItemPosition   = self.mediaPlayer.currentPlaybackTime
+                    let trackEndOffset        = self.playlistManager.getPlayingTrack().endOffset
+                    let effectiveItemDuration = trackEndOffset != nil && trackEndOffset != 0 ? trackEndOffset : currentItemDuration
+                    let fadeOutDuration       = 2.0
+
+                    if effectiveItemDuration != 0 && effectiveItemDuration != nil
+                    {
+                        let timeUntilFadeStarts = effectiveItemDuration! - currentItemPosition - fadeOutDuration - 1.0 // 2 seconds for safety
+
+                        stopFadeOutInitiationTimer()
+
+                        self.fadeOutInitiationTimer = Timer.scheduledTimer(
+                            withTimeInterval: timeUntilFadeStarts,
+                            repeats: false
+                        )
+                        { timer in
+                            self.stopFadeOutInitiationTimer()
+                            self.transitionToNextSongWithFadeOutIfRequired()
+                        }
+                    }
+                }
+
                 self.delegates.forEach { (delegate) in
                     delegate.playbackStarted(
                         playbackManager: self,
@@ -295,7 +323,7 @@ class MusicPlaybackManager {
         }
     }
 
-    // MARK: - PRIVATE: TIMERS
+    // MARK: - PRIVATE: GENERAL TIMERS
 
     /// Start the repeat playback position timer. Restarts it if already running.
     private func startPositionTimer()
@@ -403,9 +431,11 @@ class MusicPlaybackManager {
 
     private func transitionToNextSongWithFadeOutIfRequired(forceImmediate: Bool = false)
     {
+        print("transitionToNextSongWithFadeOutIfRequired: Called, forceImmediate = \(forceImmediate)")
+
         self.transitionOperationUnderway = true
 
-        print("transitionToNextSongWithFadeOutIfRequired: Called, forceImmediate = \(forceImmediate)")
+        stopFadeOutInitiationTimer()
 
         let mediaIsPlaying        = self.mediaPlayer.playbackState == .playing
         let currentItemDuration   = mediaIsPlaying ? self.mediaPlayer.nowPlayingItem?.playbackDuration : nil
@@ -514,22 +544,7 @@ class MusicPlaybackManager {
         self.mediaPlayer.play()
     }
 
-    private func getCurrentTrackFromMusicPlayer() -> Track?
-    {
-        if let currentlyPlayingStoreID = self.mediaPlayer.nowPlayingItem?.playbackStoreID
-        {
-            return self.playlistManager.getTrackByStoreID(
-                playlist: self.playlistManager.getPlayingPlaylist(),
-                storeID: currentlyPlayingStoreID
-            )
-        }
-        else
-        {
-            return nil
-        }
-    }
-
-    // MARK: - FADING
+    // MARK: - PRIVATE: FADING
 
     /**
      Fade in, calling a handler when completed. Note that volume is *NOT* set to zero prior. If callers
@@ -569,6 +584,26 @@ class MusicPlaybackManager {
         )
     }
 
+    /// Stop the fade timer. Does nothing if it is not running.
+    private func stopFadeTimer()
+    {
+        if self.fadeTimer != nil
+        {
+            self.fadeTimer!.invalidate()
+            self.fadeTimer = nil
+        }
+    }
+
+    /// Stop the time-to-start-fading-out timer. Does nothing if it is not running.
+    private func stopFadeOutInitiationTimer()
+    {
+        if self.fadeOutInitiationTimer != nil
+        {
+            self.fadeOutInitiationTimer!.invalidate()
+            self.fadeOutInitiationTimer = nil
+        }
+    }
+
     /// Adapted with thanks from `https://github.com/evgenyneu/Cephalopod/blob/master/Cephalopod/Cephalopod.swift`
     /// (MIT `https://github.com/evgenyneu/Cephalopod/blob/master/LICENSE`).
     ///
@@ -584,11 +619,8 @@ class MusicPlaybackManager {
         let toVolume   = makeSureValueIsBetween0and1(value: toVolume)
         let fadeIn     = fromVolume < toVolume
 
-        if self.fadeTimer != nil
-        {
-            self.fadeTimer!.invalidate()
-            self.fadeTimer = nil
-        }
+        stopFadeOutInitiationTimer()
+        stopFadeTimer()
 
         let volumeAlterationsPerSecond = 15.0
         var currentStep                = 0
