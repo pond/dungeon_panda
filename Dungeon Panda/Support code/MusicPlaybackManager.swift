@@ -242,22 +242,37 @@ class MusicPlaybackManager {
              storeID:  newPlaybackStoreID
            )
         {
-            if newPlayingIndex != playingIndex
+            // Without looping turned on, item-did-change fires with the player
+            // in a paused state when the last playlist item has been reached.
+            // The UI will briefly show the 1st item in the playlist on loop,
+            // but we treat this as playlist exhaustion and reshuffle.
+            //
+            if self.mediaPlayer.playbackState == .paused
             {
-                print("nowPlayingItemDidChange: Store ID \(newPlaybackStoreID) yielding new playlist index \(newPlayingIndex)")
+                print("nowPlayingItemDidChange: Playlist ended; shuffling")
 
-                self.playlistManager.setCurrentPlaybackIndexFor(playlist: playingPlaylist, index: newPlayingIndex)
-                (playingPlaylist, playingTrack, playingIndex) = self.playlistManager.nowPlaying()
+                self.targetPlaylist = self.playlistManager.getPlayingPlaylist()
+                transitionToNextSongWithFadeOutIfRequired()
             }
+            else
+            {
+                if newPlayingIndex != playingIndex
+                {
+                    print("nowPlayingItemDidChange: Store ID \(newPlaybackStoreID) yielding new playlist index \(newPlayingIndex)")
 
-            print("nowPlayingItemDidChange: At Playlist index \(playingIndex) with Track \(playingTrack)")
+                    self.playlistManager.setCurrentPlaybackIndexFor(playlist: playingPlaylist, index: newPlayingIndex)
+                    (playingPlaylist, playingTrack, playingIndex) = self.playlistManager.nowPlaying()
+                }
 
-            self.delegates.forEach { (delegate) in
-                delegate.playbackStarted(
-                    playbackManager: self,
-                    inPlaylist:      playingPlaylist,
-                    withTrack:       playingTrack
-                )
+                print("nowPlayingItemDidChange: At Playlist index \(playingIndex) with Track \(playingTrack)")
+
+                self.delegates.forEach { (delegate) in
+                    delegate.playbackStarted(
+                        playbackManager: self,
+                        inPlaylist:      playingPlaylist,
+                        withTrack:       playingTrack
+                    )
+                }
             }
         }
         else
