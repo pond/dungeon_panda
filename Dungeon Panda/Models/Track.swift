@@ -22,6 +22,9 @@ struct Track
     /// Alternate human-facing display name (if set, view alternates between this and `displayName`)
     var altDisplayName: String?
 
+    /// Percentage of volume to use relative to system reference level, accounting for containing Tracklist.
+    var volumePercent: Int
+
     /// Offset from start of track to begin playback, in seconds.
     var startOffset: TimeInterval
 
@@ -38,6 +41,7 @@ struct Track
         storeID:        String,
         displayName:    String,
         altDisplayName: String?       = nil,
+        volumePercent:  Int           = 100,
         startOffset:    TimeInterval  = 0,
         endOffset:      TimeInterval? = nil,
         fadeIn:         Bool          = false,
@@ -47,6 +51,7 @@ struct Track
         self.storeID        = storeID
         self.displayName    = displayName
         self.altDisplayName = altDisplayName
+        self.volumePercent  = volumePercent
         self.startOffset    = startOffset
         self.endOffset      = endOffset
         self.fadeIn         = fadeIn

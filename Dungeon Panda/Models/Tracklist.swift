@@ -16,9 +16,12 @@ import Foundation
 */
 class Tracklist
 {
-    var id: String
-    var displayName: String
-    var tracks: [String:Track] = [:]
+    var id:              String
+    var displayName:     String
+    var version:         Int32
+    var volumePercent:   Int32
+    var autoSwitchAfter: String?
+    var tracks:          [String:Track] = [:]
 
     /**
      Create a new instance.
@@ -26,14 +29,27 @@ class Tracklist
      - Parameters:
         - id: Tracklist ID (interchangeable with playlist IDs)
         - displayName: Human-facing name of the Tracklist
+        - version: Version number (integer, starting at 1)
+        - volumePercent: Master volume for all tracks, relative to reference system volume.
+        - autoSwitchAfter: Optional playlist name, switched to after any Track in this Tracklist plays to completion.
         - tracks: Array of Track objects (may be empty)
 
      The `tracks` array can be updated with the `add` method later.
     */
-    init(id: String, displayName: String, tracks: [Track])
+    init(
+                     id: String,
+            displayName: String,
+                version: Int32,
+          volumePercent: Int32,
+        autoSwitchAfter: String?,
+                 tracks: [Track]
+    )
     {
-        self.id = id
-        self.displayName = displayName
+        self.id              = id
+        self.displayName     = displayName
+        self.version         = version
+        self.volumePercent   = volumePercent
+        self.autoSwitchAfter = autoSwitchAfter
 
         for track in tracks
         {

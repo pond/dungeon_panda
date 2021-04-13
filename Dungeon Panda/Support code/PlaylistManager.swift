@@ -93,16 +93,40 @@ class PlaylistManager {
         }
 
         // For all Tracklists, see if we have a Playlist defined and create one
-        // if not. Remember, Tracklist and Playlist IDs are interchangeable.
+        // if not. Remember, Tracklist and Playlist IDs are interchangeable. We
+        // handle out of date playlists here too.
         //
         for tracklist in staticTracklistManager.getTracklists()
         {
-            if self.playlistsByID[tracklist.id] == nil
+            // Handle out of date playlists.
+            //
+            if let playlist = self.playlistsByID[tracklist.id]
+            {
+                if playlist.version < tracklist.version
+                {
+                    print("PlaylistManager init: Playlist \(tracklist.id) is out of date; updating")
+
+                    playlist.displayName = tracklist.displayName
+                    playlist.version     = tracklist.version
+                    playlist.storeIDs    = shuffleStoreIDsWithin(tracklist: tracklist)
+
+                    if let position = self.currentPositionsInPlaylistsByID[tracklist.id]
+                    {
+                        position.currentIndex        = 0
+                        position.currentPlaybackTime = 0
+                    }
+                }
+            }
+
+            // Handle missing playlists.
+            //
+            else
             {
                 let newPlaylist = Playlist(context: context)
 
                 newPlaylist.id          = tracklist.id
                 newPlaylist.displayName = tracklist.displayName
+                newPlaylist.version     = tracklist.version
                 newPlaylist.storeIDs    = shuffleStoreIDsWithin(tracklist: tracklist)
 
                 self.playlists.append(newPlaylist)
@@ -113,8 +137,9 @@ class PlaylistManager {
             {
                 let newPosition = CurrentPositionInPlaylist(context: context)
 
-                newPosition.playlistID   = tracklist.id
-                newPosition.currentIndex = 0
+                newPosition.playlistID          = tracklist.id
+                newPosition.currentIndex        = 0
+                newPosition.currentPlaybackTime = 0
 
                 self.currentPositionsInPlaylists.append(newPosition)
                 self.currentPositionsInPlaylistsByID[tracklist.id] = newPosition

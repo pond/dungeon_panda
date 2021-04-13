@@ -232,6 +232,11 @@ class MusicPlaybackManager {
 
     @objc func nowPlayingItemDidChange()
     {
+        if self.mediaPlayer.playbackState != .playing
+        {
+            return
+        }
+
         var (playingPlaylist, playingTrack, playingIndex) = self.playlistManager.nowPlaying()
 
         if let newPlaybackStoreID = mediaPlayer.nowPlayingItem?.playbackStoreID,
