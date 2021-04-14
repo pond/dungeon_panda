@@ -486,6 +486,7 @@ class MusicPlaybackManager {
         else
         {
             self.fadeInOnNextPlaybackStartedEvent = false
+            self.transitionOperationUnderway      = false
         }
 
         let playingTrack = self.playlistManager.getPlayingTrack()

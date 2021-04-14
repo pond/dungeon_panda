@@ -14,16 +14,19 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
     @IBOutlet weak var playlistAndTrackName: UILabel!
     @IBOutlet weak var playPosition: UILabel!
     @IBOutlet weak var positionSlider: UISlider!
+    @IBOutlet weak var volumeParentView: UIView!
 
     let appleMusic  = AppleMusicAPI()
     let appDelegate = UIApplication.shared.delegate as! AppDelegate
 
+    var volumeView: UIView?
     var labelTimer: Timer?
     var ignorePositionUpdates: Bool = false
 
     // MARK: - VIEW LIFECYCLE
 
-    override func viewDidLoad() {
+    override func viewDidLoad()
+    {
         super.viewDidLoad()
 
         self.playlistAndTrackName.text = "Not playing"
@@ -31,14 +34,6 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
         self.positionSlider.setValue(0, animated: false)
 
         self.appDelegate.musicPlaybackManager!.delegates.append(self)
-
-        // Hackery required for volume changes from MusicPlaybackManager.
-        //
-        let volumeView = MPVolumeView(frame: CGRect(x: -CGFloat.greatestFiniteMagnitude, y:0, width:0, height:0))
-        view.addSubview(volumeView)
-        let hiddenSystemVolumeSlider = volumeView.subviews.first(where: { $0 is UISlider }) as? UISlider
-
-        self.appDelegate.musicPlaybackManager!.setHiddenSystemVolumeSlider(hiddenSystemVolumeSlider)
 
         // Track alterations in system volume by the user so that fade in/out
         // etc. can all work relative to this user-chosen baseline.
@@ -72,7 +67,30 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
         }
     }
 
-    override func viewDidDisappear(_ animated: Bool) {
+    override func viewDidAppear(_ animated: Bool)
+    {
+        super.viewDidAppear(animated)
+
+        // The volume view when placed to match bounds exactly appears
+        // displaced some distance vertically above the requested region,
+        // actually spilling out if its container. Sigh.
+        //
+        let bounds = CGRect(x: 0,
+                            y: 8,
+                        width: self.volumeParentView.bounds.width,
+                       height: self.volumeParentView.bounds.height)
+
+        self.volumeView = MPVolumeView(frame: bounds)
+        self.volumeParentView.addSubview(self.volumeView!)
+
+        let hiddenSystemVolumeSlider = self.volumeView!.subviews.first(where: { $0 is UISlider }) as? UISlider
+        print("Volume sider is \(String(describing: hiddenSystemVolumeSlider))")
+
+        self.appDelegate.musicPlaybackManager!.setHiddenSystemVolumeSlider(hiddenSystemVolumeSlider)
+    }
+
+    override func viewDidDisappear(_ animated: Bool)
+    {
         UIApplication.shared.endReceivingRemoteControlEvents()
 
         NotificationCenter.default.removeObserver(self)
