@@ -102,7 +102,11 @@ class PlaylistManager {
             //
             if let playlist = self.playlistsByID[tracklist.id]
             {
-                if playlist.version < tracklist.version
+                let sortedTracklistStoreIDs = tracklist.getStoreIDArray().sorted()
+                let sortedPlaylistStoreIDs  = playlist.storeIDs.sorted()
+
+                if playlist.version != tracklist.version ||
+                   false == sortedPlaylistStoreIDs.elementsEqual(sortedTracklistStoreIDs)
                 {
                     print("PlaylistManager init: Playlist \(tracklist.id) is out of date; updating")
 

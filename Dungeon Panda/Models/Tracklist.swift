@@ -64,6 +64,7 @@ class Tracklist
     */
     func add(_ track: Track)
     {
+        assert(self.tracks[track.storeID] == nil, "Track with Store ID \(track.storeID) has already been added to Tracklist \(self.id)")
         self.tracks[track.storeID] = track
     }
 

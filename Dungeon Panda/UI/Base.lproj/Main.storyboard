@@ -186,8 +186,14 @@
                                     </stackView>
                                 </subviews>
                             </stackView>
-                            <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="HN9-MX-FoI">
+                            <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" minValue="0.0" maxValue="1" continuous="NO" translatesAutoresizingMaskIntoConstraints="NO" id="HN9-MX-FoI">
                                 <rect key="frame" x="52" y="317.5" width="792" height="31"/>
+                                <connections>
+                                    <action selector="sliderPositionChangedByUser" destination="BYZ-38-t0r" eventType="valueChanged" id="IqH-fq-mxU"/>
+                                    <action selector="userIsMovingSlider" destination="BYZ-38-t0r" eventType="touchDown" id="lrP-Yc-jAA"/>
+                                    <action selector="userReleasedSlider" destination="BYZ-38-t0r" eventType="touchUpOutside" id="oKv-y8-e9a"/>
+                                    <action selector="userReleasedSlider" destination="BYZ-38-t0r" eventType="touchUpInside" id="x6Q-6Q-BQi"/>
+                                </connections>
                             </slider>
                             <stackView opaque="NO" contentMode="left" distribution="equalSpacing" translatesAutoresizingMaskIntoConstraints="NO" id="Wvk-Ek-x4l">
                                 <rect key="frame" x="54" y="357.5" width="788" height="25.5"/>
@@ -225,6 +231,9 @@
                                     </label>
                                 </subviews>
                             </stackView>
+                            <stackView opaque="NO" contentMode="scaleToFill" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="11z-8b-Dh0">
+                                <rect key="frame" x="52" y="318" width="793" height="31"/>
+                            </stackView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
@@ -234,10 +243,13 @@
                             <constraint firstItem="HN9-MX-FoI" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="10" id="AF4-EF-ogs"/>
                             <constraint firstItem="1u6-4q-MWC" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="10" id="BpG-Jv-XkF"/>
                             <constraint firstItem="Wvk-Ek-x4l" firstAttribute="top" secondItem="HN9-MX-FoI" secondAttribute="bottom" constant="10" id="E27-zj-hxO"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="11z-8b-Dh0" secondAttribute="trailing" constant="10" id="FJC-t3-4E0"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="11z-8b-Dh0" secondAttribute="bottom" constant="44.5" id="MyQ-lT-2gk"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="Wvk-Ek-x4l" secondAttribute="bottom" constant="10" id="Njb-QE-v0O"/>
                             <constraint firstItem="Wvk-Ek-x4l" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="10" id="cYo-2s-99f"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="1u6-4q-MWC" secondAttribute="trailing" constant="10" id="d8Q-9c-aBq"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="HN9-MX-FoI" secondAttribute="trailing" constant="10" id="gsv-Wn-Mah"/>
+                            <constraint firstItem="11z-8b-Dh0" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="10" id="ydI-db-oy8"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="Wvk-Ek-x4l" secondAttribute="trailing" constant="10" id="zxY-Sg-4rQ"/>
                         </constraints>
                     </view>

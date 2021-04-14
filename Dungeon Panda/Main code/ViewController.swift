@@ -19,6 +19,9 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
     let appDelegate = UIApplication.shared.delegate as! AppDelegate
 
     var labelTimer: Timer?
+    var ignorePositionUpdates: Bool = false
+
+    // MARK: - VIEW LIFECYCLE
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -77,11 +80,32 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
         super.viewWillDisappear(animated)
     }
 
-    @IBAction func playMusic(_ sender: UIButton) {
+    // MARK: - ACTIONS
+
+    @IBAction func playMusic(_ sender: UIButton)
+    {
         if let musicPlaybackManager = self.appDelegate.musicPlaybackManager,
            let playlistID = sender.accessibilityIdentifier
         {
             musicPlaybackManager.changePlaylist(playlistID: playlistID)
+        }
+    }
+
+    @IBAction func userIsMovingSlider()
+    {
+        self.ignorePositionUpdates = true
+    }
+
+    @IBAction func userReleasedSlider()
+    {
+        self.ignorePositionUpdates = false
+    }
+
+    @IBAction func sliderPositionChangedByUser()
+    {
+        if let musicPlayerManager = self.appDelegate.musicPlaybackManager
+        {
+            musicPlayerManager.positionSliderWasManuallyMoved(value: self.positionSlider.value)
         }
     }
 
@@ -317,7 +341,6 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
                         }
                     }
                 )
-
             }
         }
     }
