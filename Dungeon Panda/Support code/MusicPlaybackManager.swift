@@ -189,7 +189,10 @@ class MusicPlaybackManager {
     }
 
     /**
-     Called by the view layer to tell us that the system volume was changed.
+     Called by the view layer to tell us that the system volume was changed. The volume given is
+     stored locally, but reverse-scaled by current playlist etc. to account for the user adjusting the
+     volume within a context of a tracklist and track with volume percentages that may be less than
+     100%, and current system volume set accordingly.
 
      - Parameter volume: Current system volume (from 0, silent, to 1, maximum).
      */
@@ -197,8 +200,10 @@ class MusicPlaybackManager {
     {
         if transitionOperationUnderway == false
         {
-            print("User changed system volume to \(volume)")
-            self.referenceSystemVolume = volume
+            let reverseScaledVolume = volume / currentVolumeScaleFactor()
+            self.referenceSystemVolume = reverseScaledVolume
+
+            print("User changed system volume to \(volume), scaled to \(reverseScaledVolume)")
         }
     }
 
@@ -208,13 +213,25 @@ class MusicPlaybackManager {
 
      - Parameter volume: Optional volume; if omitted, on changes are made.
      */
-
     func setVolume(volume: Double?)
     {
         if volume != nil
         {
-            self.hiddenSystemVolumeSlider?.value = Float(volume!)
+            let scaledVolume = volume! * currentVolumeScaleFactor()
+            self.hiddenSystemVolumeSlider?.value = Float(scaledVolume)
         }
+    }
+
+    /**
+     Return the current volume scale factor as Double less than or equal to 1, accounting for current
+     tracklist and track relative volume percentages.
+    */
+    func currentVolumeScaleFactor() -> Double
+    {
+        let (playlist, track, _) = self.playlistManager.nowPlaying()
+        let tracklist = self.playlistManager.getTracklistForPlaylist(playlist)
+
+        return (Double(tracklist.volumePercent) / 100.0) * (Double(track.volumePercent) / 100.0)
     }
 
     // MARK: - PLAYBACK EVENTS
@@ -485,25 +502,30 @@ class MusicPlaybackManager {
         }
         else
         {
+            self.setVolume(volume: self.referenceSystemVolume)
+
             self.fadeInOnNextPlaybackStartedEvent = false
             self.transitionOperationUnderway      = false
         }
 
-        let playingTrack = self.playlistManager.getPlayingTrack()
+        let (playingPlaylist, playingTrack, _) = self.playlistManager.nowPlaying()
+        let underlyingTracklist                = self.playlistManager.getTracklistForPlaylist(playingPlaylist)
 
-        // Set a timer to fade out just before the track moves on?
+        // Set a timer to fade out just before the track moves on, or so that
+        // we can auto-switch to a different playlist afterwards.
         //
-        if playingTrack.fadeOut
+        if playingTrack.fadeOut || underlyingTracklist.autoSwitchAfter != nil
         {
             let currentItemDuration   = self.mediaPlayer.nowPlayingItem?.playbackDuration
             let currentItemPosition   = self.mediaPlayer.currentPlaybackTime
             let trackEndOffset        = self.playlistManager.getPlayingTrack().endOffset
             let effectiveItemDuration = trackEndOffset != nil && trackEndOffset != 0 ? trackEndOffset : currentItemDuration
-            let fadeOutDuration       = 2.0
+            let fadeOutDuration       = playingTrack.fadeOut ? 2.00 : 0.50
+            let safetyMargin          = playingTrack.fadeOut ? 0.75 : 0.50
 
             if effectiveItemDuration != 0 && effectiveItemDuration != nil
             {
-                let timeUntilFadeStarts = effectiveItemDuration! - currentItemPosition - fadeOutDuration - 1.0 // 2 seconds for safety
+                let timeUntilFadeStarts = effectiveItemDuration! - currentItemPosition - fadeOutDuration - safetyMargin
 
                 stopFadeOutInitiationTimer()
 
@@ -515,6 +537,12 @@ class MusicPlaybackManager {
                 )
                 { timer in
                     self.stopFadeOutInitiationTimer()
+
+                    if underlyingTracklist.autoSwitchAfter != nil
+                    {
+                        self.targetPlaylist = self.playlistManager.getPlaylistForID(playlistID: underlyingTracklist.autoSwitchAfter!)
+                    }
+
                     self.transitionToNextSongWithFadeOutIfRequired()
                 }
             }
@@ -550,30 +578,35 @@ class MusicPlaybackManager {
 //
 //        self.startSongWithFadeInIfRequired(fromTrack: track)
 
-        self.mediaPlayer.prepareToPlay(
-            completionHandler:
-            { error in
-                if error == nil
-                {
-                    DispatchQueue.main.async
+        // https://stackoverflow.com/a/66472117
+        //
+        DispatchQueue(label: "uk.org.pond.DungeonPanda.playqueue").async
+        {
+            self.mediaPlayer.prepareToPlay(
+                completionHandler:
+                { error in
+                    if error == nil
                     {
-                        self.startSongWithFadeInIfRequired(fromTrack: track)
+                        DispatchQueue.main.async
+                        {
+                            self.startSongWithFadeInIfRequired(fromTrack: track)
+                        }
+                    }
+                    else
+                    {
+                        print("startPlayingFromCurrentPlaylist: ERROR: \(error!)")
+
+                        self.stopWatchdogTimer()
+                        self.targetPlaylist = playlist
+
+                        DispatchQueue.main.async
+                        {
+                            self.transitionToNextSongWithFadeOutIfRequired(forceImmediate: true)
+                        }
                     }
                 }
-                else
-                {
-                    print("startPlayingFromCurrentPlaylist: ERROR: \(error!)")
-
-                    self.stopWatchdogTimer()
-                    self.targetPlaylist = playlist
-
-                    DispatchQueue.main.async
-                    {
-                        self.transitionToNextSongWithFadeOutIfRequired(forceImmediate: true)
-                    }
-                }
-            }
-        )
+            )
+        }
     }
 
     private func transitionToNextSongWithFadeOutIfRequired(forceImmediate: Bool = false)
@@ -600,30 +633,7 @@ class MusicPlaybackManager {
                 duration: fadeOutDuration,
                 completionHandler:
                 {
-                    // After this, the handler exits and the fade-out routine
-                    // will clear its timer. There might be transitions that
-                    // happen next which cause us to think system volume was
-                    // set to zero, but we'll fix that in the code below.
-                    //
-                    self.mediaPlayer.pause()
-
-                    // Without this hack, there is sometimes a brief loud spike
-                    // in music because when we tell the player to pause, it
-                    // doesn't do it immediately (obviously, because just doing
-                    // something synchronously in the same thread when asked to
-                    // is far too easy, isn't it... Rolls eyes).
-                    //
-                    // Since we reset to reference volume outside this thread
-                    // context, the fade timer will be gone and we know that the
-                    // change will be treated as a user-set event, making sure
-                    // that 'self.referenceSystemVolume' ends up back at the
-                    // prior level cached in variable 'resetSystemVolume' above.
-                    //
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.25)
-                    {
-                        self.setVolume(volume: self.referenceSystemVolume)
-                        self.transitionToNextSongNow()
-                    }
+                    self.transitionToNextSongNow()
                 }
             )
         }
@@ -644,6 +654,13 @@ class MusicPlaybackManager {
         let nextTrackIndex  = self.playlistManager.currentItemHasBeenPlayedIn(
             playlistID: self.playlistManager.getPlayingPlaylist().id!
         )
+
+//        let tracklist = self.playlistManager.getTracklistForPlaylist(playingPlaylist)
+//
+//        if tracklist.autoSwitchAfter != nil
+//        {
+//            self.targetPlaylist = self.playlistManager.getPlaylistForID(playlistID: tracklist.autoSwitchAfter!)
+//        }
 
         if self.targetPlaylist != nil && playingPlaylist.id != self.targetPlaylist!.id
         {
@@ -688,7 +705,13 @@ class MusicPlaybackManager {
         print("startSongNow: Called")
 
         startWatchdogTimer()
-        self.mediaPlayer.play()
+
+        // https://stackoverflow.com/a/66472117
+        //
+        DispatchQueue(label: "uk.org.pond.DungeonPanda.playqueue").async
+        {
+            self.mediaPlayer.play()
+        }
     }
 
     // MARK: - PRIVATE: FADING

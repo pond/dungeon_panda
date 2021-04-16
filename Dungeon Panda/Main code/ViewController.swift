@@ -19,7 +19,7 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
     let appleMusic  = AppleMusicAPI()
     let appDelegate = UIApplication.shared.delegate as! AppDelegate
 
-    var volumeView: UIView?
+    var volumeView: MPVolumeView?
     var labelTimer: Timer?
     var ignorePositionUpdates: Bool = false
 
@@ -34,6 +34,23 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
         self.positionSlider.setValue(0, animated: false)
 
         self.appDelegate.musicPlaybackManager!.delegates.append(self)
+
+        // Add the volume view.
+        //
+        // When placed to match bounds exactly, the view is actually displaced
+        // some distance vertically above the requested region, actually
+        // spilling out if its container. Sigh.
+        //
+        let bounds = CGRect(x: 0,
+                            y: 8,
+                            width: self.volumeParentView.bounds.width,
+                            height: self.volumeParentView.bounds.height)
+
+        self.volumeView = MPVolumeView(frame: bounds)
+        self.volumeParentView.addSubview(self.volumeView!)
+
+        self.volumeView!.setVolumeThumbImage(UIImage(named: "Volume slider"), for: .normal)
+        self.positionSlider.setThumbImage(UIImage(named: "Position slider"), for: .normal)
 
         // Track alterations in system volume by the user so that fade in/out
         // etc. can all work relative to this user-chosen baseline.
@@ -70,18 +87,6 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
     override func viewDidAppear(_ animated: Bool)
     {
         super.viewDidAppear(animated)
-
-        // The volume view when placed to match bounds exactly appears
-        // displaced some distance vertically above the requested region,
-        // actually spilling out if its container. Sigh.
-        //
-        let bounds = CGRect(x: 0,
-                            y: 8,
-                        width: self.volumeParentView.bounds.width,
-                       height: self.volumeParentView.bounds.height)
-
-        self.volumeView = MPVolumeView(frame: bounds)
-        self.volumeParentView.addSubview(self.volumeView!)
 
         let hiddenSystemVolumeSlider = self.volumeView!.subviews.first(where: { $0 is UISlider }) as? UISlider
         print("Volume sider is \(String(describing: hiddenSystemVolumeSlider))")
@@ -190,8 +195,8 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
         let remainingTime    = relativeDuration - relativePosition
         let minutes          = Int(remainingTime / 60)
         let seconds          = Int(remainingTime.truncatingRemainder(dividingBy: 60))
-        let minutesDisplay   = minutes > 0 ? "\(minutes)m " : ""
-        let secondsDisplay   = "\(seconds)s"
+        let minutesDisplay   = minutes > 0  ? "\(minutes)m " : ""
+        let secondsDisplay   = seconds > 10 ? "\(seconds)s"  : "0\(seconds)s"
 
         self.playPosition.text = "-\(minutesDisplay)\(secondsDisplay)"
         self.positionSlider.setValue(Float(relativePosition / (relativeDuration - 1)), animated: false)
@@ -298,10 +303,6 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
                     for song in songs {
                         print(song)
                     }
-
-                    let musicPlayer = MPMusicPlayerController.applicationMusicPlayer
-                    musicPlayer.setQueue(with: [songs[0].id])
-                    musicPlayer.play()
                 }
             }
         )

@@ -285,6 +285,17 @@ class PlaylistManager {
     }
 
     /**
+     Returns the Tracklist associated with the given Playlist, by relying on their interchangeable IDs.
+
+     - Parameter playlist: Playlist for which associated Tracklist is to be returned.
+     - Returns: Tracklist related to given Playlist.
+    */
+    func getTracklistForPlaylist(_ playlist: Playlist) -> Tracklist
+    {
+        return self.staticTracklistManager.getTracklistBy(tracklistID: playlist.id!)!
+    }
+
+    /**
      Return a Track in a given Playlist based on a Store ID.
 
      - Parameters:
