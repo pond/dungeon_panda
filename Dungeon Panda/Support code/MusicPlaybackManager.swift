@@ -10,15 +10,17 @@ import UIKit
 import CoreData
 import MediaPlayer
 
-protocol MusicPlaybackManagerDelegate {
+protocol MusicPlaybackManagerDelegate
+{
     func playbackStarted(playbackManager: MusicPlaybackManager, inPlaylist: Playlist, withTrack: Track)
     func playbackProgressChanged(playbackManager: MusicPlaybackManager, inPlaylist: Playlist, withTrack: Track, position: TimeInterval, duration: TimeInterval)
     func playbackPaused(playbackManager: MusicPlaybackManager)
     func playbackResumed(playbackManager: MusicPlaybackManager)
+    func playbackArtworkWasDetermined(artwork: MPMediaItemArtwork)
 }
 
-class MusicPlaybackManager {
-
+class MusicPlaybackManager
+{
     public var delegates: [MusicPlaybackManagerDelegate] = []
 
     let appDelegate = UIApplication.shared.delegate as! AppDelegate
@@ -548,8 +550,15 @@ class MusicPlaybackManager {
             }
         }
 
-        self.delegates.forEach { (delegate) in
+        let artwork = self.mediaPlayer.nowPlayingItem?.artwork
+
+        self.delegates.forEach{ (delegate) in
             delegate.playbackResumed(playbackManager: self)
+
+            if artwork != nil
+            {
+                delegate.playbackArtworkWasDetermined(artwork: artwork!)
+            }
         }
     }
 
