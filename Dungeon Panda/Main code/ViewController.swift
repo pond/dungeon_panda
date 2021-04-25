@@ -118,7 +118,7 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
         if let musicPlaybackManager = self.appDelegate.musicPlaybackManager,
            let playlistID = sender.accessibilityIdentifier
         {
-            musicPlaybackManager.changePlaylist(playlistID: playlistID)
+            musicPlaybackManager.startPlayingNextInPlaylist(playlistID: playlistID)
         }
     }
 

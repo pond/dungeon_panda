@@ -59,6 +59,9 @@ class MusicPlaybackManager
     /// Used to initiate a fade-out operation, if not done explicitly by e.g. track skip.
     var fadeOutInitiationTimer: Timer?
 
+    /// Timer that fires at or just after a track finishes, since there are no events in the API for this.
+    var trackEndsAtTimer: Timer?
+
     /// Marks that a track transition operation is underway and volume change events should
     /// be ignored, since we're probably the source of them.
     var transitionOperationUnderway: Bool = false
@@ -100,7 +103,7 @@ class MusicPlaybackManager
     /**
      Start playback after initial application launch. Called externally, when the view layer
      believes it is "safe" / sensible to do so. Can be called off main thread.
-    */
+     */
     func startInitialPlayback()
     {
         // As with all random wait loops, this is a hack. If we start too
@@ -123,15 +126,230 @@ class MusicPlaybackManager
         }
     }
 
-    func changePlaylist(playlistID: String)
+    /**
+     Given a playlist ID, find CoreData records for the "current" playing track therein and transition from
+     whever is playing now, to the _next_ track in that playlist.
+
+     - Parameter playlistID: ID of playlist to use for playback.
+    */
+    func startPlayingNextInPlaylist(playlistID: String)
     {
         self.targetPlaylist = self.playlistManager.getPlaylistForID(playlistID: playlistID)
 
-        NSLog("changePlaylist: Changing to \(targetPlaylist!.id!)")
-        NSLog("changePlaylist: Store IDs \(targetPlaylist!.storeIDs)")
+        NSLog("startPlayingNextInPlaylist: Playing from \(targetPlaylist!.id!)")
+        NSLog("startPlayingNextInPlaylist: Store IDs \(targetPlaylist!.storeIDs)")
 
-        transitionToNextSongWithFadeOutIfRequired()
+        transitionToNextTrack()
     }
+
+
+
+
+
+
+
+    private func transitionToNextTrack(forceImmediate: Bool = false)
+    {
+        print("transitionToNextSongWithFadeOutIfRequired: Called, forceImmediate = \(forceImmediate)")
+
+        self.transitionOperationUnderway = true
+
+        stopTrackEndsAtTimer()
+        stopFadeOutInitiationTimer()
+
+        let mediaIsPlaying        = self.mediaPlayer.playbackState == .playing
+        let currentItemDuration   = mediaIsPlaying ? self.mediaPlayer.nowPlayingItem?.playbackDuration : nil
+        let currentItemPosition   = mediaIsPlaying ? self.mediaPlayer.currentPlaybackTime              : nil
+        let trackEndOffset        = self.playlistManager.getPlayingTrack().endOffset
+        let effectiveItemDuration = trackEndOffset != nil && trackEndOffset != 0 ? trackEndOffset : currentItemDuration
+        let fadeOutDuration       = 2.0
+        let wirelessSpeakerGrace  = 1.0 // Lag time for speakers to obey volume changes
+        let fadeOutIsWorthwhile   = effectiveItemDuration != nil &&
+            currentItemPosition   != nil &&
+            effectiveItemDuration! - currentItemPosition! >= fadeOutDuration + wirelessSpeakerGrace + 0.5 // 0.5s wiggle room
+
+        if forceImmediate == false && mediaIsPlaying == true && fadeOutIsWorthwhile == true
+        {
+            fadeOut(
+                duration: fadeOutDuration,
+                completionHandler:
+                {
+                    // TODO: implement wirelessSpeakerGrace.
+
+                    self.transitionToNextSongNow()
+                }
+            )
+        }
+        else
+        {
+            transitionToNextSongNow()
+        }
+    }
+
+    private func transitionToNextSongNow()
+    {
+        // Work out the next index in this playlist now that the current item
+        // has been played. If changing playlist, just switch that over and let
+        // playback start from whatever the most recent index was there. If the
+        // playlist is unchanged, use the index given by the playlist manager.
+        //
+        let playingPlaylist = self.playlistManager.getPlayingPlaylist()
+        let nextTrackIndex  = self.playlistManager.currentItemHasBeenPlayedIn(
+            playlistID: self.playlistManager.getPlayingPlaylist().id!
+        )
+
+        if self.targetPlaylist != nil && playingPlaylist.id != self.targetPlaylist!.id
+        {
+            self.playlistManager.setPlayingPlayist(playlist: self.targetPlaylist!)
+        }
+        else
+        {
+            self.playlistManager.setCurrentPlaybackIndexFor(playlist: playingPlaylist, index: nextTrackIndex)
+        }
+
+        self.targetPlaylist = nil
+
+        startPlayingFromCurrentPlaylist()
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    func startPlayback(track: Track)
+    {
+        /*
+         * Make sure media player is paused.
+         * Set queue to the single playlist store ID.
+         * Set a watchdog for "playback started".
+         * Prepare to play / general hackery to avoid the known issues as with current code.
+         * TRANSITION STARTED
+         * NEXT PLAYBACK EVENT IS TRACK START
+         * If fading in, set volume to zero
+         * Play
+         */
+    }
+
+    func onNormalPlaybackStateEntered()
+    {
+        /*
+         * Cancel watchdog timer
+         * Start position update timer
+         * If fading out, set a timer for fadeout start.
+         - when this fires
+         TRANSITION STARTED
+         It does all of its fadeout, then on completion sets another timer to wait 1 or 2 seconds
+         for external devices (e.g. Bluetooth speakers) comms lag on volume change requests
+         - when this last one fires, calls a chokepoint "track ended" method.
+
+         * If not fading out, set a timer for a second or two after track expects to end
+         - when this fires
+         TRANSITION STARTED
+         calls a chokepoint "track ended" method.
+
+         * If NEXT PLAYBACK EVENT IS TRACK START
+         - CLEAR "NEXT PLAYBACK EVENT IS TRACK START"
+         - If fading in, set timer for this
+         - when this completes, TRANSITION ENDED
+
+         - Else TRANSITION ENDED immediately
+         */
+    }
+
+    func onAnyOtherPlaybackStateEntered(isSeeking: Bool)
+    {
+        if isSeeking == false
+        {
+            // * Cancel position update timer
+        }
+
+        /*
+         * Cancel fadeout timer
+         * Cancel track-end timer
+         * Set reference volume immediately
+         */
+    }
+//
+//    func trackWatchdogTimerFired()
+//    {
+//    }
+//
+//    func trackEndedTimerFired()
+//    {
+//        /*
+//         * Cancel position update timer
+//         * Player all stop
+//         * Figures out what to play next
+//         * Calls "starting any track" method as above
+//         */
+//    }
+//
+//
+//    // Check it starts to actually play
+//    func startWatchdogTimer()
+//    {
+//    }
+//
+//    func cancelWatchdogTimer()
+//    {
+//    }
+//
+//    // Immediately start fading in, in iterative steps.
+//    func startFadeInTimer()
+//    {
+//    }
+//
+//    func cancelFadeInTimer()
+//    {
+//    }
+//
+//    // Calculate length of time to wait before end-of-track WILL HAVE happened
+//    // (past tense - track already finished).
+//    func startTrackEndTimer(forTrack: Track)
+//    {
+//    }
+//
+//    func cancelTrackEndTimer()
+//    {
+//    }
+//
+//    // Similar to track-end timer, but calculates back to fade out by the end
+//    // of track offset (minus a second or so for safety) and schedules a fade
+//    // out for that point. This is NOT the fade-out itself; it's the thing
+//    // which initiates the fade-out.
+//    func startBeginFadeOutTimer(forTrack: Track)
+//    {
+//    }
+//
+//    func cancelBeginFadeOutTimer()
+//    {
+//    }
+//
+//    // Immediately start fading out, in iterative steps.
+//    func startFadeOutTimer()
+//    {
+//    }
+//
+//    func cancelFadeOutTimer()
+//    {
+//    }
+
+
 
     /**
      Called by the view layer when the user finishes dragging the position slider somewhere.
@@ -165,7 +383,7 @@ class MusicPlaybackManager
 
     func skipTrack()
     {
-        transitionToNextSongWithFadeOutIfRequired()
+        transitionToNextTrack()
     }
 
     func pause()
@@ -283,9 +501,23 @@ class MusicPlaybackManager
             case .paused, .stopped, .interrupted:
                 if currentlyPlaying == true || currentlySeeking == true
                 {
-                    currentlyPlaying = false
-                    currentlySeeking = false
-                    effectivePlaybackStateDidHaltPlayback()
+                    // Does this look like e.g. a user-paused event or a self
+                    // pause due to end of queue reached (i.e. end of track)?
+                    // 0.5s subtraction just leeway for rampant inaccuracies
+                    // noted in the media player in real world use :-/
+                    //
+                    if (
+                        self.mediaPlayer.nowPlayingItem == nil ||
+                        (
+                            self.mediaPlayer.currentPlaybackTime <= self.mediaPlayer.nowPlayingItem!.playbackDuration - 0.5 &&
+                            self.mediaPlayer.currentPlaybackTime != 0
+                        )
+                    )
+                    {
+                        currentlyPlaying = false
+                        currentlySeeking = false
+                        effectivePlaybackStateDidHaltPlayback()
+                    }
                 }
 
             case .seekingForward, .seekingBackward:
@@ -333,7 +565,7 @@ class MusicPlaybackManager
             {
                 print("nowPlayingItemDidChange: Playlist ended; shuffling")
 
-                transitionToNextSongWithFadeOutIfRequired()
+                transitionToNextTrack()
             }
             else
             {
@@ -374,7 +606,7 @@ class MusicPlaybackManager
 
             self.targetPlaylist = self.playlistManager.getPlayingPlaylist()
 
-            transitionToNextSongWithFadeOutIfRequired(forceImmediate: true)
+            transitionToNextTrack(forceImmediate: true)
         }
     }
 
@@ -444,6 +676,7 @@ class MusicPlaybackManager
         print("effectivePlaybackStateDidHaltPlayback: Called")
 
         stopWatchdogTimer()
+        stopTrackEndsAtTimer()
         stopFadeOutInitiationTimer()
         stopFadeTimer()
         stopPositionTimer()
@@ -468,6 +701,7 @@ class MusicPlaybackManager
         print("effectivePlaybackStateDidStartSeeking: Called")
 
         stopWatchdogTimer()
+        stopTrackEndsAtTimer()
         stopFadeOutInitiationTimer()
         stopFadeTimer()
 
@@ -487,6 +721,7 @@ class MusicPlaybackManager
         print("effectivePlaybackStateDidStartPlaying: Called")
 
         stopWatchdogTimer()
+        stopTrackEndsAtTimer()
         stopFadeOutInitiationTimer()
 
         startPositionTimer()
@@ -513,40 +748,60 @@ class MusicPlaybackManager
         let (playingPlaylist, playingTrack, _) = self.playlistManager.nowPlaying()
         let underlyingTracklist                = self.playlistManager.getTracklistForPlaylist(playingPlaylist)
 
-        // Set a timer to fade out just before the track moves on, or so that
-        // we can auto-switch to a different playlist afterwards.
+        let currentItemDuration   = self.mediaPlayer.nowPlayingItem?.playbackDuration ?? TimeInterval(60.0) // "nil" -> serious error; call the track 60 seconds?! Nothing much else to do!
+        let currentItemPosition   = self.mediaPlayer.currentPlaybackTime
+        let trackEndOffset        = self.playlistManager.getPlayingTrack().endOffset ?? currentItemDuration
+        let remainingItemDuration = trackEndOffset - currentItemPosition
+
+        stopTrackEndsAtTimer()
+        stopFadeOutInitiationTimer()
+
+        // Set a timer to fade out just before the track moves on, or set a
+        // track-ends monitor timer to perform similar actions without fading.
         //
-        if playingTrack.fadeOut || underlyingTracklist.autoSwitchAfter != nil
+        if playingTrack.fadeOut
         {
-            let currentItemDuration   = self.mediaPlayer.nowPlayingItem?.playbackDuration
-            let currentItemPosition   = self.mediaPlayer.currentPlaybackTime
-            let trackEndOffset        = self.playlistManager.getPlayingTrack().endOffset
-            let effectiveItemDuration = trackEndOffset != nil && trackEndOffset != 0 ? trackEndOffset : currentItemDuration
-            let fadeOutDuration       = playingTrack.fadeOut ? 2.00 : 0.50
-            let safetyMargin          = playingTrack.fadeOut ? 0.75 : 0.50
+            let fadeOutDuration     = 2.00
+            let safetyMargin        = 0.75
+            let timeUntilFadeStarts = remainingItemDuration - fadeOutDuration - safetyMargin
 
-            if effectiveItemDuration != 0 && effectiveItemDuration != nil
-            {
-                let timeUntilFadeStarts = effectiveItemDuration! - currentItemPosition - fadeOutDuration - safetyMargin
+            print("Scheduling fade-out timer to run in \(timeUntilFadeStarts) seconds")
 
-                stopFadeOutInitiationTimer()
+            self.fadeOutInitiationTimer = Timer.scheduledTimer(
+                withTimeInterval: timeUntilFadeStarts,
+                repeats: false
+            )
+            { timer in
+                self.stopFadeOutInitiationTimer()
 
-                print("(Re)scheduling fade-out timer to run in \(timeUntilFadeStarts) seconds")
-
-                self.fadeOutInitiationTimer = Timer.scheduledTimer(
-                    withTimeInterval: timeUntilFadeStarts,
-                    repeats: false
-                )
-                { timer in
-                    self.stopFadeOutInitiationTimer()
-
-                    if underlyingTracklist.autoSwitchAfter != nil
-                    {
-                        self.targetPlaylist = self.playlistManager.getPlaylistForID(playlistID: underlyingTracklist.autoSwitchAfter!)
-                    }
-
-                    self.transitionToNextSongWithFadeOutIfRequired()
+                if underlyingTracklist.autoSwitchAfter != nil
+                {
+                    self.targetPlaylist = self.playlistManager.getPlaylistForID(playlistID: underlyingTracklist.autoSwitchAfter!)
                 }
+
+                self.transitionToNextTrack()
+            }
+        }
+        else
+        {
+            let safetyMargin       = 1.0
+            let timeUntilTrackEnds = remainingItemDuration + safetyMargin
+
+            print("Scheduling end-of-track timer to run in \(timeUntilTrackEnds) seconds")
+
+            self.trackEndsAtTimer = Timer.scheduledTimer(
+                withTimeInterval: timeUntilTrackEnds,
+                         repeats: false
+            )
+            { timer in
+                self.stopTrackEndsAtTimer()
+
+                if underlyingTracklist.autoSwitchAfter != nil
+                {
+                    self.targetPlaylist = self.playlistManager.getPlaylistForID(playlistID: underlyingTracklist.autoSwitchAfter!)
+                }
+
+                self.transitionToNextTrack()
             }
         }
 
@@ -580,7 +835,8 @@ class MusicPlaybackManager
             )
         }
 
-        let descriptor = self.playlistManager.getQueueDescriptorFor(playlist: playlist)
+//        let descriptor = self.playlistManager.getQueueDescriptorFor(playlist: playlist)
+        let descriptor = self.playlistManager.getQueueDescriptorFor(track: track)
 
         self.mediaPlayer.setQueue(with: descriptor)
 //        self.mediaPlayer.prepareToPlay()
@@ -610,79 +866,12 @@ class MusicPlaybackManager
 
                         DispatchQueue.main.async
                         {
-                            self.transitionToNextSongWithFadeOutIfRequired(forceImmediate: true)
+                            self.transitionToNextTrack(forceImmediate: true)
                         }
                     }
                 }
             )
         }
-    }
-
-    private func transitionToNextSongWithFadeOutIfRequired(forceImmediate: Bool = false)
-    {
-        print("transitionToNextSongWithFadeOutIfRequired: Called, forceImmediate = \(forceImmediate)")
-
-        self.transitionOperationUnderway = true
-
-        stopFadeOutInitiationTimer()
-
-        let mediaIsPlaying        = self.mediaPlayer.playbackState == .playing
-        let currentItemDuration   = mediaIsPlaying ? self.mediaPlayer.nowPlayingItem?.playbackDuration : nil
-        let currentItemPosition   = mediaIsPlaying ? self.mediaPlayer.currentPlaybackTime              : nil
-        let trackEndOffset        = self.playlistManager.getPlayingTrack().endOffset
-        let effectiveItemDuration = trackEndOffset != nil && trackEndOffset != 0 ? trackEndOffset : currentItemDuration
-        let fadeOutDuration       = 2.0
-        let fadeOutIsWorthwhile   = effectiveItemDuration != nil &&
-                                    currentItemPosition   != nil &&
-                                    effectiveItemDuration! - currentItemPosition! >= fadeOutDuration + 0.5 // 0.5s wiggle room
-
-        if forceImmediate == false && mediaIsPlaying == true && fadeOutIsWorthwhile == true
-        {
-            fadeOut(
-                duration: fadeOutDuration,
-                completionHandler:
-                {
-                    self.transitionToNextSongNow()
-                }
-            )
-        }
-        else
-        {
-            transitionToNextSongNow()
-        }
-    }
-
-    private func transitionToNextSongNow()
-    {
-        // Work out the next index in this playlist now that the current item
-        // has been played. If changing playlist, just switch that over and let
-        // playback start from whatever the most recent index was there. If the
-        // playlist is unchanged, use the index given by the playlist manager.
-        //
-        let playingPlaylist = self.playlistManager.getPlayingPlaylist()
-        let nextTrackIndex  = self.playlistManager.currentItemHasBeenPlayedIn(
-            playlistID: self.playlistManager.getPlayingPlaylist().id!
-        )
-
-//        let tracklist = self.playlistManager.getTracklistForPlaylist(playingPlaylist)
-//
-//        if tracklist.autoSwitchAfter != nil
-//        {
-//            self.targetPlaylist = self.playlistManager.getPlaylistForID(playlistID: tracklist.autoSwitchAfter!)
-//        }
-
-        if self.targetPlaylist != nil && playingPlaylist.id != self.targetPlaylist!.id
-        {
-            self.playlistManager.setPlayingPlayist(playlist: self.targetPlaylist!)
-        }
-        else
-        {
-            self.playlistManager.setCurrentPlaybackIndexFor(playlist: playingPlaylist, index: nextTrackIndex)
-        }
-
-        self.targetPlaylist = nil
-
-        startPlayingFromCurrentPlaylist()
     }
 
     private func startSongWithFadeInIfRequired(fromTrack: Track)
@@ -783,6 +972,15 @@ class MusicPlaybackManager
         }
     }
 
+    private func stopTrackEndsAtTimer()
+    {
+        if self.trackEndsAtTimer != nil
+        {
+            self.trackEndsAtTimer!.invalidate()
+            self.trackEndsAtTimer = nil
+        }
+    }
+
     /// Adapted with thanks from `https://github.com/evgenyneu/Cephalopod/blob/master/Cephalopod/Cephalopod.swift`
     /// (MIT `https://github.com/evgenyneu/Cephalopod/blob/master/LICENSE`).
     ///
@@ -800,6 +998,7 @@ class MusicPlaybackManager
 
         print("fade (\(fadeIn ? "in" : "out")): Starting");
 
+        stopTrackEndsAtTimer()
         stopFadeOutInitiationTimer()
         stopFadeTimer()
 

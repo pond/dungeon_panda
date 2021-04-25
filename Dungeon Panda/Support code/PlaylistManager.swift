@@ -269,6 +269,25 @@ class PlaylistManager {
         return descriptor
     }
 
+    func getQueueDescriptorFor(track: Track) -> MPMusicPlayerStoreQueueDescriptor
+    {
+        let descriptor = MPMusicPlayerStoreQueueDescriptor(storeIDs: [track.storeID])
+
+        if track.startOffset != 0
+        {
+            descriptor.setStartTime(track.startOffset, forItemWithStoreID: track.storeID)
+        }
+
+        if track.endOffset != nil
+        {
+            descriptor.setEndTime(track.endOffset!, forItemWithStoreID: track.storeID)
+        }
+
+        descriptor.startItemID = track.storeID
+
+        return descriptor
+    }
+
     // MARK: - GEMERAL INTERFACE
 
     /**
