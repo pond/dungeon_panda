@@ -48,11 +48,18 @@ class StaticTracklistManager
      Retrieve a Tracklist by ID.
 
      - Parameter tracklistID: Tracklist ID to retrieve.
-     - Returns: Optional Tracklist - `nil` if ID is unknown.
+     - Returns: Tracklist - defaults to random track if ID is unrecognised, to avoid crashes.
     */
-    func getTracklistBy(tracklistID: String) -> Tracklist?
+    func getTracklistBy(tracklistID: String) -> Tracklist
     {
-        return tracklists[tracklistID]
+        if let tracklist = tracklists[tracklistID]
+        {
+            return tracklist
+        }
+        else // ...wut, no tracklist? Well, don't crash, at least...
+        {
+            return tracklists.values.randomElement()!
+        }
     }
 
     /**

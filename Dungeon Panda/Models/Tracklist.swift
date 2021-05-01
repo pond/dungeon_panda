@@ -82,10 +82,17 @@ class Tracklist
      Retrieve a track by its Store ID.
 
      - Parameter storeID: Store ID to look up.
-     - Returns: Track, or `nil` if the Store ID is not in this Tracklist.
+     - Returns: Found Track, or if the Store ID is not in this Tracklist, a random Track to avoid crashes.
      */
-    func getTrackBy(storeID: String) -> Track?
+    func getTrackBy(storeID: String) -> Track
     {
-        tracks[storeID]
+        if let track = tracks[storeID]
+        {
+            return track
+        }
+        else
+        {
+            return tracks.values.randomElement()!
+        }
     }
 }

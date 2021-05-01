@@ -23,7 +23,7 @@ class PlaylistManager {
     var playlistsByID:                   [String:Playlist]                  = [:]
     var currentPositionsInPlaylists:     [CurrentPositionInPlaylist]        = [CurrentPositionInPlaylist]()
     var currentPositionsInPlaylistsByID: [String:CurrentPositionInPlaylist] = [:]
-    var currentPlaylist:                 CurrentPlaylist?
+    var currentPlaylist:                 CurrentPlaylist
 
     /**
      When created, a PlaylistManager fetches all static tracklists and for each:
@@ -37,8 +37,10 @@ class PlaylistManager {
         - staticTracklistManager: StaticTracklistManager instance to be used as a source of all tracklist information
         - persistentContainer: NSPersistentCloudKitContainer to be used for CoreData operations
     */
-    init(staticTracklistManager: StaticTracklistManager,
-         persistentContainer: NSPersistentCloudKitContainer)
+    init(
+        staticTracklistManager: StaticTracklistManager,
+           persistentContainer: NSPersistentCloudKitContainer
+    )
     {
         print("PlaylistManager init")
 
@@ -112,7 +114,7 @@ class PlaylistManager {
 
                     playlist.displayName = tracklist.displayName
                     playlist.version     = tracklist.version
-                    playlist.storeIDs    = shuffleStoreIDsWithin(tracklist: tracklist)
+                    playlist.storeIDs    = PlaylistManager.shuffleStoreIDsWithin(tracklist: tracklist)
 
                     if let position = self.currentPositionsInPlaylistsByID[tracklist.id]
                     {
@@ -131,7 +133,7 @@ class PlaylistManager {
                 newPlaylist.id          = tracklist.id
                 newPlaylist.displayName = tracklist.displayName
                 newPlaylist.version     = tracklist.version
-                newPlaylist.storeIDs    = shuffleStoreIDsWithin(tracklist: tracklist)
+                newPlaylist.storeIDs    = PlaylistManager.shuffleStoreIDsWithin(tracklist: tracklist)
 
                 self.playlists.append(newPlaylist)
                 self.playlistsByID[tracklist.id] = newPlaylist
@@ -152,13 +154,16 @@ class PlaylistManager {
 
         // Fetch the current playlist info, or create anew if necessary.
         //
+        var currentPlaylistOptional: CurrentPlaylist?
+
         do
         {
             let records = try context.fetch(CurrentPlaylist.fetchRequest())
-            if let records = records as? [CurrentPlaylist]
+            if let records = records as? [CurrentPlaylist],
+               let firstRecord = records.first
             {
                 print("PlaylistManager init: Successfully fetched current playlist from Core Data")
-                currentPlaylist = records.first
+                currentPlaylistOptional = firstRecord
             }
         }
         catch
@@ -166,15 +171,24 @@ class PlaylistManager {
             print("PlaylistManager init: Unable to current playlist from Core Data; creating new")
         }
 
-        if currentPlaylist == nil
+        if currentPlaylistOptional == nil
         {
-            self.currentPlaylist             = CurrentPlaylist(context: context)
-            self.currentPlaylist!.playlistID = self.playlists.first!.id
+            currentPlaylistOptional             = CurrentPlaylist(context: context)
+            currentPlaylistOptional!.playlistID = self.playlists.first!.id
         }
+
+        self.currentPlaylist = currentPlaylistOptional!
 
         // Finally, save any changes made above.
         //
         appDelegate.saveContext()
+
+        // Self-check before even bothering to start.
+        //
+        assert(self.playlists.count > 0)
+        assert(self.playlistsByID.values.count > 0)
+        assert(self.currentPositionsInPlaylists.count > 0)
+        assert(self.currentPositionsInPlaylistsByID.values.count > 0)
     }
 
     // MARK: - CONVENIENCE ACCESSORS
@@ -186,7 +200,7 @@ class PlaylistManager {
     */
     func nowPlaying() -> (Playlist, Track, Int)
     {
-        let currentPlaylistId = self.currentPlaylist!.playlistID!
+        let currentPlaylistId = self.currentPlaylist.playlistID!
         let currentPlaylist   = getPlaylistForID(playlistID: currentPlaylistId)
         let currentIndex      = getCurrentPlaybackIndexFor(playlist: currentPlaylist)
         let currentTrack      = getTrackByIndex(playlist: currentPlaylist, index: currentIndex)
@@ -210,7 +224,7 @@ class PlaylistManager {
     */
     func setPlayingPlayist(playlist: Playlist)
     {
-        self.currentPlaylist!.playlistID = playlist.id!
+        self.currentPlaylist.playlistID = playlist.id!
         appDelegate.saveContext()
     }
 
@@ -244,11 +258,11 @@ class PlaylistManager {
     func getQueueDescriptorFor(playlist: Playlist) -> MPMusicPlayerStoreQueueDescriptor
     {
         let descriptor = MPMusicPlayerStoreQueueDescriptor(storeIDs: playlist.storeIDs)
-        let tracklist  = staticTracklistManager.getTracklistBy(tracklistID: playlist.id!)!
+        let tracklist  = staticTracklistManager.getTracklistBy(tracklistID: playlist.id!)
 
         for storeID in playlist.storeIDs
         {
-            let track = tracklist.getTrackBy(storeID: storeID)!
+            let track = tracklist.getTrackBy(storeID: storeID)
 
             if track.startOffset != 0
             {
@@ -269,6 +283,13 @@ class PlaylistManager {
         return descriptor
     }
 
+    /**
+     Return a media player queue descriptor for a given Ttrack, with start/end offsets configured. The queue
+     will be set up to include just the given Track and no others.
+
+     - Parameter track: Track of interest
+     - Returns: Media player queue descriptor, for use with e.g. "setQueue:with:".
+     */
     func getQueueDescriptorFor(track: Track) -> MPMusicPlayerStoreQueueDescriptor
     {
         let descriptor = MPMusicPlayerStoreQueueDescriptor(storeIDs: [track.storeID])
@@ -293,14 +314,19 @@ class PlaylistManager {
     /**
      Return a Playlist stored for the given ID.
 
-     - Parameter playlistID: ID of Playlist (or Tracklist). **Must be valid**.
-     - Returns: Playlist object corresponding to ID.
-
-     The playlist ID must be valid, else an internal exception and app shutdown will occur.
+     - Parameter playlistID: ID of Playlist (or Tracklist).
+     - Returns: Playlist object corresponding to ID or, to avoid crashes, a random Playlist if the ID is invalid.
      */
     func getPlaylistForID(playlistID: String) -> Playlist
     {
-        return self.playlistsByID[playlistID]!
+        if let playlist = self.playlistsByID[playlistID]
+        {
+            return playlist
+        }
+        else // ...wut, no playlist? Well, don't crash, at least...
+        {
+            return self.playlists.randomElement()!
+        }
     }
 
     /**
@@ -311,7 +337,7 @@ class PlaylistManager {
     */
     func getTracklistForPlaylist(_ playlist: Playlist) -> Tracklist
     {
-        return self.staticTracklistManager.getTracklistBy(tracklistID: playlist.id!)!
+        return self.staticTracklistManager.getTracklistBy(tracklistID: playlist.id!)
     }
 
     /**
@@ -321,11 +347,11 @@ class PlaylistManager {
          - playlist: The Playlist to examine
          - storeID: Store ID of track
 
-     - Returns: Track if found, else `nil`.
+     - Returns: Track if found, else an arbitrary Track in the playlist to avoid crashes.
     */
-    func getTrackByStoreID(playlist: Playlist, storeID: String) -> Track?
+    func getTrackByStoreID(playlist: Playlist, storeID: String) -> Track
     {
-        let tracklist = self.staticTracklistManager.getTracklistBy(tracklistID: playlist.id!)!
+        let tracklist = self.staticTracklistManager.getTracklistBy(tracklistID: playlist.id!)
         return tracklist.getTrackBy(storeID: storeID)
     }
 
@@ -336,7 +362,7 @@ class PlaylistManager {
          - playlist: The Playlist to examine
          - index: The playlist position (index)
 
-     - Returns: Found Track.
+     - Returns: Track if found, else an arbitrary Track in the playlist to avoid crashes.
 
      If given an out of range index, assumes zero and returns the first Track in the Playlist.
     */
@@ -350,7 +376,7 @@ class PlaylistManager {
         }
 
         let storeID = playlist.storeIDs[safeIndex]
-        return getTrackByStoreID(playlist: playlist, storeID: storeID)!
+        return getTrackByStoreID(playlist: playlist, storeID: storeID)
     }
 
     /**
@@ -360,11 +386,18 @@ class PlaylistManager {
          - playlist: The Playlist to examine
          - storeID: Store ID of track
 
-     - Returns: Position (index) of identified Track if found, else `nil`.
+     - Returns: Position (index) of identified Track if found, else just gives up and returns 0 to avoid crashes.
     */
-    func getTrackIndexFor(playlist: Playlist, storeID: String) -> Int?
+    func getTrackIndexFor(playlist: Playlist, storeID: String) -> Int
     {
-        return playlist.storeIDs.firstIndex(of: storeID)
+        if let index = playlist.storeIDs.firstIndex(of: storeID)
+        {
+            return index
+        }
+        else
+        {
+            return 0
+        }
     }
 
     /**
@@ -394,10 +427,9 @@ class PlaylistManager {
          - playlist: Playlist (or tracklist) of interest.
          - index: Index to set as the currently playing track.
      */
-    func setCurrentPlaybackIndexFor(playlist: Playlist?, index: Int)
+    func setCurrentPlaybackIndexFor(playlist: Playlist, index: Int)
     {
-        if playlist != nil,
-           let position = self.currentPositionsInPlaylistsByID[playlist!.id!]
+        if let position = self.currentPositionsInPlaylistsByID[playlist.id!]
         {
             position.currentIndex        = Int32(index)
             position.currentPlaybackTime = 0
@@ -407,24 +439,32 @@ class PlaylistManager {
     }
 
     /**
-     Call when a media player monitoring class notices that a track has finished.
+     Call when a media player monitoring class notices that a track has finished and to simultaneously be given
+     the index of the next track to play in the playlist.
 
      - Parameter playlistID: ID of playlist in which playback completed.
-     - Returns: Playlist index in that playlist of next item to be played.
+     - Returns: Playlist index in that playlist of **next item to be played**.
 
      Internally, if the end of the playlist has been reached, it is reshuffled and the returned index
      will be zero. Everything is persisted synchronously to Core Data.
     */
-    func currentItemHasBeenPlayedIn(playlistID: String) -> Int {
+    func currentItemHasBeenPlayedWithin(playlistID: String) -> Int
+    {
+        NSLog("currentItemHasBeenPlayedWithin: Called for playlist '\(playlistID)'")
+
         let playingPlaylist = self.playlistsByID[playlistID]!
         let justPlayedIndex = getCurrentPlaybackIndexFor(playlist: playingPlaylist)
         var nextIndexToPlay = justPlayedIndex + 1
 
         if nextIndexToPlay >= playingPlaylist.storeIDs.count
         {
+            NSLog("currentItemHasBeenPlayedWithin: All items in this playlist have been played - shuffling")
+
             nextIndexToPlay = 0
             bisectAndReshuffle(playlist: playingPlaylist)
         }
+
+        NSLog("currentItemHasBeenPlayedWithin: Next playback index is \(nextIndexToPlay)")
 
         setCurrentPlaybackIndexFor(playlist: playingPlaylist, index: nextIndexToPlay)
 
@@ -436,12 +476,13 @@ class PlaylistManager {
 
     /**
      Takes all Store IDs of Tracks in a given Tracklist and shuffles them into a random order, returning an
-     Array of the shuffled Store ID Strings.
+     Array of the shuffled Store ID Strings. **Class method** (so that it can be called from `init`
+     without XCode complaining that code is referencing `self` before all properties are initialised).
 
      - Parameter tracklist: Tracklist to examine.
      - Returns: Shuffled order Array of Store IDs.
     */
-    private func shuffleStoreIDsWithin(tracklist: Tracklist) -> [String]
+    private class func shuffleStoreIDsWithin(tracklist: Tracklist) -> [String]
     {
         var storeIDs = tracklist.getStoreIDArray()
 

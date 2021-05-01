@@ -118,7 +118,7 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
         if let musicPlaybackManager = self.appDelegate.musicPlaybackManager,
            let playlistID = sender.accessibilityIdentifier
         {
-            musicPlaybackManager.startPlayingNextInPlaylist(playlistID: playlistID)
+            musicPlaybackManager.switchToPlaylist(playlistID: playlistID)
         }
     }
 
@@ -554,7 +554,7 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
     private func musicAuthorizationIsGranted()
     {
         print("musicAuthorizationIsGranted: Authorisation is available, kicking off initial playback start")
-        self.appDelegate.musicPlaybackManager!.startInitialPlayback()
+        self.appDelegate.musicPlaybackManager!.startPlaybackAtAppLaunch()
     }
 
     private func musicAuthorizationIsDenied()
