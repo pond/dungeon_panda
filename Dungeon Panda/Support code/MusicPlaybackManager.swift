@@ -194,29 +194,14 @@ class MusicPlaybackManager
     /**
      Called by the view layer when the user finishes dragging the position slider somewhere.
 
-     - Parameter float: New UISlider position, from 0 to 1
+     - Parameter float: New UISlider position, from zero to duration, relative to track start/end offsets.
     */
     func positionSliderWasManuallyMoved(value: Float)
     {
-        let playingTrack = self.playlistManager.getPlayingTrack()
-        let duration     = self.mediaPlayer.nowPlayingItem?.playbackDuration
+        let playingTrack     = self.playlistManager.getPlayingTrack()
+        let relativePosition = TimeInterval(value) + playingTrack.startOffset
 
-        guard duration != nil else { return }
-
-        effectivePlaybackStateDidStartSeeking()
-
-        var relativeDuration: TimeInterval
-
-        if playingTrack.endOffset == nil
-        {
-            relativeDuration = duration! - playingTrack.startOffset
-        }
-        else
-        {
-            relativeDuration = (playingTrack.endOffset! - playingTrack.startOffset)
-        }
-
-        self.mediaPlayer.currentPlaybackTime = relativeDuration * Double(value)
+        self.mediaPlayer.currentPlaybackTime = relativePosition
 
         effectivePlaybackStateDidStartPlaying()
     }

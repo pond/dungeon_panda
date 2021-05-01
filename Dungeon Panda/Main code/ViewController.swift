@@ -130,14 +130,19 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
     @IBAction func userReleasedSlider()
     {
         self.ignorePositionUpdates = false
-    }
 
-    @IBAction func sliderPositionChangedByUser()
-    {
         if let musicPlayerManager = self.appDelegate.musicPlaybackManager
         {
             musicPlayerManager.positionSliderWasManuallyMoved(value: self.positionSlider.value)
         }
+    }
+
+    @IBAction func sliderPositionChangedByUser()
+    {
+        setPlayPositionTextFor(
+            duration: positionSlider.maximumValue,
+            position: positionSlider.value
+        )
     }
 
     // MARK: - MusicPlaybackManagerDelegate
@@ -188,6 +193,8 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
 
     func playbackProgressChanged(playbackManager: MusicPlaybackManager, inPlaylist: Playlist, withTrack: Track, position: TimeInterval, duration: TimeInterval)
     {
+        guard self.ignorePositionUpdates == false else { return }
+
         let relativePosition = position - withTrack.startOffset
         var relativeDuration: TimeInterval
 
@@ -200,14 +207,17 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
             relativeDuration = (withTrack.endOffset! - withTrack.startOffset)
         }
 
-        let remainingTime    = relativeDuration - relativePosition
-        let minutes          = Int(remainingTime / 60)
-        let seconds          = Int(remainingTime.truncatingRemainder(dividingBy: 60))
-        let minutesDisplay   = minutes > 0 ? "\(minutes)m " : ""
-        let secondsDisplay   = minutes > 0 && seconds < 10 ? "0\(seconds)s"  : "\(seconds)s"
+        let floatDuration = Float(relativeDuration)
+        let floatPosition = Float(relativePosition)
 
-        self.playPosition.text = "-\(minutesDisplay)\(secondsDisplay)"
-        self.positionSlider.setValue(Float(relativePosition / (relativeDuration - 1)), animated: false)
+        self.positionSlider.minimumValue = 0
+        self.positionSlider.maximumValue = floatDuration
+        self.positionSlider.setValue(floatPosition, animated: false)
+
+        setPlayPositionTextFor(
+            duration: floatDuration,
+            position: floatPosition
+        )
     }
 
     func playbackPaused(playbackManager: MusicPlaybackManager)
@@ -522,6 +532,17 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
     }
 
     // MARK: - PRIVATE (GENERAL)
+
+    private func setPlayPositionTextFor(duration: Float, position: Float)
+    {
+        let remainingTime    = duration - position
+        let minutes          = Int(remainingTime / 60)
+        let seconds          = Int(remainingTime.truncatingRemainder(dividingBy: 60))
+        let minutesDisplay   = minutes > 0 ? "\(minutes)m " : ""
+        let secondsDisplay   = minutes > 0 && seconds < 10 ? "0\(seconds)s"  : "\(seconds)s"
+
+        self.playPosition.text = "-\(minutesDisplay)\(secondsDisplay)"
+    }
 
     private func getMusicAuthorizationFromUser()
     {

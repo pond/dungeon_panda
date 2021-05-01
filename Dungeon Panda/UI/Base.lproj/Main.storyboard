@@ -212,7 +212,7 @@
                                                     <constraint firstAttribute="width" constant="140" id="uQY-eS-XA3"/>
                                                 </constraints>
                                             </view>
-                                            <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" minValue="0.0" maxValue="1" continuous="NO" translatesAutoresizingMaskIntoConstraints="NO" id="HN9-MX-FoI">
+                                            <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="HN9-MX-FoI">
                                                 <rect key="frame" x="178" y="0.0" width="612" height="32"/>
                                                 <connections>
                                                     <action selector="sliderPositionChangedByUser" destination="BYZ-38-t0r" eventType="valueChanged" id="IqH-fq-mxU"/>
