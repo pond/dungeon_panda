@@ -66,7 +66,7 @@ class MusicPlaybackManager
 
     /// Delay before a next track is started in seconds, allowing for remote (e.g. Bluetooth)
     /// speaker lag, after a fade out completes.
-    let afterFadeOutLagAllowance = 1.0
+    let afterFadeOutLagAllowance = 0.1
 
     /// Watchdog timer - once the music player is asked to start playback, if no "Playback
     /// started" events are seen in this many seconds, we give up and move to the next
@@ -316,10 +316,7 @@ class MusicPlaybackManager
             self.fadeInOnNextPlaybackStartedEvent = false
         }
 
-        let descriptor = self.playlistManager.getQueueDescriptorFor(track: track)
-
         self.mediaPlayer.stop()
-        self.mediaPlayer.setQueue(with: descriptor)
 
         // Tell delegates that we're starting a new track. Playback might not
         // *actually* start for a while, but delegates need to know early. The
@@ -340,39 +337,58 @@ class MusicPlaybackManager
         //
         DispatchQueue(label: "uk.org.pond.DungeonPanda.playqueue").async
         {
+            let descriptor = self.playlistManager.getQueueDescriptorFor(track: track)
+
+            self.mediaPlayer.setQueue(with: descriptor)
             self.mediaPlayer.play()
         }
+        // desperatelyTryToConvinceMusicPlayerToActuallyWork(track: track)
+    }
 
-        // Alternative with error handling; watchdog makes this rather pointless.
+    // This doesn't work, but one day maybe it'll be a big enough sledgehammer
+    // *or* Apple might write code that isn't a total crock of **** (this stuff
+    // has been broken for years, so I don't think their engineers have even
+    // close to the competence required to ever reliably play audio. It's a
+    // really difficult thing apparently... So. Many. Hours. Wasted. On. This.)
+    //
+    private func desperatelyTryToConvinceMusicPlayerToActuallyWork(track: Track)
+    {
+        // https://stackoverflow.com/a/66472117
         //
-        // // https://stackoverflow.com/a/66472117
-        // //
-        // DispatchQueue(label: "uk.org.pond.DungeonPanda.playqueue").async
-        // {
-        //     self.mediaPlayer.prepareToPlay(
-        //         completionHandler:
-        //         { error in
-        //             if error == nil
-        //             {
-        //                 DispatchQueue.main.async
-        //                 {
-        //                     ...this one should play...
-        //                 }
-        //             }
-        //             else
-        //             {
-        //                 NSLog("startPlayingFromCurrentPlaylist: ERROR: \(error!)")
-        //
-        //                 self.timerWatchdogStop()
-        //
-        //                 DispatchQueue.main.async
-        //                 {
-        //                     ...give up and play next track immediately...
-        //                 }
-        //             }
-        //         }
-        //     )
-        // }
+        DispatchQueue(label: "uk.org.pond.DungeonPanda.playqueue").async
+        {
+            let descriptor = self.playlistManager.getQueueDescriptorFor(track: track)
+
+            self.mediaPlayer.stop()
+            self.mediaPlayer.setQueue(with: descriptor)
+
+            self.mediaPlayer.prepareToPlay(
+                completionHandler:
+                { error in
+                    if error == nil
+                    {
+                        DispatchQueue.main.async
+                        {
+                            self.mediaPlayer.pause()
+                            self.mediaPlayer.play()
+                        }
+                    }
+                    else
+                    {
+                        NSLog("startPlayingFromCurrentPlaylist: ERROR: \(error!)")
+
+                        self.timerWatchdogCancel()
+
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1)
+                        {
+                            self.desperatelyTryToConvinceMusicPlayerToActuallyWork(track: track)
+                        }
+                    }
+                }
+            )
+
+            self.mediaPlayer.play()
+        }
     }
 
     private func getPlayingTrackAndRemainingDuration() -> (Track, Double)
@@ -852,7 +868,7 @@ class MusicPlaybackManager
                 fromVolume: self.referenceSystemVolume ?? 0.5,
                   toVolume: 0.0,
                   duration: duration,
-                  velocity: 0.2
+                  velocity: 1.0
             )
             {
                 self.timerFadeOutCompleted()

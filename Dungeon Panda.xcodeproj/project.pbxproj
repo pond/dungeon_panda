@@ -28,6 +28,7 @@
 		23854C752609CAB800909DB1 /* Playlist+StoreIDs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23854C742609CAB800909DB1 /* Playlist+StoreIDs.swift */; };
 		239D0990260FF45C00808088 /* UnfixableError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 239D098F260FF45C00808088 /* UnfixableError.swift */; };
 		239D099526102B1200808088 /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 239D099426102B1200808088 /* CloudKit.framework */; };
+		23DE6594263E6E8800C5A924 /* TitleFittingButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23DE6593263E6E8700C5A924 /* TitleFittingButton.swift */; };
 		62F3D4C17B2B4A841AEF4622 /* Pods_Dungeon_Panda.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B0A292A1198AB60CEC19805 /* Pods_Dungeon_Panda.framework */; };
 /* End PBXBuildFile section */
 
@@ -57,6 +58,7 @@
 		239D098F260FF45C00808088 /* UnfixableError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnfixableError.swift; sourceTree = "<group>"; };
 		239D099226102B0200808088 /* Dungeon Panda.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Dungeon Panda.entitlements"; sourceTree = "<group>"; };
 		239D099426102B1200808088 /* CloudKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CloudKit.framework; path = System/Library/Frameworks/CloudKit.framework; sourceTree = SDKROOT; };
+		23DE6593263E6E8700C5A924 /* TitleFittingButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TitleFittingButton.swift; sourceTree = "<group>"; };
 		3B0A292A1198AB60CEC19805 /* Pods_Dungeon_Panda.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Dungeon_Panda.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		67F6BEBF98F9A06DAEC68E47 /* Pods-Dungeon Panda.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Dungeon Panda.release.xcconfig"; path = "Target Support Files/Pods-Dungeon Panda/Pods-Dungeon Panda.release.xcconfig"; sourceTree = "<group>"; };
 		BF3CDA325AFA8CEA7F327259 /* Pods-Dungeon Panda.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Dungeon Panda.debug.xcconfig"; path = "Target Support Files/Pods-Dungeon Panda/Pods-Dungeon Panda.debug.xcconfig"; sourceTree = "<group>"; };
@@ -113,6 +115,7 @@
 				23854C702608818400909DB1 /* Tracklist.swift */,
 				23854C5B260435D100909DB1 /* MiscError.swift */,
 				23854C742609CAB800909DB1 /* Playlist+StoreIDs.swift */,
+				23DE6593263E6E8700C5A924 /* TitleFittingButton.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -303,6 +306,7 @@
 				2339710A25FD6BC300ACFCF7 /* ViewController.swift in Sources */,
 				238493B8260324A6005DA4D7 /* Track.swift in Sources */,
 				2339711025FD6BC300ACFCF7 /* Dungeon_Panda.xcdatamodeld in Sources */,
+				23DE6594263E6E8800C5A924 /* TitleFittingButton.swift in Sources */,
 				2339710625FD6BC300ACFCF7 /* AppDelegate.swift in Sources */,
 				2339710825FD6BC300ACFCF7 /* SceneDelegate.swift in Sources */,
 				239D0990260FF45C00808088 /* UnfixableError.swift in Sources */,

@@ -99,7 +99,31 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator)
     {
         super.viewWillTransition(to: size, with: coordinator)
-        updateArtworkToCurrent()
+
+        // ...then *after* this transition has completed...
+        //
+        //   https://stackoverflow.com/a/26944087
+        //
+        coordinator.animate(alongsideTransition: nil) { _ in
+
+            var targetAlpha: CGFloat = 1.0
+
+            if self.albumArtImageView.bounds.size.width  < 200 ||
+               self.albumArtImageView.bounds.size.height < 200
+            {
+                targetAlpha = 0.0
+            }
+
+            UIView.transition(
+                with: self.playlistAndTrackName,
+                duration: 0.25,
+                options: .transitionCrossDissolve,
+                animations: { [weak self] in
+                    self!.albumArtImageView.alpha = targetAlpha
+                },
+                completion: nil
+            )
+        }
     }
 
     override func viewDidDisappear(_ animated: Bool)
@@ -230,8 +254,9 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
 
     func playbackArtworkWasDetermined(artwork: MPMediaItemArtwork)
     {
-        let rect       = self.albumArtImageView.bounds
-        let size       = CGSize(width: rect.width, height: rect.height)
+        let rect       = UIScreen.main.bounds
+        let longest    = max(rect.width, rect.height)
+        let size       = CGSize(width: longest, height: longest)
         var imageToUse = artwork.image(at: size)
 
         if imageToUse == nil && artwork.bounds.width > 0
@@ -240,10 +265,10 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
         }
 
         self.currentArtworkImage = imageToUse
-        updateArtworkToCurrent()
+        updateArtworkToCurrent(usingSize: size)
     }
 
-    func updateArtworkToCurrent()
+    func updateArtworkToCurrent(usingSize: CGSize)
     {
         var imageToUse = self.currentArtworkImage
 
@@ -252,7 +277,7 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
             let ciContext = CIContext(options: nil)
 
             if let coreImage = CIImage(image: originalImage),
-               let filter = CIFilter(name: "CISepiaTone") // CIPhotoEffectFade is also decent
+               let filter    = CIFilter(name: "CISepiaTone") // CIPhotoEffectFade is also decent
             {
                 filter.setDefaults()
                 filter.setValue(coreImage, forKey: kCIInputImageKey)
@@ -269,7 +294,7 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
         // Customise the image view to fade edges and round corners.
         //
         if let imageToBlur  = imageToUse,
-           let blurredImage = processArtwork(artworkImage: imageToBlur, minSize: self.albumArtImageView?.bounds.size)
+           let blurredImage = processArtwork(artworkImage: imageToBlur, minSize: usingSize)
         {
             imageToUse = blurredImage
         }
@@ -300,12 +325,12 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
 
         let scale = UIScreen.main.scale
         let size  = CGSize(
-            width:  context!.width,
+             width: context!.width,
             height: context!.height
         )
 
         return CGSize(
-            width:  size.width / scale,
+             width: size.width / scale,
             height: size.height / scale
         )
     }
@@ -425,13 +450,13 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
 
         // Build context: one byte per pixel, no alpha
         if let context = CGContext.init(
-            data: nil,
-            width: Int(width),
-            height: Int(height),
+                        data: nil,
+                       width: Int(width),
+                      height: Int(height),
             bitsPerComponent: Int(8),
-            bytesPerRow: 0,
-            space: colorSpace,
-            bitmapInfo: CGImageAlphaInfo.noneSkipLast.rawValue
+                 bytesPerRow: 0,
+                       space: colorSpace,
+                  bitmapInfo: CGImageAlphaInfo.noneSkipLast.rawValue
         )
         {
             // Replicate image using new color space
@@ -492,37 +517,36 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
             ? CGRect(x: 0, y: 0, width: artworkImage.size.width, height: artworkImage.size.height)
             : CGRect(x: 0, y: 0, width:          minSize!.width, height:          minSize!.height)
 
-        let edges     = imageRect.width * 0.025
-        let insetRect = imageRect.insetBy(dx: edges, dy: edges)
-        let path      = UIBezierPath(roundedRect: insetRect, cornerRadius: edges * 1.5)
+        let multiplier = CGFloat(UIDevice.current.userInterfaceIdiom == .pad ? 0.02 : 0.035)
+        let edges      = imageRect.width * multiplier
+        let insetRect  = imageRect.insetBy(dx: edges, dy: edges)
+        let path       = UIBezierPath(roundedRect: insetRect, cornerRadius: edges * 1.5)
 
         if let mask = drawIntoImage(
-            size: imageRect.size,
-            drawingBlock:
+                    size: imageRect.size,
+            drawingBlock: {
+                if let context = UIGraphicsGetCurrentContext()
                 {
-                    if let context = UIGraphicsGetCurrentContext()
-                    {
-                        context.setFillColor(UIColor.black.cgColor)
-                        context.fill(imageRect)
+                    context.setFillColor(UIColor.black.cgColor)
+                    context.fill(imageRect)
 
-                        drawAndBlur(blurRadius: edges) {
-                            if let context = UIGraphicsGetCurrentContext()
-                            {
-                                context.setFillColor(UIColor.white.cgColor)
-                                path.fill()
-                            }
+                    drawAndBlur(blurRadius: edges) {
+                        if let context = UIGraphicsGetCurrentContext()
+                        {
+                            context.setFillColor(UIColor.white.cgColor)
+                            path.fill()
                         }
                     }
                 }
+            }
         )
         {
             let result = drawIntoImage(
-                size: imageRect.size,
-                drawingBlock:
-                    {
-                        applyMaskToContext(mask: mask)
-                        artworkImage.draw(in: imageRect)
-                    }
+                        size: imageRect.size,
+                drawingBlock: {
+                    applyMaskToContext(mask: mask)
+                    artworkImage.draw(in: imageRect)
+                }
             )
 
             return result

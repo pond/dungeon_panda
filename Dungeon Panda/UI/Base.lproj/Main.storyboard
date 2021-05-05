@@ -21,272 +21,356 @@
                                 <rect key="frame" x="-1" y="-1" width="910" height="416"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                             </imageView>
-                            <stackView opaque="NO" contentMode="scaleToFill" distribution="equalSpacing" alignment="top" spacingType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="1u6-4q-MWC" userLabel="Playlists Stack View">
-                                <rect key="frame" x="54" y="10" width="788" height="216.5"/>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="center" spacing="20" translatesAutoresizingMaskIntoConstraints="NO" id="jsy-L0-knf" userLabel="Main Stack View">
+                                <rect key="frame" x="54" y="10" width="788" height="373"/>
                                 <subviews>
-                                    <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="equalSpacing" alignment="top" spacingType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="6e4-HC-zlg" userLabel="&quot;Good&quot; Stack View">
-                                        <rect key="frame" x="0.0" y="0.0" width="108" height="216.5"/>
+                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="pCD-n4-oj5" userLabel="Controls Subview">
+                                        <rect key="frame" x="0.0" y="0.0" width="788" height="66"/>
                                         <subviews>
-                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Good" textAlignment="natural" lineBreakMode="clip" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="OQl-Nb-gjS">
-                                                <rect key="frame" x="0.0" y="0.0" width="71" height="32.5"/>
-                                                <fontDescription key="fontDescription" name="Baskerville-Bold" family="Baskerville" pointSize="28"/>
-                                                <color key="textColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                                <nil key="highlightedColor"/>
-                                            </label>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="tailTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="w2D-tk-wdk" userLabel="Good - Background">
-                                                <rect key="frame" x="0.0" y="40.5" width="108" height="38"/>
-                                                <accessibility key="accessibilityConfiguration" identifier="good-background"/>
-                                                <fontDescription key="fontDescription" name="Baskerville" family="Baskerville" pointSize="22"/>
-                                                <state key="normal" title="Background">
-                                                    <color key="titleColor" red="0.2382225268" green="0.13274118130000001" blue="0.00049279963540000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                                </state>
-                                                <connections>
-                                                    <action selector="playMusic:" destination="BYZ-38-t0r" eventType="touchUpInside" id="6Rl-Qw-0Iz"/>
-                                                </connections>
-                                            </button>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="tailTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="aFw-DD-9Be" userLabel="Good - Tavern">
-                                                <rect key="frame" x="0.0" y="86.5" width="63" height="38"/>
-                                                <accessibility key="accessibilityConfiguration" identifier="good-tavern"/>
-                                                <fontDescription key="fontDescription" name="Baskerville" family="Baskerville" pointSize="22"/>
-                                                <state key="normal" title="Tavern">
-                                                    <color key="titleColor" red="0.2382225268" green="0.13274118130000001" blue="0.00049279963540000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                                </state>
-                                                <connections>
-                                                    <action selector="playMusic:" destination="BYZ-38-t0r" eventType="touchUpInside" id="mf7-b8-fec"/>
-                                                </connections>
-                                            </button>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="tailTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1VI-Ix-X6m" userLabel="Good - Quirky">
-                                                <rect key="frame" x="0.0" y="132.5" width="63" height="38"/>
-                                                <accessibility key="accessibilityConfiguration" identifier="good-quirky"/>
-                                                <fontDescription key="fontDescription" name="Baskerville" family="Baskerville" pointSize="22"/>
-                                                <state key="normal" title="Quirky">
-                                                    <color key="titleColor" red="0.2382225268" green="0.13274118130000001" blue="0.00049279963540000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                                </state>
-                                                <connections>
-                                                    <action selector="playMusic:" destination="BYZ-38-t0r" eventType="touchUpInside" id="p7W-mT-HXH"/>
-                                                </connections>
-                                            </button>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="tailTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Y05-u1-3ZB" userLabel="Good - Victory">
-                                                <rect key="frame" x="0.0" y="178.5" width="66" height="38"/>
-                                                <accessibility key="accessibilityConfiguration" identifier="good-victory"/>
-                                                <fontDescription key="fontDescription" name="Baskerville" family="Baskerville" pointSize="22"/>
-                                                <state key="normal" title="Victory">
-                                                    <color key="titleColor" red="0.2382225268" green="0.13274118130000001" blue="0.00049279963540000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                                </state>
-                                                <connections>
-                                                    <action selector="playMusic:" destination="BYZ-38-t0r" eventType="touchUpInside" id="owD-Ty-FB2"/>
-                                                </connections>
-                                            </button>
+                                            <stackView opaque="NO" contentMode="left" distribution="equalSpacing" spacing="20" translatesAutoresizingMaskIntoConstraints="NO" id="Wvk-Ek-x4l" userLabel="Info Stack View">
+                                                <rect key="frame" x="0.0" y="0.0" width="788" height="25.5"/>
+                                                <subviews>
+                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" usesAttributedText="YES" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="SDw-zm-fpg" userLabel="Playlist And Track">
+                                                        <rect key="frame" x="0.0" y="0.0" width="381" height="25.5"/>
+                                                        <attributedString key="attributedText">
+                                                            <fragment content="Playlist Name: ">
+                                                                <attributes>
+                                                                    <color key="NSColor" red="0.2382225268" green="0.13274118130000001" blue="0.00049279963540000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                                    <font key="NSFont" size="22" name="Baskerville-Bold"/>
+                                                                    <font key="NSOriginalFont" size="22" name="Baskerville-Bold"/>
+                                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
+                                                                </attributes>
+                                                            </fragment>
+                                                            <fragment content="Some long song title here">
+                                                                <attributes>
+                                                                    <color key="NSColor" red="0.2382225268" green="0.13274118130000001" blue="0.00049279963540000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                                    <font key="NSFont" size="22" name="Baskerville"/>
+                                                                    <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
+                                                                </attributes>
+                                                            </fragment>
+                                                        </attributedString>
+                                                        <nil key="highlightedColor"/>
+                                                    </label>
+                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="850" verticalCompressionResistancePriority="850" text="-0:22s" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="kNj-Th-yD4">
+                                                        <rect key="frame" x="726.5" y="0.0" width="61.5" height="25.5"/>
+                                                        <fontDescription key="fontDescription" name="Baskerville-Bold" family="Baskerville" pointSize="22"/>
+                                                        <color key="textColor" red="0.2382225268" green="0.13274118130000001" blue="0.00049279963540000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                        <nil key="highlightedColor"/>
+                                                    </label>
+                                                </subviews>
+                                            </stackView>
+                                            <stackView opaque="NO" contentMode="left" spacing="40" translatesAutoresizingMaskIntoConstraints="NO" id="S1d-nh-KgG" userLabel="Sliders Stack View">
+                                                <rect key="frame" x="0.0" y="35" width="788" height="31"/>
+                                                <subviews>
+                                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="4rK-da-RMw">
+                                                        <rect key="frame" x="0.0" y="0.0" width="140" height="31"/>
+                                                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                        <constraints>
+                                                            <constraint firstAttribute="height" constant="31" id="IUF-rR-sWg"/>
+                                                            <constraint firstAttribute="width" constant="140" id="uQY-eS-XA3"/>
+                                                        </constraints>
+                                                    </view>
+                                                    <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="HN9-MX-FoI">
+                                                        <rect key="frame" x="178" y="0.0" width="612" height="32"/>
+                                                        <connections>
+                                                            <action selector="sliderPositionChangedByUser" destination="BYZ-38-t0r" eventType="valueChanged" id="IqH-fq-mxU"/>
+                                                            <action selector="userIsMovingSlider" destination="BYZ-38-t0r" eventType="touchDown" id="lrP-Yc-jAA"/>
+                                                            <action selector="userReleasedSlider" destination="BYZ-38-t0r" eventType="touchUpOutside" id="oKv-y8-e9a"/>
+                                                            <action selector="userReleasedSlider" destination="BYZ-38-t0r" eventType="touchUpInside" id="x6Q-6Q-BQi"/>
+                                                        </connections>
+                                                    </slider>
+                                                </subviews>
+                                            </stackView>
                                         </subviews>
-                                    </stackView>
-                                    <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="equalSpacing" alignment="top" spacingType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="HJi-To-CNd" userLabel="&quot;Evil&quot; Stack View">
-                                        <rect key="frame" x="316.5" y="0.0" width="108" height="216.5"/>
+                                        <constraints>
+                                            <constraint firstItem="Wvk-Ek-x4l" firstAttribute="leading" secondItem="pCD-n4-oj5" secondAttribute="leading" id="4nt-0s-dWz"/>
+                                            <constraint firstAttribute="trailing" secondItem="Wvk-Ek-x4l" secondAttribute="trailing" id="LrS-cq-OmO"/>
+                                            <constraint firstAttribute="height" constant="66" id="SO2-Cf-Paw"/>
+                                            <constraint firstAttribute="width" relation="lessThanOrEqual" constant="800" id="Tl6-Jk-aF8"/>
+                                            <constraint firstItem="S1d-nh-KgG" firstAttribute="leading" secondItem="pCD-n4-oj5" secondAttribute="leading" id="kE5-DE-vCl"/>
+                                            <constraint firstAttribute="trailing" secondItem="S1d-nh-KgG" secondAttribute="trailing" id="lIU-bI-t0k"/>
+                                            <constraint firstItem="Wvk-Ek-x4l" firstAttribute="top" secondItem="pCD-n4-oj5" secondAttribute="top" id="lnx-JE-bIV"/>
+                                            <constraint firstAttribute="bottom" secondItem="S1d-nh-KgG" secondAttribute="bottom" id="xJs-lJ-pIO"/>
+                                        </constraints>
+                                    </view>
+                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" alpha="0.75" tag="1" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="LcU-EM-aAS" userLabel="Album Art">
+                                        <rect key="frame" x="373" y="86" width="42.5" height="42.5"/>
+                                        <accessibility key="accessibilityConfiguration">
+                                            <accessibilityTraits key="traits" image="YES" notEnabled="YES"/>
+                                        </accessibility>
+                                        <constraints>
+                                            <constraint firstAttribute="width" secondItem="LcU-EM-aAS" secondAttribute="height" multiplier="1:1" id="EYt-tk-biX"/>
+                                            <constraint firstAttribute="width" relation="lessThanOrEqual" constant="840" id="ujD-WI-VQn"/>
+                                        </constraints>
+                                    </imageView>
+                                    <stackView opaque="NO" contentMode="scaleToFill" distribution="equalSpacing" alignment="bottom" spacingType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="1u6-4q-MWC" userLabel="Playlists Stack View">
+                                        <rect key="frame" x="0.0" y="148.5" width="788" height="224.5"/>
                                         <subviews>
-                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Evil" textAlignment="natural" lineBreakMode="clip" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="uZa-wA-ZoQ">
-                                                <rect key="frame" x="0.0" y="0.0" width="51.5" height="32.5"/>
-                                                <fontDescription key="fontDescription" name="Baskerville-Bold" family="Baskerville" pointSize="28"/>
-                                                <color key="textColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                                <nil key="highlightedColor"/>
-                                            </label>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="tailTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ajZ-fb-xu9" userLabel="Evil - Background">
-                                                <rect key="frame" x="0.0" y="40.5" width="108" height="38"/>
-                                                <accessibility key="accessibilityConfiguration" identifier="evil-background"/>
-                                                <fontDescription key="fontDescription" name="Baskerville" family="Baskerville" pointSize="22"/>
-                                                <state key="normal" title="Background">
-                                                    <color key="titleColor" red="0.48931576510000002" green="0.073411678250000001" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                                </state>
-                                                <connections>
-                                                    <action selector="playMusic:" destination="BYZ-38-t0r" eventType="touchUpInside" id="whR-PQ-MDe"/>
-                                                </connections>
-                                            </button>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="tailTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="PHK-nJ-a1h" userLabel="Evil - Battle">
-                                                <rect key="frame" x="0.0" y="86.5" width="52" height="38"/>
-                                                <accessibility key="accessibilityConfiguration" identifier="evil-battle"/>
-                                                <fontDescription key="fontDescription" name="Baskerville" family="Baskerville" pointSize="22"/>
-                                                <state key="normal" title="Battle">
-                                                    <color key="titleColor" red="0.48931576510000002" green="0.073411678250000001" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                                </state>
-                                                <connections>
-                                                    <action selector="playMusic:" destination="BYZ-38-t0r" eventType="touchUpInside" id="LQD-En-5IM"/>
-                                                </connections>
-                                            </button>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="tailTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="rYW-sI-bSU" userLabel="Evil - Twisted">
-                                                <rect key="frame" x="0.0" y="132.5" width="69" height="38"/>
-                                                <accessibility key="accessibilityConfiguration" identifier="evil-twisted"/>
-                                                <fontDescription key="fontDescription" name="Baskerville" family="Baskerville" pointSize="22"/>
-                                                <state key="normal" title="Twisted">
-                                                    <color key="titleColor" red="0.48931576510000002" green="0.073411678250000001" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                                </state>
-                                                <connections>
-                                                    <action selector="playMusic:" destination="BYZ-38-t0r" eventType="touchUpInside" id="ay9-jE-EZt"/>
-                                                </connections>
-                                            </button>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="tailTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="HbU-kF-Xfb" userLabel="Evil - Failure">
-                                                <rect key="frame" x="0.0" y="178.5" width="61" height="38"/>
-                                                <accessibility key="accessibilityConfiguration" identifier="evil-failure"/>
-                                                <fontDescription key="fontDescription" name="Baskerville" family="Baskerville" pointSize="22"/>
-                                                <state key="normal" title="Failure">
-                                                    <color key="titleColor" red="0.48931576510000002" green="0.073411678250000001" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                                </state>
-                                                <connections>
-                                                    <action selector="playMusic:" destination="BYZ-38-t0r" eventType="touchUpInside" id="CNZ-sW-F7p"/>
-                                                </connections>
-                                            </button>
+                                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="equalSpacing" alignment="center" spacingType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="6e4-HC-zlg" userLabel="&quot;Good&quot; Stack View">
+                                                <rect key="frame" x="0.0" y="0.0" width="205" height="224.5"/>
+                                                <subviews>
+                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Good" textAlignment="natural" lineBreakMode="clip" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="OQl-Nb-gjS">
+                                                        <rect key="frame" x="67" y="0.0" width="71" height="32.5"/>
+                                                        <constraints>
+                                                            <constraint firstAttribute="height" constant="32.5" id="zEL-wy-TsW"/>
+                                                        </constraints>
+                                                        <fontDescription key="fontDescription" name="Baskerville-Bold" family="Baskerville" pointSize="28"/>
+                                                        <color key="textColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                        <nil key="highlightedColor"/>
+                                                    </label>
+                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" showsTouchWhenHighlighted="YES" lineBreakMode="tailTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="w2D-tk-wdk" userLabel="Good - Background">
+                                                        <rect key="frame" x="0.0" y="40.5" width="205" height="40"/>
+                                                        <accessibility key="accessibilityConfiguration" identifier="good-background"/>
+                                                        <constraints>
+                                                            <constraint firstAttribute="width" relation="lessThanOrEqual" constant="240" id="D21-Sf-IXd"/>
+                                                            <constraint firstAttribute="height" constant="40" id="fNo-eC-jZn"/>
+                                                        </constraints>
+                                                        <fontDescription key="fontDescription" name="Baskerville" family="Baskerville" pointSize="22"/>
+                                                        <inset key="contentEdgeInsets" minX="0.0" minY="0.0" maxX="0.0" maxY="2"/>
+                                                        <inset key="titleEdgeInsets" minX="10" minY="0.0" maxX="10" maxY="0.0"/>
+                                                        <state key="normal" title="Background" backgroundImage="good_1">
+                                                            <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                        </state>
+                                                        <connections>
+                                                            <action selector="playMusic:" destination="BYZ-38-t0r" eventType="touchUpInside" id="6Rl-Qw-0Iz"/>
+                                                        </connections>
+                                                    </button>
+                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="tailTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="aFw-DD-9Be" userLabel="Good - Tavern">
+                                                        <rect key="frame" x="0.0" y="88.5" width="205" height="40"/>
+                                                        <accessibility key="accessibilityConfiguration" identifier="good-tavern"/>
+                                                        <constraints>
+                                                            <constraint firstAttribute="height" constant="40" id="Hy0-77-v7D"/>
+                                                        </constraints>
+                                                        <fontDescription key="fontDescription" name="Baskerville" family="Baskerville" pointSize="22"/>
+                                                        <inset key="titleEdgeInsets" minX="10" minY="0.0" maxX="10" maxY="2"/>
+                                                        <state key="normal" title="Tavern" backgroundImage="good_2">
+                                                            <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                        </state>
+                                                        <connections>
+                                                            <action selector="playMusic:" destination="BYZ-38-t0r" eventType="touchUpInside" id="mf7-b8-fec"/>
+                                                        </connections>
+                                                    </button>
+                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="tailTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1VI-Ix-X6m" userLabel="Good - Quirky">
+                                                        <rect key="frame" x="0.0" y="136.5" width="205" height="40"/>
+                                                        <accessibility key="accessibilityConfiguration" identifier="good-quirky"/>
+                                                        <constraints>
+                                                            <constraint firstAttribute="height" constant="40" id="UfE-tb-FPE"/>
+                                                        </constraints>
+                                                        <fontDescription key="fontDescription" name="Baskerville" family="Baskerville" pointSize="22"/>
+                                                        <inset key="titleEdgeInsets" minX="10" minY="0.0" maxX="10" maxY="2"/>
+                                                        <state key="normal" title="Quirky" backgroundImage="good_3">
+                                                            <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                        </state>
+                                                        <connections>
+                                                            <action selector="playMusic:" destination="BYZ-38-t0r" eventType="touchUpInside" id="p7W-mT-HXH"/>
+                                                        </connections>
+                                                    </button>
+                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="tailTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Y05-u1-3ZB" userLabel="Good - Victory">
+                                                        <rect key="frame" x="0.0" y="184.5" width="205" height="40"/>
+                                                        <accessibility key="accessibilityConfiguration" identifier="good-victory"/>
+                                                        <constraints>
+                                                            <constraint firstAttribute="height" constant="40" id="TEQ-2X-Uhn"/>
+                                                        </constraints>
+                                                        <fontDescription key="fontDescription" name="Baskerville" family="Baskerville" pointSize="22"/>
+                                                        <inset key="titleEdgeInsets" minX="10" minY="0.0" maxX="10" maxY="2"/>
+                                                        <state key="normal" title="Victory" backgroundImage="good_4">
+                                                            <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                        </state>
+                                                        <connections>
+                                                            <action selector="playMusic:" destination="BYZ-38-t0r" eventType="touchUpInside" id="owD-Ty-FB2"/>
+                                                        </connections>
+                                                    </button>
+                                                </subviews>
+                                                <constraints>
+                                                    <constraint firstAttribute="trailing" secondItem="1VI-Ix-X6m" secondAttribute="trailing" id="8Xt-GR-uU7"/>
+                                                    <constraint firstAttribute="trailing" secondItem="Y05-u1-3ZB" secondAttribute="trailing" id="FzH-eg-wzV"/>
+                                                    <constraint firstAttribute="trailing" secondItem="aFw-DD-9Be" secondAttribute="trailing" id="i0p-f5-5VP"/>
+                                                    <constraint firstAttribute="trailing" secondItem="w2D-tk-wdk" secondAttribute="trailing" id="r6I-WH-3Jl"/>
+                                                </constraints>
+                                            </stackView>
+                                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="equalSpacing" alignment="center" spacingType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="HJi-To-CNd" userLabel="&quot;Evil&quot; Stack View">
+                                                <rect key="frame" x="291.5" y="0.0" width="205" height="224.5"/>
+                                                <subviews>
+                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Evil" textAlignment="natural" lineBreakMode="clip" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="uZa-wA-ZoQ">
+                                                        <rect key="frame" x="77" y="0.0" width="51.5" height="32.5"/>
+                                                        <constraints>
+                                                            <constraint firstAttribute="height" constant="32.5" id="p35-Dj-jYT"/>
+                                                        </constraints>
+                                                        <fontDescription key="fontDescription" name="Baskerville-Bold" family="Baskerville" pointSize="28"/>
+                                                        <color key="textColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                        <nil key="highlightedColor"/>
+                                                    </label>
+                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="tailTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ajZ-fb-xu9" userLabel="Evil - Background">
+                                                        <rect key="frame" x="0.0" y="40.5" width="205" height="40"/>
+                                                        <accessibility key="accessibilityConfiguration" identifier="evil-background"/>
+                                                        <constraints>
+                                                            <constraint firstAttribute="height" constant="40" id="lGZ-lQ-d8b"/>
+                                                        </constraints>
+                                                        <fontDescription key="fontDescription" name="Baskerville" family="Baskerville" pointSize="22"/>
+                                                        <inset key="contentEdgeInsets" minX="0.0" minY="0.0" maxX="0.0" maxY="2"/>
+                                                        <inset key="titleEdgeInsets" minX="10" minY="0.0" maxX="10" maxY="0.0"/>
+                                                        <state key="normal" title="Background" backgroundImage="evil_1">
+                                                            <color key="titleColor" red="0.92143100499999997" green="0.92145264149999995" blue="0.92144101860000005" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                        </state>
+                                                        <connections>
+                                                            <action selector="playMusic:" destination="BYZ-38-t0r" eventType="touchUpInside" id="whR-PQ-MDe"/>
+                                                        </connections>
+                                                    </button>
+                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="tailTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="PHK-nJ-a1h" userLabel="Evil - Battle">
+                                                        <rect key="frame" x="0.0" y="88.5" width="205" height="40"/>
+                                                        <accessibility key="accessibilityConfiguration" identifier="evil-battle"/>
+                                                        <constraints>
+                                                            <constraint firstAttribute="height" constant="40" id="QDp-n5-Cer"/>
+                                                        </constraints>
+                                                        <fontDescription key="fontDescription" name="Baskerville" family="Baskerville" pointSize="22"/>
+                                                        <inset key="titleEdgeInsets" minX="10" minY="0.0" maxX="10" maxY="0.0"/>
+                                                        <state key="normal" title="Battle" backgroundImage="evil_2">
+                                                            <color key="titleColor" red="0.92143100499999997" green="0.92145264149999995" blue="0.92144101860000005" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                        </state>
+                                                        <connections>
+                                                            <action selector="playMusic:" destination="BYZ-38-t0r" eventType="touchUpInside" id="LQD-En-5IM"/>
+                                                        </connections>
+                                                    </button>
+                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="tailTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="rYW-sI-bSU" userLabel="Evil - Twisted">
+                                                        <rect key="frame" x="0.0" y="136.5" width="205" height="40"/>
+                                                        <accessibility key="accessibilityConfiguration" identifier="evil-twisted"/>
+                                                        <constraints>
+                                                            <constraint firstAttribute="height" constant="40" id="mV2-Ix-Udk"/>
+                                                        </constraints>
+                                                        <fontDescription key="fontDescription" name="Baskerville" family="Baskerville" pointSize="22"/>
+                                                        <inset key="titleEdgeInsets" minX="10" minY="0.0" maxX="10" maxY="0.0"/>
+                                                        <state key="normal" title="Twisted" backgroundImage="evil_3">
+                                                            <color key="titleColor" red="0.92143100499999997" green="0.92145264149999995" blue="0.92144101860000005" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                        </state>
+                                                        <connections>
+                                                            <action selector="playMusic:" destination="BYZ-38-t0r" eventType="touchUpInside" id="ay9-jE-EZt"/>
+                                                        </connections>
+                                                    </button>
+                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="tailTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="HbU-kF-Xfb" userLabel="Evil - Failure">
+                                                        <rect key="frame" x="0.0" y="184.5" width="205" height="40"/>
+                                                        <accessibility key="accessibilityConfiguration" identifier="evil-failure"/>
+                                                        <constraints>
+                                                            <constraint firstAttribute="height" constant="40" id="5mS-UA-RIc"/>
+                                                        </constraints>
+                                                        <fontDescription key="fontDescription" name="Baskerville" family="Baskerville" pointSize="22"/>
+                                                        <inset key="titleEdgeInsets" minX="10" minY="0.0" maxX="10" maxY="0.0"/>
+                                                        <state key="normal" title="Failure" backgroundImage="evil_4">
+                                                            <color key="titleColor" red="0.92143100499999997" green="0.92145264149999995" blue="0.92144101860000005" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                        </state>
+                                                        <connections>
+                                                            <action selector="playMusic:" destination="BYZ-38-t0r" eventType="touchUpInside" id="CNZ-sW-F7p"/>
+                                                        </connections>
+                                                    </button>
+                                                </subviews>
+                                                <constraints>
+                                                    <constraint firstAttribute="trailing" secondItem="HbU-kF-Xfb" secondAttribute="trailing" id="G4K-Ym-Fub"/>
+                                                    <constraint firstAttribute="trailing" secondItem="rYW-sI-bSU" secondAttribute="trailing" id="O9u-df-I5j"/>
+                                                    <constraint firstAttribute="trailing" secondItem="ajZ-fb-xu9" secondAttribute="trailing" id="YwW-z4-qbU"/>
+                                                    <constraint firstAttribute="trailing" secondItem="PHK-nJ-a1h" secondAttribute="trailing" id="ib3-fR-P8k"/>
+                                                </constraints>
+                                            </stackView>
+                                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="equalSpacing" alignment="center" spacingType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="aXk-TS-bHF" userLabel="&quot;Any&quot; Stack View">
+                                                <rect key="frame" x="583" y="0.0" width="205" height="224.5"/>
+                                                <subviews>
+                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="All" textAlignment="natural" lineBreakMode="clip" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="lzb-fz-Tfl">
+                                                        <rect key="frame" x="85" y="0.0" width="35.5" height="32.5"/>
+                                                        <constraints>
+                                                            <constraint firstAttribute="height" constant="32.5" id="emb-1N-T6o"/>
+                                                        </constraints>
+                                                        <fontDescription key="fontDescription" name="Baskerville-Bold" family="Baskerville" pointSize="28"/>
+                                                        <color key="textColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                        <nil key="highlightedColor"/>
+                                                    </label>
+                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="tailTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="POs-Zh-OyG" userLabel="All - Magic &amp; Mystery">
+                                                        <rect key="frame" x="0.0" y="40.5" width="205" height="40"/>
+                                                        <accessibility key="accessibilityConfiguration" identifier="any-magic-and-mystery"/>
+                                                        <constraints>
+                                                            <constraint firstAttribute="height" constant="40" id="cvb-d5-mLj"/>
+                                                        </constraints>
+                                                        <fontDescription key="fontDescription" name="Baskerville" family="Baskerville" pointSize="22"/>
+                                                        <color key="tintColor" red="0.48931576507260099" green="0.0" blue="0.41869275338539891" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                        <inset key="titleEdgeInsets" minX="10" minY="0.0" maxX="10" maxY="3"/>
+                                                        <state key="normal" title="Magic &amp; Mystery" backgroundImage="any_1"/>
+                                                        <connections>
+                                                            <action selector="playMusic:" destination="BYZ-38-t0r" eventType="touchUpInside" id="gTN-jz-q63"/>
+                                                        </connections>
+                                                    </button>
+                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="tailTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="CVl-XK-dKt" userLabel="All - Hurry!">
+                                                        <rect key="frame" x="0.0" y="88.5" width="205" height="40"/>
+                                                        <accessibility key="accessibilityConfiguration" identifier="any-hurry"/>
+                                                        <constraints>
+                                                            <constraint firstAttribute="height" constant="40" id="3v0-zD-3Qa"/>
+                                                        </constraints>
+                                                        <fontDescription key="fontDescription" name="Baskerville" family="Baskerville" pointSize="22"/>
+                                                        <color key="tintColor" red="0.25381871131873301" green="0.0" blue="0.48931576507260099" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                        <inset key="titleEdgeInsets" minX="10" minY="0.0" maxX="10" maxY="3"/>
+                                                        <state key="normal" title="Hurry!" backgroundImage="any_2"/>
+                                                        <connections>
+                                                            <action selector="playMusic:" destination="BYZ-38-t0r" eventType="touchUpInside" id="igx-Gs-cam"/>
+                                                        </connections>
+                                                    </button>
+                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="tailTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="4is-T8-QA5" userLabel="All - Sorrow">
+                                                        <rect key="frame" x="0.0" y="136.5" width="205" height="40"/>
+                                                        <accessibility key="accessibilityConfiguration" identifier="any-sorrow"/>
+                                                        <constraints>
+                                                            <constraint firstAttribute="height" constant="40" id="UHt-GK-O5E"/>
+                                                        </constraints>
+                                                        <fontDescription key="fontDescription" name="Baskerville" family="Baskerville" pointSize="22"/>
+                                                        <color key="tintColor" red="0.0" green="0.16117769090864059" blue="0.48931576507260099" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                        <inset key="titleEdgeInsets" minX="10" minY="0.0" maxX="10" maxY="3"/>
+                                                        <state key="normal" title="Sorrow" backgroundImage="any_3"/>
+                                                        <connections>
+                                                            <action selector="playMusic:" destination="BYZ-38-t0r" eventType="touchUpInside" id="xEg-hV-fcN"/>
+                                                        </connections>
+                                                    </button>
+                                                    <button opaque="NO" contentMode="scaleToFill" enabled="NO" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="tailTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Ksm-V7-pFm" userLabel="All - Sound Effects...">
+                                                        <rect key="frame" x="0.0" y="184.5" width="205" height="40"/>
+                                                        <constraints>
+                                                            <constraint firstAttribute="height" constant="40" id="Mc2-OS-Z6x"/>
+                                                        </constraints>
+                                                        <fontDescription key="fontDescription" name="Baskerville" family="Baskerville" pointSize="22"/>
+                                                        <color key="tintColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                        <inset key="contentEdgeInsets" minX="0.0" minY="0.0" maxX="0.0" maxY="3"/>
+                                                        <inset key="titleEdgeInsets" minX="10" minY="0.0" maxX="10" maxY="0.0"/>
+                                                        <state key="normal" title="Effects..." backgroundImage="any_4"/>
+                                                        <connections>
+                                                            <action selector="playMusic:" destination="BYZ-38-t0r" eventType="touchUpInside" id="R92-NC-YuC"/>
+                                                        </connections>
+                                                    </button>
+                                                </subviews>
+                                                <constraints>
+                                                    <constraint firstAttribute="trailing" secondItem="POs-Zh-OyG" secondAttribute="trailing" id="caD-wN-pNr"/>
+                                                    <constraint firstAttribute="trailing" secondItem="Ksm-V7-pFm" secondAttribute="trailing" id="h6i-os-lmE"/>
+                                                    <constraint firstAttribute="trailing" secondItem="4is-T8-QA5" secondAttribute="trailing" id="hnF-tW-4Bu"/>
+                                                    <constraint firstAttribute="trailing" secondItem="CVl-XK-dKt" secondAttribute="trailing" id="ubQ-Ro-ip9"/>
+                                                </constraints>
+                                            </stackView>
                                         </subviews>
-                                    </stackView>
-                                    <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="equalSpacing" alignment="top" spacingType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="aXk-TS-bHF" userLabel="&quot;Any&quot; Stack View">
-                                        <rect key="frame" x="633" y="0.0" width="155" height="216.5"/>
-                                        <subviews>
-                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Any" textAlignment="natural" lineBreakMode="clip" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="lzb-fz-Tfl">
-                                                <rect key="frame" x="0.0" y="0.0" width="50" height="32.5"/>
-                                                <fontDescription key="fontDescription" name="Baskerville-Bold" family="Baskerville" pointSize="28"/>
-                                                <color key="textColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                                <nil key="highlightedColor"/>
-                                            </label>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="tailTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="POs-Zh-OyG" userLabel="All - Magic &amp; Mystery">
-                                                <rect key="frame" x="0.0" y="40.5" width="155" height="38"/>
-                                                <accessibility key="accessibilityConfiguration" identifier="any-magic-and-mystery"/>
-                                                <fontDescription key="fontDescription" name="Baskerville" family="Baskerville" pointSize="22"/>
-                                                <color key="tintColor" red="0.48931576507260099" green="0.0" blue="0.41869275338539891" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                                <state key="normal" title="Magic &amp; Mystery"/>
-                                                <connections>
-                                                    <action selector="playMusic:" destination="BYZ-38-t0r" eventType="touchUpInside" id="gTN-jz-q63"/>
-                                                </connections>
-                                            </button>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="tailTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="CVl-XK-dKt" userLabel="All - Hurry!">
-                                                <rect key="frame" x="0.0" y="86.5" width="62" height="38"/>
-                                                <accessibility key="accessibilityConfiguration" identifier="any-hurry"/>
-                                                <fontDescription key="fontDescription" name="Baskerville" family="Baskerville" pointSize="22"/>
-                                                <color key="tintColor" red="0.25381871131873301" green="0.0" blue="0.48931576507260099" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                                <state key="normal" title="Hurry!"/>
-                                                <connections>
-                                                    <action selector="playMusic:" destination="BYZ-38-t0r" eventType="touchUpInside" id="igx-Gs-cam"/>
-                                                </connections>
-                                            </button>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="tailTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="4is-T8-QA5" userLabel="All - Sorrow">
-                                                <rect key="frame" x="0.0" y="132.5" width="65" height="38"/>
-                                                <accessibility key="accessibilityConfiguration" identifier="any-sorrow"/>
-                                                <fontDescription key="fontDescription" name="Baskerville" family="Baskerville" pointSize="22"/>
-                                                <color key="tintColor" red="0.0" green="0.16117769090864059" blue="0.48931576507260099" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                                <state key="normal" title="Sorrow"/>
-                                                <connections>
-                                                    <action selector="playMusic:" destination="BYZ-38-t0r" eventType="touchUpInside" id="xEg-hV-fcN"/>
-                                                </connections>
-                                            </button>
-                                            <button opaque="NO" contentMode="scaleToFill" enabled="NO" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="tailTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Ksm-V7-pFm" userLabel="All - Sound Effects...">
-                                                <rect key="frame" x="0.0" y="178.5" width="75" height="38"/>
-                                                <fontDescription key="fontDescription" name="Baskerville" family="Baskerville" pointSize="22"/>
-                                                <color key="tintColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                                <state key="normal" title="Effects..."/>
-                                                <connections>
-                                                    <action selector="playMusic:" destination="BYZ-38-t0r" eventType="touchUpInside" id="R92-NC-YuC"/>
-                                                </connections>
-                                            </button>
-                                        </subviews>
+                                        <constraints>
+                                            <constraint firstAttribute="width" relation="lessThanOrEqual" constant="800" id="DzS-xi-Ye0"/>
+                                            <constraint firstItem="HJi-To-CNd" firstAttribute="width" secondItem="aXk-TS-bHF" secondAttribute="width" id="FV0-lh-sgb"/>
+                                            <constraint firstItem="6e4-HC-zlg" firstAttribute="width" secondItem="aXk-TS-bHF" secondAttribute="width" id="Tmr-9x-LiP"/>
+                                            <constraint firstItem="6e4-HC-zlg" firstAttribute="width" secondItem="HJi-To-CNd" secondAttribute="width" id="gPB-7f-kf5"/>
+                                            <constraint firstAttribute="height" priority="100" id="tSU-OT-Qfb"/>
+                                        </constraints>
                                     </stackView>
                                 </subviews>
                                 <constraints>
-                                    <constraint firstAttribute="width" relation="lessThanOrEqual" constant="800" id="DzS-xi-Ye0"/>
+                                    <constraint firstAttribute="trailing" secondItem="pCD-n4-oj5" secondAttribute="trailing" priority="850" id="3EK-LE-DJe"/>
+                                    <constraint firstAttribute="trailing" secondItem="1u6-4q-MWC" secondAttribute="trailing" priority="850" id="U2o-7F-qI1"/>
+                                    <constraint firstItem="pCD-n4-oj5" firstAttribute="leading" secondItem="jsy-L0-knf" secondAttribute="leading" priority="850" id="hlP-qX-Wmk"/>
+                                    <constraint firstItem="1u6-4q-MWC" firstAttribute="leading" secondItem="jsy-L0-knf" secondAttribute="leading" priority="850" id="y53-fL-kB3"/>
                                 </constraints>
                             </stackView>
-                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" alpha="0.75" tag="1" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="LcU-EM-aAS" userLabel="Album Art">
-                                <rect key="frame" x="443" y="266.5" width="10.5" height="10.5"/>
-                                <accessibility key="accessibilityConfiguration">
-                                    <accessibilityTraits key="traits" image="YES" notEnabled="YES"/>
-                                </accessibility>
-                                <constraints>
-                                    <constraint firstAttribute="width" secondItem="LcU-EM-aAS" secondAttribute="height" multiplier="1:1" id="EYt-tk-biX"/>
-                                </constraints>
-                            </imageView>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="pCD-n4-oj5" userLabel="Controls Subview">
-                                <rect key="frame" x="54" y="317" width="788" height="66"/>
-                                <subviews>
-                                    <stackView opaque="NO" contentMode="left" spacing="40" translatesAutoresizingMaskIntoConstraints="NO" id="S1d-nh-KgG" userLabel="Sliders Stack View">
-                                        <rect key="frame" x="0.0" y="0.0" width="788" height="31"/>
-                                        <subviews>
-                                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="4rK-da-RMw">
-                                                <rect key="frame" x="0.0" y="0.0" width="140" height="31"/>
-                                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                                <constraints>
-                                                    <constraint firstAttribute="height" constant="31" id="IUF-rR-sWg"/>
-                                                    <constraint firstAttribute="width" constant="140" id="uQY-eS-XA3"/>
-                                                </constraints>
-                                            </view>
-                                            <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="HN9-MX-FoI">
-                                                <rect key="frame" x="178" y="0.0" width="612" height="32"/>
-                                                <connections>
-                                                    <action selector="sliderPositionChangedByUser" destination="BYZ-38-t0r" eventType="valueChanged" id="IqH-fq-mxU"/>
-                                                    <action selector="userIsMovingSlider" destination="BYZ-38-t0r" eventType="touchDown" id="lrP-Yc-jAA"/>
-                                                    <action selector="userReleasedSlider" destination="BYZ-38-t0r" eventType="touchUpOutside" id="oKv-y8-e9a"/>
-                                                    <action selector="userReleasedSlider" destination="BYZ-38-t0r" eventType="touchUpInside" id="x6Q-6Q-BQi"/>
-                                                </connections>
-                                            </slider>
-                                        </subviews>
-                                    </stackView>
-                                    <stackView opaque="NO" contentMode="left" distribution="equalSpacing" translatesAutoresizingMaskIntoConstraints="NO" id="Wvk-Ek-x4l" userLabel="Info Stack View">
-                                        <rect key="frame" x="0.0" y="40.5" width="788" height="25.5"/>
-                                        <subviews>
-                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" usesAttributedText="YES" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="SDw-zm-fpg" userLabel="Playlist And Track">
-                                                <rect key="frame" x="0.0" y="0.0" width="242" height="25.5"/>
-                                                <attributedString key="attributedText">
-                                                    <fragment content="Playlist Name: ">
-                                                        <attributes>
-                                                            <color key="NSColor" red="0.2382225268" green="0.13274118130000001" blue="0.00049279963540000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                                            <font key="NSFont" size="22" name="Baskerville-Bold"/>
-                                                            <font key="NSOriginalFont" size="22" name="Baskerville-Bold"/>
-                                                            <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
-                                                        </attributes>
-                                                    </fragment>
-                                                    <fragment content="Song title">
-                                                        <attributes>
-                                                            <color key="NSColor" red="0.2382225268" green="0.13274118130000001" blue="0.00049279963540000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                                            <font key="NSFont" size="22" name="Baskerville"/>
-                                                            <font key="NSOriginalFont" size="22" name="Baskerville"/>
-                                                            <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
-                                                        </attributes>
-                                                    </fragment>
-                                                </attributedString>
-                                                <nil key="highlightedColor"/>
-                                            </label>
-                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="-0m:22s" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="kNj-Th-yD4">
-                                                <rect key="frame" x="688" y="0.0" width="100" height="25.5"/>
-                                                <constraints>
-                                                    <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="100" id="xMo-9h-Qzw"/>
-                                                </constraints>
-                                                <fontDescription key="fontDescription" name="Baskerville-Bold" family="Baskerville" pointSize="22"/>
-                                                <color key="textColor" red="0.2382225268" green="0.13274118130000001" blue="0.00049279963540000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                                <nil key="highlightedColor"/>
-                                            </label>
-                                        </subviews>
-                                    </stackView>
-                                </subviews>
-                                <constraints>
-                                    <constraint firstItem="Wvk-Ek-x4l" firstAttribute="leading" secondItem="pCD-n4-oj5" secondAttribute="leading" id="4nt-0s-dWz"/>
-                                    <constraint firstItem="S1d-nh-KgG" firstAttribute="top" secondItem="pCD-n4-oj5" secondAttribute="top" id="Gub-Pv-eao"/>
-                                    <constraint firstAttribute="trailing" secondItem="Wvk-Ek-x4l" secondAttribute="trailing" id="LrS-cq-OmO"/>
-                                    <constraint firstAttribute="height" constant="66" id="SO2-Cf-Paw"/>
-                                    <constraint firstAttribute="width" relation="lessThanOrEqual" constant="800" id="Tl6-Jk-aF8"/>
-                                    <constraint firstAttribute="bottom" secondItem="Wvk-Ek-x4l" secondAttribute="bottom" id="Wza-m5-T6J"/>
-                                    <constraint firstItem="S1d-nh-KgG" firstAttribute="leading" secondItem="pCD-n4-oj5" secondAttribute="leading" id="kE5-DE-vCl"/>
-                                    <constraint firstAttribute="trailing" secondItem="S1d-nh-KgG" secondAttribute="trailing" id="lIU-bI-t0k"/>
-                                </constraints>
-                            </view>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <color key="tintColor" red="0.2382225267814867" green="0.13274118134788795" blue="0.00049279963542861254" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
-                            <constraint firstItem="1u6-4q-MWC" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="10" id="0sk-Gn-EBQ"/>
-                            <constraint firstItem="LcU-EM-aAS" firstAttribute="top" secondItem="1u6-4q-MWC" secondAttribute="bottom" constant="40" id="6FU-Zf-aYS"/>
-                            <constraint firstItem="1u6-4q-MWC" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" priority="800" constant="10" id="BpG-Jv-XkF"/>
-                            <constraint firstItem="1u6-4q-MWC" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="WJo-0e-N5x"/>
-                            <constraint firstItem="LcU-EM-aAS" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="cqV-ak-POl"/>
-                            <constraint firstItem="pCD-n4-oj5" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="cy9-wr-lOb"/>
-                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="1u6-4q-MWC" secondAttribute="trailing" priority="800" constant="10" id="d8Q-9c-aBq"/>
-                            <constraint firstItem="pCD-n4-oj5" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" priority="800" constant="10" id="fuZ-Cv-PFl"/>
-                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="pCD-n4-oj5" secondAttribute="trailing" priority="800" constant="10" id="hMu-Nd-qBs"/>
-                            <constraint firstItem="pCD-n4-oj5" firstAttribute="top" secondItem="LcU-EM-aAS" secondAttribute="bottom" constant="40" id="ksr-Nb-rL0"/>
-                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="pCD-n4-oj5" secondAttribute="bottom" constant="10" id="sJ3-qu-QUH"/>
+                            <constraint firstItem="jsy-L0-knf" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="10" id="DaO-YP-qIP"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="jsy-L0-knf" secondAttribute="bottom" constant="10" id="GWd-Dk-wNs"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="jsy-L0-knf" secondAttribute="trailing" constant="10" id="mZR-8b-8iJ"/>
+                            <constraint firstItem="jsy-L0-knf" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="10" id="zhJ-AJ-K7a"/>
                         </constraints>
                     </view>
                     <connections>
@@ -305,6 +389,18 @@
     </scenes>
     <resources>
         <image name="Background" width="1489" height="1120"/>
+        <image name="any_1" width="169" height="76"/>
+        <image name="any_2" width="169.66667175292969" height="76"/>
+        <image name="any_3" width="169.66667175292969" height="76"/>
+        <image name="any_4" width="199" height="76"/>
+        <image name="evil_1" width="134.66667175292969" height="38"/>
+        <image name="evil_2" width="136.66667175292969" height="38"/>
+        <image name="evil_3" width="136" height="38"/>
+        <image name="evil_4" width="136.33332824707031" height="38"/>
+        <image name="good_1" width="205" height="38"/>
+        <image name="good_2" width="205" height="38"/>
+        <image name="good_3" width="179" height="38"/>
+        <image name="good_4" width="179" height="38"/>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
