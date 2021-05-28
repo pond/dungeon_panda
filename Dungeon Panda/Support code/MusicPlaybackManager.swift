@@ -441,9 +441,9 @@ class MusicPlaybackManager
     {
         NSLog("transitionToNextTrack: Called, forceImmediate = \(forceImmediate)")
 
-        timerCancelAll(except: "position_updates")
-
         self.trackChangeIsUnderway = true
+
+        timerCancelAll(except: "position_updates")
 
         if (forceImmediate == false && self.mediaPlayer.playbackState == .playing)
         {
