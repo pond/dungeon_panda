@@ -130,12 +130,14 @@ class MusicPlaybackManager
               object: nil
         )
 
-//        NotificationCenter.default.addObserver(
-//                self,
-//            selector: #selector(nowPlayingItemDidChange),
-//                name: .MPMusicPlayerControllerNowPlayingItemDidChange,
-//              object: nil
-//        )
+        // Currently not needed:
+        //
+        // NotificationCenter.default.addObserver(
+        //         self,
+        //     selector: #selector(nowPlayingItemDidChange),
+        //         name: .MPMusicPlayerControllerNowPlayingItemDidChange,
+        //       object: nil
+        // )
 
         self.mediaPlayer.beginGeneratingPlaybackNotifications()
     }
@@ -260,12 +262,20 @@ class MusicPlaybackManager
      */
     func setVolume(volume: Double?)
     {
-        DispatchQueue.main.async
+        if volume != nil
         {
-            if volume != nil
+            let scaledVolume = volume! * self.currentVolumeScaleFactor()
+
+            if Thread.isMainThread
             {
-                let scaledVolume = volume! * self.currentVolumeScaleFactor()
                 self.hiddenSystemVolumeSlider?.value = Float(scaledVolume)
+            }
+            else
+            {
+                DispatchQueue.main.sync
+                {
+                    self.hiddenSystemVolumeSlider?.value = Float(scaledVolume)
+                }
             }
         }
     }
@@ -312,6 +322,7 @@ class MusicPlaybackManager
         {
             NSLog("startPlayback: Fade in is NOT required")
 
+            self.fadeInIsUnderway = false
             self.setVolume(volume: self.referenceSystemVolume)
             self.fadeInOnNextPlaybackStartedEvent = false
         }
@@ -337,6 +348,29 @@ class MusicPlaybackManager
         //
         DispatchQueue(label: "uk.org.pond.DungeonPanda.playqueue").async
         {
+            // ...and to mix in SFX - "var player: AVAudioPlayer?" somewhere,
+            // then...
+            //
+            // let audioSession = AVAudioSession.sharedInstance()
+            // try! audioSession.setCategory(
+            //     .playback,
+            //     mode: .default,
+            //     options: AVAudioSession.CategoryOptions.mixWithOthers
+            // )
+            //
+            // try! audioSession.setActive(true)
+            //
+            // let resourcePath = Bundle.main.resourcePath
+            // let itemName     = "rain.mp3"
+            // let path         = resourcePath! + "/" + itemName
+            //
+            // self.player = try! AVAudioPlayer(contentsOf: URL(fileURLWithPath: path))
+            // self.player?.prepareToPlay()
+            // self.player?.rate = 1.0
+            // self.player?.volume = 0.3
+            // self.player?.numberOfLoops = -1 // Loop continuously
+            // self.player?.play()
+
             let descriptor = self.playlistManager.getQueueDescriptorFor(track: track)
 
             self.mediaPlayer.setQueue(with: descriptor)
@@ -346,10 +380,11 @@ class MusicPlaybackManager
     }
 
     // This doesn't work, but one day maybe it'll be a big enough sledgehammer
-    // *or* Apple might write code that isn't a total crock of **** (this stuff
-    // has been broken for years, so I don't think their engineers have even
-    // close to the competence required to ever reliably play audio. It's a
-    // really difficult thing apparently... So. Many. Hours. Wasted. On. This.)
+    // *or* Apple might write code that isn't a total crock. This stuff has
+    // been broken for years, so apparently their their engineers don't have
+    // even close to the competence required to ever reliably play audio.
+    //
+    // So. Many. Hours. Wasted. On. This. *Dismal* developer experience.
     //
     private func desperatelyTryToConvinceMusicPlayerToActuallyWork(track: Track)
     {
@@ -406,9 +441,9 @@ class MusicPlaybackManager
     {
         NSLog("transitionToNextTrack: Called, forceImmediate = \(forceImmediate)")
 
-        self.trackChangeIsUnderway = true
-
         timerCancelAll(except: "position_updates")
+
+        self.trackChangeIsUnderway = true
 
         if (forceImmediate == false && self.mediaPlayer.playbackState == .playing)
         {
@@ -552,18 +587,9 @@ class MusicPlaybackManager
         NSLog("effectivePlaybackStateDidStartPlaying: Called")
 
         timerCancelAll()
+
         timerPositionUpdatesStart()
-
-        let artwork = self.mediaPlayer.nowPlayingItem?.artwork
-
-        self.delegates.forEach{ (delegate) in
-            delegate.playbackResumed(playbackManager: self)
-
-            if artwork != nil
-            {
-                delegate.playbackArtworkWasDetermined(artwork: artwork!)
-            }
-        }
+        timerTrackEndStart()
 
         // Figure out fade-in or start-now
 
@@ -579,7 +605,16 @@ class MusicPlaybackManager
             self.setVolume(volume: self.referenceSystemVolume)
         }
 
-        timerTrackEndStart()
+        let artwork = self.mediaPlayer.nowPlayingItem?.artwork
+
+        self.delegates.forEach{ (delegate) in
+            delegate.playbackResumed(playbackManager: self)
+
+            if artwork != nil
+            {
+                delegate.playbackArtworkWasDetermined(artwork: artwork!)
+            }
+        }
     }
 
     /**
@@ -722,8 +757,6 @@ class MusicPlaybackManager
 
     private func timerFadeInStart(duration: Double)
     {
-        self.fadeInIsUnderway = true
-
         timerAdd("fade_in") {
             return self.fade(
                 fromVolume: 0.0,
@@ -747,7 +780,7 @@ class MusicPlaybackManager
         timerCancel("fade_in")
     }
 
-    // MARK: - PRIVATE: TImers - position update
+    // MARK: - PRIVATE: Timers - position update
 
     private func timerPositionUpdatesStart()
     {
@@ -862,8 +895,6 @@ class MusicPlaybackManager
 
         timerAdd("fade_out")
         {
-            self.fadeOutIsUnderway = true
-
             return self.fade(
                 fromVolume: self.referenceSystemVolume ?? 0.5,
                   toVolume: 0.0,

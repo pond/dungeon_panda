@@ -246,6 +246,7 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
 
     func playbackPaused(playbackManager: MusicPlaybackManager)
     {
+      // self.dumpPlaylists()
     }
 
     func playbackResumed(playbackManager: MusicPlaybackManager)

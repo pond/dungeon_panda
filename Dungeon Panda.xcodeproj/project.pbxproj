@@ -26,6 +26,7 @@
 		23854C6E26087FF400909DB1 /* PlaylistManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23854C6D26087FF400909DB1 /* PlaylistManager.swift */; };
 		23854C712608818400909DB1 /* Tracklist.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23854C702608818400909DB1 /* Tracklist.swift */; };
 		23854C752609CAB800909DB1 /* Playlist+StoreIDs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23854C742609CAB800909DB1 /* Playlist+StoreIDs.swift */; };
+		239A2DEC2645200100EFFDFF /* rain.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 239A2DEB2645200100EFFDFF /* rain.mp3 */; };
 		239D0990260FF45C00808088 /* UnfixableError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 239D098F260FF45C00808088 /* UnfixableError.swift */; };
 		239D099526102B1200808088 /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 239D099426102B1200808088 /* CloudKit.framework */; };
 		23DE6594263E6E8800C5A924 /* TitleFittingButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23DE6593263E6E8700C5A924 /* TitleFittingButton.swift */; };
@@ -55,6 +56,7 @@
 		23854C6D26087FF400909DB1 /* PlaylistManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaylistManager.swift; sourceTree = "<group>"; };
 		23854C702608818400909DB1 /* Tracklist.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tracklist.swift; sourceTree = "<group>"; };
 		23854C742609CAB800909DB1 /* Playlist+StoreIDs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Playlist+StoreIDs.swift"; sourceTree = "<group>"; };
+		239A2DEB2645200100EFFDFF /* rain.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = rain.mp3; sourceTree = "<group>"; };
 		239D098F260FF45C00808088 /* UnfixableError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnfixableError.swift; sourceTree = "<group>"; };
 		239D099226102B0200808088 /* Dungeon Panda.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Dungeon Panda.entitlements"; sourceTree = "<group>"; };
 		239D099426102B1200808088 /* CloudKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CloudKit.framework; path = System/Library/Frameworks/CloudKit.framework; sourceTree = SDKROOT; };
@@ -132,6 +134,7 @@
 		2339713325FEA04200ACFCF7 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				239A2DEB2645200100EFFDFF /* rain.mp3 */,
 				2339711125FD6BC500ACFCF7 /* Assets.xcassets */,
 				237B42F525FEA100000D5666 /* LICENSE */,
 				237B42F425FEA100000D5666 /* README.md */,
@@ -245,6 +248,7 @@
 			files = (
 				2339711525FD6BC500ACFCF7 /* LaunchScreen.storyboard in Resources */,
 				2339711225FD6BC500ACFCF7 /* Assets.xcassets in Resources */,
+				239A2DEC2645200100EFFDFF /* rain.mp3 in Resources */,
 				237B42F625FEA100000D5666 /* README.md in Resources */,
 				2339710D25FD6BC300ACFCF7 /* Main.storyboard in Resources */,
 				237B42F725FEA100000D5666 /* LICENSE in Resources */,
