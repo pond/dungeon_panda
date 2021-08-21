@@ -9,11 +9,13 @@ import Foundation
 import CoreData
 import UIKit
 import MediaPlayer
+import OSLog
 
 /**
  A PlaylistManager keeps track of shuffled playback orders within Tracklists.
 */
 class PlaylistManager {
+    let logger      = Logger()
     let appDelegate = UIApplication.shared.delegate as! AppDelegate
 
     let staticTracklistManager: StaticTracklistManager
@@ -42,7 +44,7 @@ class PlaylistManager {
            persistentContainer: NSPersistentCloudKitContainer
     )
     {
-        print("PlaylistManager init")
+        logger.notice("PlaylistManager init")
 
         self.staticTracklistManager = staticTracklistManager
         self.persistentContainer    = persistentContainer
@@ -56,13 +58,13 @@ class PlaylistManager {
             let records = try context.fetch(Playlist.fetchRequest())
             if let records = records as? [Playlist]
             {
-                print("PlaylistManager init: Successfully fetched playlists from Core Data")
+                logger.notice("PlaylistManager init: Successfully fetched playlists from Core Data")
                 self.playlists = records
             }
         }
         catch
         {
-            print("PlaylistManager init: Unable to fetch playlists from Core Data; creating new")
+            logger.notice("PlaylistManager init: Unable to fetch playlists from Core Data; creating new")
         }
 
         // Fetch all play positions within the playlists.
@@ -72,13 +74,13 @@ class PlaylistManager {
             let records = try context.fetch(CurrentPositionInPlaylist.fetchRequest())
             if let records = records as? [CurrentPositionInPlaylist]
             {
-                print("PlaylistManager init: Successfully fetched positions from Core Data")
+                logger.notice("PlaylistManager init: Successfully fetched positions from Core Data")
                 self.currentPositionsInPlaylists = records
             }
         }
         catch
         {
-            print("PlaylistManager init: Unable to fetch positions from Core Data; creating new")
+            logger.notice("PlaylistManager init: Unable to fetch positions from Core Data; creating new")
         }
 
         // Make local lookup easy by creating a Dictionary mapping playlist IDs
@@ -110,7 +112,7 @@ class PlaylistManager {
                 if playlist.version != tracklist.version ||
                    false == sortedPlaylistStoreIDs.elementsEqual(sortedTracklistStoreIDs)
                 {
-                    print("PlaylistManager init: Playlist \(tracklist.id) is out of date; updating")
+                    logger.notice("PlaylistManager init: Playlist \(tracklist.id) is out of date; updating")
 
                     playlist.displayName = tracklist.displayName
                     playlist.version     = tracklist.version
@@ -162,13 +164,13 @@ class PlaylistManager {
             if let records = records as? [CurrentPlaylist],
                let firstRecord = records.first
             {
-                print("PlaylistManager init: Successfully fetched current playlist from Core Data")
+                logger.notice("PlaylistManager init: Successfully fetched current playlist from Core Data")
                 currentPlaylistOptional = firstRecord
             }
         }
         catch
         {
-            print("PlaylistManager init: Unable to current playlist from Core Data; creating new")
+            logger.notice("PlaylistManager init: Unable to current playlist from Core Data; creating new")
         }
 
         if currentPlaylistOptional == nil
@@ -299,17 +301,20 @@ class PlaylistManager {
             descriptor.setStartTime(track.startOffset, forItemWithStoreID: track.storeID)
         }
 
-        if track.endOffset != nil
-        {
-            descriptor.setEndTime(track.endOffset!, forItemWithStoreID: track.storeID)
-        }
+        // MusicPlaybackManager now does this manually via timers. The Apple
+        // Music API is simply far too horribly broken to rely on the below.
+        //
+        //        if track.endOffset != nil
+        //        {
+        //            descriptor.setEndTime(track.endOffset!, forItemWithStoreID: track.storeID)
+        //        }
 
         descriptor.startItemID = track.storeID
 
         return descriptor
     }
 
-    // MARK: - GEMERAL INTERFACE
+    // MARK: - GENERAL INTERFACE
 
     /**
      Return a Playlist stored for the given ID.
@@ -325,6 +330,7 @@ class PlaylistManager {
         }
         else // ...wut, no playlist? Well, don't crash, at least...
         {
+            logger.warning("WARNING: getPlaylistForID: ID \(playlistID) not found! Returning random playlist instead.")
             return self.playlists.randomElement()!
         }
     }
@@ -351,7 +357,7 @@ class PlaylistManager {
     */
     func getTrackByStoreID(playlist: Playlist, storeID: String) -> Track
     {
-        let tracklist = self.staticTracklistManager.getTracklistBy(tracklistID: playlist.id!)
+        let tracklist = getTracklistForPlaylist(playlist)
         return tracklist.getTrackBy(storeID: storeID)
     }
 
@@ -372,6 +378,7 @@ class PlaylistManager {
 
         if index < 0 || index >= playlist.storeIDs.count
         {
+            logger.warning("WARNING: getTrackByIndex: Index '\(index)' for playlist '\(String(describing: playlist.id))' is out of range; item count is \(playlist.storeIDs.count). Resetting to zero.")
             safeIndex = 0
         }
 
@@ -396,6 +403,7 @@ class PlaylistManager {
         }
         else
         {
+            logger.warning("WARNING: getTrackIndexFor: Store ID '\(storeID)' not found in playlist '\(String(describing: playlist.id))'. Returning zero instead.")
             return 0
         }
     }
@@ -415,6 +423,7 @@ class PlaylistManager {
         }
         else
         {
+            logger.warning("WARNING: getCurrentPlaybackIndexFor: Playlist '\(String(describing: playlist?.id))' either missing or has no known current playback position. Returning zero instead.")
             return 0
         }
     }
@@ -436,11 +445,18 @@ class PlaylistManager {
 
             appDelegate.saveContext()
         }
+        else
+        {
+            logger.error("ERROR: setCurrentPlaybackIndexFor: Unable to retrieve a current playlist position; ignoring request.")
+        }
     }
 
     /**
      Call when a media player monitoring class notices that a track has finished and to simultaneously be given
-     the index of the next track to play in the playlist.
+     the index of the next track to play in the playlist. This returned index is stored in CoreData as the new
+     current playlist index for that playlist, so callers do not need to do that themselves and as a result, you
+     may not need to use the returned index at all - `nowPlaying` will start returning the new track info
+     straight away.
 
      - Parameter playlistID: ID of playlist in which playback completed.
      - Returns: Playlist index in that playlist of **next item to be played**.
@@ -448,9 +464,9 @@ class PlaylistManager {
      Internally, if the end of the playlist has been reached, it is reshuffled and the returned index
      will be zero. Everything is persisted synchronously to Core Data.
     */
-    func currentItemHasBeenPlayedWithin(playlistID: String) -> Int
+    @discardableResult func currentItemHasBeenPlayedWithin(playlistID: String) -> Int
     {
-        NSLog("currentItemHasBeenPlayedWithin: Called for playlist '\(playlistID)'")
+        logger.debug("currentItemHasBeenPlayedWithin: Called for playlist '\(playlistID)'")
 
         let playingPlaylist = self.playlistsByID[playlistID]!
         let justPlayedIndex = getCurrentPlaybackIndexFor(playlist: playingPlaylist)
@@ -458,17 +474,17 @@ class PlaylistManager {
 
         if nextIndexToPlay >= playingPlaylist.storeIDs.count
         {
-            NSLog("currentItemHasBeenPlayedWithin: All items in this playlist have been played - shuffling")
+            logger.notice("currentItemHasBeenPlayedWithin: All items in this playlist have been played - shuffling")
 
             nextIndexToPlay = 0
             bisectAndReshuffle(playlist: playingPlaylist)
+            appDelegate.saveContext()
         }
 
-        NSLog("currentItemHasBeenPlayedWithin: Next playback index is \(nextIndexToPlay)")
+        logger.debug("currentItemHasBeenPlayedWithin: Next playback index is \(nextIndexToPlay)")
 
         setCurrentPlaybackIndexFor(playlist: playingPlaylist, index: nextIndexToPlay)
 
-        appDelegate.saveContext()
         return Int(nextIndexToPlay)
     }
 

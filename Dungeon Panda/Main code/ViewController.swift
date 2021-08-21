@@ -8,6 +8,7 @@
 import UIKit
 import StoreKit
 import MediaPlayer
+import OSLog
 
 class ViewController: UIViewController, MusicPlaybackManagerDelegate {
     @IBOutlet weak var playButton: UIButton!
@@ -17,6 +18,7 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
     @IBOutlet weak var volumeParentView: UIView!
     @IBOutlet weak var albumArtImageView: UIImageView!
 
+    let logger      = Logger()
     let appleMusic  = AppleMusicAPI()
     let appDelegate = UIApplication.shared.delegate as! AppDelegate
 
@@ -71,17 +73,17 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
         let authorizationStatus = SKCloudServiceController.authorizationStatus()
         if authorizationStatus == .authorized || authorizationStatus == .restricted
         {
-            print("ViewController.viewDidLoad: User authorized access to Apple Music")
+            logger.notice("ViewController.viewDidLoad: User authorized access to Apple Music")
             musicAuthorizationIsGranted()
         }
         else if authorizationStatus == .denied
         {
-            print("ViewController.viewDidLoad: User prohibited access to Apple Music")
+            logger.notice("ViewController.viewDidLoad: User prohibited access to Apple Music")
             musicAuthorizationIsDenied()
         }
         else
         {
-            print("ViewController.viewDidLoad: Requesting access to Apple Music")
+            logger.notice("ViewController.viewDidLoad: Requesting access to Apple Music")
             getMusicAuthorizationFromUser()
         }
     }
@@ -91,7 +93,7 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
         super.viewDidAppear(animated)
 
         let hiddenSystemVolumeSlider = self.volumeView!.subviews.first(where: { $0 is UISlider }) as? UISlider
-        print("Volume sider is \(String(describing: hiddenSystemVolumeSlider))")
+        logger.notice("Volume sider is \(String(describing: hiddenSystemVolumeSlider))")
 
         self.appDelegate.musicPlaybackManager!.setHiddenSystemVolumeSlider(hiddenSystemVolumeSlider)
     }
@@ -246,7 +248,7 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
 
     func playbackPaused(playbackManager: MusicPlaybackManager)
     {
-      // self.dumpPlaylists()
+        // self.dumpPlaylists()
     }
 
     func playbackResumed(playbackManager: MusicPlaybackManager)
@@ -267,6 +269,20 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
 
         self.currentArtworkImage = imageToUse
         updateArtworkToCurrent(usingSize: size)
+    }
+
+    func playbackArtworkWillBeInvalid()
+    {
+        // Right now this is ignored, as the animation effect isn't great and a
+        // cross-fade between different album artwork is nice. Kept around "
+        // just in case".
+        //
+        // let rect    = UIScreen.main.bounds
+        // let longest = max(rect.width, rect.height)
+        // let size    = CGSize(width: longest, height: longest)
+        //
+        // self.currentArtworkImage = nil
+        // updateArtworkToCurrent(usingSize: size)
     }
 
     func updateArtworkToCurrent(usingSize: CGSize)
@@ -574,17 +590,17 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
         SKCloudServiceController.requestAuthorization { (status) in
             if status == .authorized || status == .restricted
             {
-                print("getMusicAuthorizationFromUser: User authorized access to Apple Music")
+                self.logger.notice("getMusicAuthorizationFromUser: User authorized access to Apple Music")
 
                 AppleMusicAPI().getUserToken(
                     completionHandler: { result in
                         switch result {
                             case .failure(let error):
-                                print("getMusicAuthorizationFromUser: ERROR - User token failure - \(error)")
+                                self.logger.critical("getMusicAuthorizationFromUser: ERROR - User token failure - \(String(describing: error))")
                                 UnfixableError().display(message: error.localizedDescription, using: self)
 
                             case .success(let userToken):
-                                print("getMusicAuthorizationFromUser: User token \(userToken) retrieved; starting playback")
+                                self.logger.notice("getMusicAuthorizationFromUser: User token \(userToken) retrieved; starting playback")
                                 self.musicAuthorizationIsGranted()
                         }
                     }
@@ -599,7 +615,7 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
 
     private func musicAuthorizationIsGranted()
     {
-        print("musicAuthorizationIsGranted: Authorisation is available, kicking off initial playback start")
+        logger.notice("musicAuthorizationIsGranted: Authorisation is available, kicking off initial playback start")
         self.appDelegate.musicPlaybackManager!.startPlaybackAtAppLaunch()
     }
 
