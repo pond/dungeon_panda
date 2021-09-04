@@ -422,7 +422,11 @@ class MusicPlaybackManager
         }
     }
 
-    private func getPlayingTrackAndRemainingDuration() -> (Track, Double?)
+    /**
+     Return the remaining duration for a currently playing track. If the media player isn't playing something
+     or hasn't figured out how long it is yet (usual Apple Music API caveats apply), returns `nil`.
+    */
+    private func getRemainingDuration() -> Double?
     {
         let playingTrack        = self.playlistManager.getPlayingTrack()
         let currentItemDuration = self.mediaPlayer.nowPlayingItem?.playbackDuration
@@ -440,7 +444,7 @@ class MusicPlaybackManager
                                     nil :
                                     trackEndOffset! - currentItemPosition
 
-        return (playingTrack, remainingItemDuration)
+        return remainingItemDuration
     }
 
     /**
@@ -488,8 +492,8 @@ class MusicPlaybackManager
 
         if (forceImmediate == false && self.mediaPlayer.playbackState == .playing)
         {
-            let safetyMargin               = 0.5
-            let (_, remainingItemDuration) = getPlayingTrackAndRemainingDuration()
+            let safetyMargin          = 0.5
+            let remainingItemDuration = getRemainingDuration()
 
             if remainingItemDuration != nil
             {
@@ -723,9 +727,11 @@ class MusicPlaybackManager
     */
     private func timerAdd(_ name: String, additionHandler: @escaping() -> Timer)
     {
-        logger.debug("timerAdd: Adding \(name)...")
+        logger.debug("timerAdd: Adding \(name) - cancelling any other instance first...")
 
         timerCancel(name)
+
+        logger.debug("timerAdd: ...any other instance of \(name) cancelled; adding anew...")
 
         if name == "fade_in"  { self.fadeInIsUnderway  = true }
         if name == "fade_out" { self.fadeOutIsUnderway = true }
@@ -829,6 +835,9 @@ class MusicPlaybackManager
 
     @objc private func timerPositionUpdatesFired()
     {
+        logger.debug("timerPositionUpdatesFired: Called - most recent start time \(String(describing: self.mostRecentPlaybackStartTimeInSeconds)), playhead \(String(describing: self.mediaPlayer.currentPlaybackTime)), duration \(String(describing: self.mediaPlayer.nowPlayingItem?.playbackDuration))")
+
+        let (currentPlaylist, currentTrack, _) = self.playlistManager.nowPlaying();
         let appropriateWatchdogTime: Double;
 
         switch UIApplication.shared.applicationState {
@@ -840,14 +849,11 @@ class MusicPlaybackManager
                 break
         }
 
-        logger.debug("timerPositionUpdatesFired: Called - most recent start time \(String(describing: self.mostRecentPlaybackStartTimeInSeconds)), playhead \(String(describing: self.mediaPlayer.currentPlaybackTime)), duration \(String(describing: self.mediaPlayer.nowPlayingItem?.playbackDuration))")
-
         if self.mediaPlayer.playbackState == .playing
         {
             logger.debug("timerPositionUpdatesFired: Media player state is 'playing'")
 
-            let playingPlaylist = self.playlistManager.getPlayingPlaylist()
-            let (playingTrack, remainingItemDuration) = self.getPlayingTrackAndRemainingDuration()
+            let remainingItemDuration = self.getRemainingDuration()
 
             logger.debug("timerPositionUpdatesFired: Remaining duration is \(String(describing: remainingItemDuration))")
 
@@ -867,8 +873,8 @@ class MusicPlaybackManager
                 self.delegates.forEach { (delegate) in
                     delegate.playbackProgressChanged(
                         playbackManager: self,
-                             inPlaylist: playingPlaylist,
-                              withTrack: playingTrack,
+                             inPlaylist: currentPlaylist,
+                              withTrack: currentTrack,
                                position: self.mediaPlayer.currentPlaybackTime,
                                duration: self.mediaPlayer.nowPlayingItem!.playbackDuration
                     )
@@ -876,7 +882,7 @@ class MusicPlaybackManager
 
                 let safetyMargin = 0.5
 
-                if playingTrack.fadeOut
+                if currentTrack.fadeOut
                 {
                     if self.fadeOutIsUnderway == false
                     {
@@ -896,8 +902,9 @@ class MusicPlaybackManager
         // If position updates are enabled but the playback state is considered
         // paused (yes, paused not stopped - it's the Apple Music API, it's a
         // complete mess), there *is* a current media item (I mean obviously
-        // there shoudln't be, but see above) and the play position is at zero
-        // (because it's at the end of the track; yeah, see above).
+        // there shouldn't be, but see above) and the play position is set to
+        // the start offset of whatever its queued playlist contained (because
+        // it's at the end of the track; yeah, see above).
         //
         // We also try to self-guard against early-playback-start false
         // positives due to the random mess events that the API can generate by
@@ -907,7 +914,7 @@ class MusicPlaybackManager
         //
         else if (
             self.mostRecentPlaybackStartTimeInSeconds == nil &&
-            self.mediaPlayer.currentPlaybackTime == 0 &&
+            self.mediaPlayer.currentPlaybackTime <= currentTrack.startOffset &&
             self.mediaPlayer.playbackState == .paused
         )
         {
