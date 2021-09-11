@@ -15,7 +15,7 @@ class AppleMusicAPI {
 
     // Update and release new app every <= 180 days - yes, for real :-/
     //
-    let developerToken = "eyJhbGciOiJFUzI1NiIsImtpZCI6IjNDUkdZNjhYQTgifQ.eyJpc3MiOiJYVDRWOTc2RDhZIiwiaWF0IjoxNjE1Njc0NjY0LCJleHAiOjE2MzEyMjY2NjR9.IK9FCk6AglUgsTPmiMh4-veV-9euxLpisu0U3ewSDayi4ydlGeJ5ugf85vXFG9Iz9nsZ6Mc4C5312M8SSoxTrw"
+    let developerToken = "eyJhbGciOiJFUzI1NiIsImtpZCI6IjNDUkdZNjhYQTgifQ.eyJpc3MiOiJYVDRWOTc2RDhZIiwiaWF0IjoxNjMxMzQyMzI3LCJleHAiOjE2NDY4OTQzMjd9.2_MknGyuv_jYl-VwsS62tcJAHb-4EmQ6oxptZvj3qtwj9GzgbTo1g186m1PYPU0s_wyz1qoX727MTvLo1Obi4A"
     var storeFrontID: String?
 
     func getUserToken(completionHandler: @escaping(Result<String, Error>) -> Void) -> Void {
