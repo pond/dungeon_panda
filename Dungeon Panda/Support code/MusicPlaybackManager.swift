@@ -580,6 +580,8 @@ class MusicPlaybackManager
             case .paused, .stopped, .interrupted:
                 if self.currentlyPlaying == true || self.currentlySeeking == true
                 {
+                    logger.notice("playbackStateDidChange: Pause: Internal state is 'playing or seeking'")
+
                     self.currentlyPlaying = false
                     self.currentlySeeking = false
 
@@ -587,6 +589,16 @@ class MusicPlaybackManager
                     // pause due to end of queue reached (i.e. end of track)?
                     // 1.0s subtraction just leeway for rampant inaccuracies
                     // noted in the media player in real world use :-/
+                    //
+                    // Note that this is checked separately from end-of-track
+                    // detection, because that relies upon the only consistent
+                    // state the media player eventually achieves *after some
+                    // time* following ending the track. All attempts to check
+                    // the state in this event listener have failed because it
+                    // amounts to a race condition problem; but by polling for
+                    // a specific set of states inside the update timer, we
+                    // will eventually 'see' that condition no matter how long
+                    // it takes.
                     //
                     if (
                         self.mediaPlayer.nowPlayingItem == nil ||
@@ -596,16 +608,28 @@ class MusicPlaybackManager
                         )
                     )
                     {
+                        logger.notice("playbackStateDidChange: Pause: This looks like a user-initiated pause event; taking action")
+
                         DispatchQueue.main.async
                         {
                             self.effectivePlaybackStateDidHaltPlayback()
                         }
                     }
+                    else
+                    {
+                        logger.notice("playbackStateDidChange: Pause: Stray event or end-of-track; taking no action here, thereby preserving internal playing-or-seeking state for now")
+                    }
+                }
+                else
+                {
+                    logger.notice("playbackStateDidChange: Pause: This may be a stray event; taking no action since internal state is not 'playing or seeking' anyway")
                 }
 
             case .seekingForward, .seekingBackward:
                 if self.currentlySeeking == false
                 {
+                    logger.notice("playbackStateDidChange: Seeking: Internal event was not 'seeking', so changing internal state now")
+
                     self.currentlyPlaying = false
                     self.currentlySeeking = true
 
@@ -614,19 +638,30 @@ class MusicPlaybackManager
                         self.effectivePlaybackStateDidStartSeeking()
                     }
                 }
+                else
+                {
+                    logger.notice("playbackStateDidChange: Seeking: Taking no action since internal state is already 'seeking' anyway")
+                }
 
             case .playing:
-                if self.currentlyPlaying == false
-                {
-                    // THIS IS NOW DONE IN POSITION UPDATE TIMER AS APPLE'S EVENTS ARE FAR TOO BUGGY
-                    // self.currentlyPlaying = true
-                    // self.currentlySeeking = false
-                    //
-                    // DispatchQueue.main.async
-                    // {
-                    //     self.effectivePlaybackStateDidStartPlaying()
-                    // }
-                }
+                //
+                // Most of the heavy lifting is now done in the position update
+                // timer, because the API's events are just far too buggy to try
+                // and rely upon here.
+                //
+                logger.notice("playbackStateDidChange: Playback: Making sure update timer is running")
+                self.timerPositionUpdatesStart()
+                //
+                // if self.currentlyPlaying == false
+                // {
+                //      self.currentlyPlaying = true
+                //      self.currentlySeeking = false
+                //
+                //      DispatchQueue.main.async
+                //      {
+                //          self.effectivePlaybackStateDidStartPlaying()
+                //      }
+                // }
 
             default:
                 logger.notice("playbackStateDidChange: Unknown event, ignoring")
@@ -681,7 +716,7 @@ class MusicPlaybackManager
 
         if self.trackChangeIsUnderway == false
         {
-            timerCancelAll(except: "position_updates")
+            timerCancelAll()
 
             if self.referenceSystemVolume != nil
             {
