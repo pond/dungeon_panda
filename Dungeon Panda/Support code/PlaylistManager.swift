@@ -56,7 +56,8 @@ class PlaylistManager {
         do
         {
             let records = try context.fetch(Playlist.fetchRequest())
-            if let records = records as? [Playlist]
+
+            if !records.isEmpty
             {
                 logger.notice("PlaylistManager init: Successfully fetched playlists from Core Data")
                 self.playlists = records
@@ -72,7 +73,8 @@ class PlaylistManager {
         do
         {
             let records = try context.fetch(CurrentPositionInPlaylist.fetchRequest())
-            if let records = records as? [CurrentPositionInPlaylist]
+
+            if !records.isEmpty
             {
                 logger.notice("PlaylistManager init: Successfully fetched positions from Core Data")
                 self.currentPositionsInPlaylists = records
@@ -161,8 +163,8 @@ class PlaylistManager {
         do
         {
             let records = try context.fetch(CurrentPlaylist.fetchRequest())
-            if let records = records as? [CurrentPlaylist],
-               let firstRecord = records.first
+
+            if let firstRecord = records.first
             {
                 logger.notice("PlaylistManager init: Successfully fetched current playlist from Core Data")
                 currentPlaylistOptional = firstRecord
