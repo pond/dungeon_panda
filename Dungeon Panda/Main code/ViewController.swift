@@ -61,11 +61,22 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
         //
         UIApplication.shared.beginReceivingRemoteControlEvents()
 
-        NotificationCenter.default.addObserver(
-                self,
-            selector: #selector(systemVolumeDidChange(_ :)),
-                name: Notification.Name(rawValue: "AVSystemController_SystemVolumeDidChangeNotification"),
-             object: nil
+
+        let audioSession = AVAudioSession.sharedInstance()
+
+        do {
+            try audioSession.setActive(true)
+            try audioSession.setCategory(.playback, options: .mixWithOthers)
+        }
+        catch {
+            logger.error("ViewController.viewDidLoad: Could not active AVAudioSession")
+        }
+
+        audioSession.addObserver(
+                  self,
+            forKeyPath: "outputVolume",
+               options: NSKeyValueObservingOptions.new,
+               context: nil
         )
 
         // Obtain Apple Music authorisation if need be.
@@ -93,7 +104,7 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
         super.viewDidAppear(animated)
 
         let hiddenSystemVolumeSlider = self.volumeView!.subviews.first(where: { $0 is UISlider }) as? UISlider
-        logger.notice("Volume sider is \(String(describing: hiddenSystemVolumeSlider))")
+        logger.notice("Volume slider is \(String(describing: hiddenSystemVolumeSlider))")
 
         self.appDelegate.musicPlaybackManager!.setHiddenSystemVolumeSlider(hiddenSystemVolumeSlider)
     }
@@ -136,6 +147,26 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
 
         super.viewWillDisappear(animated)
     }
+
+    // MARK: - OBSERVERS
+
+    override func observeValue(
+        forKeyPath keyPath: String?,
+                 of object: Any?,
+                    change: [NSKeyValueChangeKey : Any]?,
+                   context: UnsafeMutableRawPointer?
+    )
+    {
+        if keyPath == "outputVolume" {
+            let audioSession = AVAudioSession.sharedInstance()
+
+            DispatchQueue.main.async
+            {
+                self.appDelegate.musicPlaybackManager!.systemVolumeDidChange(volume: Double(audioSession.outputVolume))
+            }
+        }
+    }
+
 
     // MARK: - ACTIONS
 
@@ -248,7 +279,7 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
 
     func playbackPaused(playbackManager: MusicPlaybackManager)
     {
-        // self.dumpPlaylists()
+//         self.dumpPlaylists()
     }
 
     func playbackResumed(playbackManager: MusicPlaybackManager)
@@ -648,18 +679,6 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
         labelText.append(trackText)
 
         return labelText
-    }
-
-    /**
-     Tell the MusicPlaybackManager instance that we detected a change in system volume.
-
-     - Parameter notification: Notification payload.
-    */
-    @objc func systemVolumeDidChange(_ notification: NSNotification) {
-        let userInfo = notification.userInfo!
-        let volume   = userInfo["AVSystemController_AudioVolumeNotificationParameter"] as! Double
-
-        appDelegate.musicPlaybackManager!.systemVolumeDidChange(volume: volume)
     }
 
     private func searchFor(searchTerm: String)
