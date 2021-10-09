@@ -15,13 +15,15 @@ struct Song
 {
     var id: String
     var name: String
+    var albumName: String?
     var artistName: String?
     var artworkURL: String?
 
-    init(id: String, name: String, artistName: String?, artworkURL: String?)
+    init(id: String, name: String, albumName: String?, artistName: String?, artworkURL: String?)
     {
         self.id = id
         self.name = name
+        self.albumName = albumName
         self.artistName = artistName
         self.artworkURL = artworkURL
     }

@@ -103,6 +103,7 @@ class AppleMusicAPI {
                                             let song       = Song(
                                                 id:         attributes["playParams"]["id"].string!,
                                                 name:       attributes["name"].string!,
+                                                albumName:  attributes["albumName"].string!,
                                                 artistName: attributes["artistName"].string!,
                                                 artworkURL: attributes["artwork"]["url"].string!
                                             )
@@ -215,6 +216,7 @@ class AppleMusicAPI {
                                     let song = Song(
                                         id:         appleMusicId == nil ? localUserId! : appleMusicId!,
                                         name:       attributes["name"].string!,
+                                        albumName:  attributes["albumName"].string!,
                                         artistName: attributes["artistName"].string,
                                         artworkURL: attributes["artwork"]["url"].string
                                     )
