@@ -262,7 +262,7 @@ class MusicPlaybackManager : NSObject
 
     // MARK: - PUBLIC: VOLUME
 
-    /// See private method 'ensureVolumeObserverIsPresent' - called via KVO
+    /// See private method 'ensureVolumeObserverIsPresent' - called via KVO.
     ///
     override func observeValue(
         forKeyPath keyPath: String?,
@@ -696,6 +696,9 @@ class MusicPlaybackManager : NSObject
     /// (Re-)add observer(s) that attempt to follow changes in volume initiated by
     /// the user, or by this application sometimes.
     ///
+    ///Use *either* this, or notification hackery in ViewController; never have both enabled at the same
+    ///time, else multiple conflicting change notifications can arise.
+    ///
     func ensureVolumeObserverIsPresent()
     {
         UIApplication.shared.beginReceivingRemoteControlEvents()
@@ -742,10 +745,13 @@ class MusicPlaybackManager : NSObject
     {
         logger.notice("effectivePlaybackStateDidStartPlaying: Called")
 
-        // Track alterations in system volume by the user so that fade in/out
-        // etc. can all work relative to this user-chosen baseline.
+        // (Removed in favour of notification hackery in ViewController)
         //
-        ensureVolumeObserverIsPresent()
+        //
+        // // Track alterations in system volume by the user so that fade in/out
+        // // etc. can all work relative to this user-chosen baseline.
+        // //
+        // ensureVolumeObserverIsPresent()
 
         // Figure out fade-in or start-now
         //

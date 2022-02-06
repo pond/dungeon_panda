@@ -56,19 +56,20 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
         self.volumeView!.setVolumeThumbImage(UIImage(named: "Volume slider"), for: .normal)
         self.positionSlider.setThumbImage(UIImage(named: "Position slider"), for: .normal)
 
-        // // Hackery mechanism to observe volume changes. Seemed to break in
-        // // iOS 15. Fragile KVO on audio session used; see observer code in
-        // // MusicPlaybackManager. This code fragment kept in case it has any
-        // // future use.
-        // //
-        // // https://stackoverflow.com/a/59720724
-        // //
-        // NotificationCenter.default.addObserver(
-        //         self,
-        //     selector: #selector(handleVolumeChangedNotification(_:)),
-        //         name: NSNotification.Name(rawValue: "AVSystemController_SystemVolumeDidChangeNotification"),
-        //       object: nil
-        // )
+        // Hackery mechanism to observe volume changes. KVO is also possible -
+        // see MusicPlaybackManager's ensureVolumeObserverIsPresent - but when
+        // the application has been in the background "for a while", iOS stops
+        // apparently calling those observers and I haven't been able to find
+        // a way to stop that.
+        //
+        // https://stackoverflow.com/a/59720724
+
+         NotificationCenter.default.addObserver(
+                 self,
+             selector: #selector(handleVolumeChangedNotification(_:)),
+                 name: NSNotification.Name(rawValue: volumeChangedNotificationName()),
+               object: nil
+         )
 
         // Obtain Apple Music authorisation if need be.
         //
@@ -141,10 +142,36 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
 
     // MARK: - OBSERVERS AND NOTIFICATION HANDLERS
 
-    @objc func handleVolumeChangedNotification(_ notification: NSNotification) {
+    func volumeChangedNotificationName() -> String
+    {
+        if ProcessInfo().isOperatingSystemAtLeast(OperatingSystemVersion(majorVersion: 15, minorVersion: 0, patchVersion: 0))
+        {
+            return "SystemVolumeDidChange"
+        }
+        else
+        {
+            return "AVSystemController_SystemVolumeDidChangeNotification"
+        }
+    }
+
+    func volumeChangedNotificationDictionaryKey() -> String
+    {
+        if ProcessInfo().isOperatingSystemAtLeast(OperatingSystemVersion(majorVersion: 15, minorVersion: 0, patchVersion: 0))
+        {
+            return "Volume"
+        }
+        else
+        {
+            return "AVSystemController_AudioVolumeNotificationParameter"
+        }
+    }
+
+    @objc func handleVolumeChangedNotification(_ notification: NSNotification)
+    {
         logger.debug("volumeChanged: output volume changed change detection fired (mechanism 2)")
 
-        if let outputVolume = notification.userInfo!["AVSystemController_AudioVolumeNotificationParameter"] as? Float {
+        if let outputVolume = notification.userInfo![volumeChangedNotificationDictionaryKey()] as? Float
+        {
             logger.debug("volumeChanged: Volume now \(String(describing: outputVolume))")
 
             DispatchQueue.main.async
