@@ -52,7 +52,7 @@ protocol MusicPlaybackManagerDelegate
     func playbackArtworkWillBeInvalid()
 }
 
-class MusicPlaybackManager
+class MusicPlaybackManager : NSObject
 {
     public var delegates: [MusicPlaybackManagerDelegate] = []
 
@@ -140,6 +140,8 @@ class MusicPlaybackManager
         self.playlistManager         = playlistManager
         self.mediaPlayer.repeatMode  = .none
         self.mediaPlayer.shuffleMode = .off
+
+        super.init()
 
         NotificationCenter.default.addObserver(
                 self,
@@ -259,6 +261,29 @@ class MusicPlaybackManager
     }
 
     // MARK: - PUBLIC: VOLUME
+
+    /// See private method 'ensureVolumeObserverIsPresent' - called via KVO
+    ///
+    override func observeValue(
+        forKeyPath keyPath: String?,
+        of object: Any?,
+        change: [NSKeyValueChangeKey : Any]?,
+        context: UnsafeMutableRawPointer?
+    )
+    {
+        if keyPath == "outputVolume" {
+            logger.debug("observeValue: output volume change detection fired (mechanism 1)")
+
+            let audioSession = AVAudioSession.sharedInstance()
+
+            logger.debug("observeValue: Volume now \(String(describing: audioSession.outputVolume)))")
+
+            DispatchQueue.main.async
+            {
+                self.systemVolumeDidChange(volume: Double(audioSession.outputVolume))
+            }
+        }
+    }
 
     /**
      Called by the view layer to tell us where the hidden volume slider is.
@@ -668,6 +693,44 @@ class MusicPlaybackManager
         }
     }
 
+    /// (Re-)add observer(s) that attempt to follow changes in volume initiated by
+    /// the user, or by this application sometimes.
+    ///
+    func ensureVolumeObserverIsPresent()
+    {
+        UIApplication.shared.beginReceivingRemoteControlEvents()
+
+        // Mechanism 1 (limitations with < 0.1 or > 0.9 changes)...
+        //
+        // https://developer.apple.com/documentation/avfaudio/avaudiosession/1616533-outputvolume
+        //
+        let audioSession = AVAudioSession.sharedInstance()
+
+        do {
+            try audioSession.setActive(true)
+            try audioSession.setCategory(.playback, options: .mixWithOthers)
+        }
+        catch {
+            logger.error("ViewController.viewDidLoad: Could not active AVAudioSession")
+        }
+
+        if audioSession.observationInfo != nil
+        {
+            audioSession.removeObserver(
+                self,
+                forKeyPath: "outputVolume",
+                context:    nil
+            )
+        }
+
+        audioSession.addObserver(
+            self,
+            forKeyPath: "outputVolume",
+            options:    NSKeyValueObservingOptions.new,
+            context:    nil
+        )
+    }
+
     /**
      Call when an event indicates a change to a playback-has-started or if you believe
      the state has been re-entered for another condition detected externally (e.g. track
@@ -679,8 +742,13 @@ class MusicPlaybackManager
     {
         logger.notice("effectivePlaybackStateDidStartPlaying: Called")
 
-        // Figure out fade-in or start-now
+        // Track alterations in system volume by the user so that fade in/out
+        // etc. can all work relative to this user-chosen baseline.
+        //
+        ensureVolumeObserverIsPresent()
 
+        // Figure out fade-in or start-now
+        //
         if self.fadeInOnNextPlaybackStartedEvent
         {
             logger.debug("Scheduling fade-in timer now")

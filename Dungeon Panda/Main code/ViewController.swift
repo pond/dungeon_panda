@@ -56,28 +56,19 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
         self.volumeView!.setVolumeThumbImage(UIImage(named: "Volume slider"), for: .normal)
         self.positionSlider.setThumbImage(UIImage(named: "Position slider"), for: .normal)
 
-        // Track alterations in system volume by the user so that fade in/out
-        // etc. can all work relative to this user-chosen baseline.
-        //
-        UIApplication.shared.beginReceivingRemoteControlEvents()
-
-
-        let audioSession = AVAudioSession.sharedInstance()
-
-        do {
-            try audioSession.setActive(true)
-            try audioSession.setCategory(.playback, options: .mixWithOthers)
-        }
-        catch {
-            logger.error("ViewController.viewDidLoad: Could not active AVAudioSession")
-        }
-
-        audioSession.addObserver(
-                  self,
-            forKeyPath: "outputVolume",
-               options: NSKeyValueObservingOptions.new,
-               context: nil
-        )
+        // // Hackery mechanism to observe volume changes. Seemed to break in
+        // // iOS 15. Fragile KVO on audio session used; see observer code in
+        // // MusicPlaybackManager. This code fragment kept in case it has any
+        // // future use.
+        // //
+        // // https://stackoverflow.com/a/59720724
+        // //
+        // NotificationCenter.default.addObserver(
+        //         self,
+        //     selector: #selector(handleVolumeChangedNotification(_:)),
+        //         name: NSNotification.Name(rawValue: "AVSystemController_SystemVolumeDidChangeNotification"),
+        //       object: nil
+        // )
 
         // Obtain Apple Music authorisation if need be.
         //
@@ -148,25 +139,20 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
         super.viewWillDisappear(animated)
     }
 
-    // MARK: - OBSERVERS
+    // MARK: - OBSERVERS AND NOTIFICATION HANDLERS
 
-    override func observeValue(
-        forKeyPath keyPath: String?,
-                 of object: Any?,
-                    change: [NSKeyValueChangeKey : Any]?,
-                   context: UnsafeMutableRawPointer?
-    )
-    {
-        if keyPath == "outputVolume" {
-            let audioSession = AVAudioSession.sharedInstance()
+    @objc func handleVolumeChangedNotification(_ notification: NSNotification) {
+        logger.debug("volumeChanged: output volume changed change detection fired (mechanism 2)")
+
+        if let outputVolume = notification.userInfo!["AVSystemController_AudioVolumeNotificationParameter"] as? Float {
+            logger.debug("volumeChanged: Volume now \(String(describing: outputVolume))")
 
             DispatchQueue.main.async
             {
-                self.appDelegate.musicPlaybackManager!.systemVolumeDidChange(volume: Double(audioSession.outputVolume))
+                self.appDelegate.musicPlaybackManager!.systemVolumeDidChange(volume: Double(outputVolume))
             }
         }
     }
-
 
     // MARK: - ACTIONS
 
