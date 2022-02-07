@@ -2129,15 +2129,6 @@ class StaticTracklistManager
                           endOffset: nil,
                              fadeIn: false,
                             fadeOut: false))
-
-        tracklist.add(Track(storeID: "1358149505",
-                        displayName: "Lost In The Storm",
-                     altDisplayName: nil,
-                      volumePercent: 64,
-                        startOffset: 0,
-                          endOffset: nil,
-                             fadeIn: false,
-                            fadeOut: false))
     }
 
     // =========================================================================
@@ -3469,15 +3460,6 @@ class StaticTracklistManager
                         displayName: "Flynn Lives",
                      altDisplayName: nil,
                       volumePercent: 60,
-                        startOffset: 0,
-                          endOffset: nil,
-                             fadeIn: false,
-                            fadeOut: false))
-
-        tracklist.add(Track(storeID: "1309688431",
-                        displayName: "L'Aventure D'Esteban",
-                     altDisplayName: nil,
-                      volumePercent: 84,
                         startOffset: 0,
                           endOffset: nil,
                              fadeIn: false,
@@ -5157,10 +5139,10 @@ class StaticTracklistManager
                              fadeIn: false,
                             fadeOut: false))
 
-        tracklist.add(Track(storeID: "403846004",
-                        displayName: "Adagio For Tron",
+        tracklist.add(Track(storeID: "1543825334",
+                        displayName: "Adagio For TRON",
                      altDisplayName: nil,
-                      volumePercent: 140,
+                      volumePercent: 70,
                         startOffset: 0,
                           endOffset: nil,
                              fadeIn: false,
@@ -5449,42 +5431,6 @@ class StaticTracklistManager
                         displayName: "Alone We Have No Future",
                      altDisplayName: nil,
                       volumePercent: 80,
-                        startOffset: 0,
-                          endOffset: nil,
-                             fadeIn: false,
-                            fadeOut: false))
-
-        tracklist.add(Track(storeID: "714899528",
-                        displayName: "A Paler Sky",
-                     altDisplayName: nil,
-                      volumePercent: 76,
-                        startOffset: 0,
-                          endOffset: nil,
-                             fadeIn: false,
-                            fadeOut: false))
-
-        tracklist.add(Track(storeID: "73327359",
-                        displayName: "Memories Of Green",
-                     altDisplayName: nil,
-                      volumePercent: 140,
-                        startOffset: 0,
-                          endOffset: nil,
-                             fadeIn: false,
-                            fadeOut: false))
-
-        tracklist.add(Track(storeID: "1543825334",
-                        displayName: "Adagio For TRON",
-                     altDisplayName: nil,
-                      volumePercent: 70,
-                        startOffset: 0,
-                          endOffset: nil,
-                             fadeIn: false,
-                            fadeOut: false))
-
-        tracklist.add(Track(storeID: "1062368749",
-                        displayName: "The Very Air",
-                     altDisplayName: nil,
-                      volumePercent: 65,
                         startOffset: 0,
                           endOffset: nil,
                              fadeIn: false,
