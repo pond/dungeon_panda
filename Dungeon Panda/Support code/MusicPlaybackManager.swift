@@ -598,7 +598,7 @@ class MusicPlaybackManager : NSObject
         //
         let stateName = stateNames[newState.rawValue]
 
-        logger.notice("playbackStateDidChange: Called, state \(newState.rawValue) - \(stateName)")
+        logger.notice("playbackStateDidChange: Called, state \(newState.rawValue) - \(stateName), playhead \(String(describing: self.mediaPlayer.currentPlaybackTime)), duration \(String(describing: self.mediaPlayer.nowPlayingItem?.playbackDuration))")
 
         switch newState
         {
@@ -625,11 +625,17 @@ class MusicPlaybackManager : NSObject
                     // will eventually 'see' that condition no matter how long
                     // it takes.
                     //
+                    // Some tracks don't reset to true-zero when this event is
+                    // generated as "pause" rather than "stopped", due to the
+                    // stream ending playback. Tom C suggests frame alignment
+                    // errors. Whatever the reason, a small amount of wiggle
+                    // room is needed at the start, too.
+                    //
                     if (
                         self.mediaPlayer.nowPlayingItem == nil ||
                         (
-                            self.mediaPlayer.currentPlaybackTime <= self.mediaPlayer.nowPlayingItem!.playbackDuration - 1.0 &&
-                            self.mediaPlayer.currentPlaybackTime != 0
+                            self.mediaPlayer.currentPlaybackTime <= self.mediaPlayer.nowPlayingItem!.playbackDuration - 1.5 &&
+                            self.mediaPlayer.currentPlaybackTime >= 1.5
                         )
                     )
                     {
