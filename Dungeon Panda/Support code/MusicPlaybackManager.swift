@@ -346,10 +346,21 @@ class MusicPlaybackManager : NSObject
     */
     func currentVolumeScaleFactor() -> Double
     {
-        let (playlist, track, _) = self.playlistManager.nowPlaying()
-        let tracklist = self.playlistManager.getTracklistForPlaylist(playlist)
+        let userDefaults = UserDefaults.standard
+        let obeyVolume   = userDefaults.bool(forKey: "obey_track_volume")
 
-        return (Double(tracklist.volumePercent) / 100.0) * (Double(track.volumePercent) / 100.0)
+        if obeyVolume == true {
+            let (playlist, track, _) = self.playlistManager.nowPlaying()
+            let tracklist            = self.playlistManager.getTracklistForPlaylist(playlist)
+            let scale                = (Double(tracklist.volumePercent) / 100.0) * (Double(track.volumePercent) / 100.0)
+
+            logger.debug("currentVolumeScaleFactor: Ignoring track gain; returning \(scale)")
+            return scale
+        }
+        else {
+            logger.debug("currentVolumeScaleFactor: Ignoring track gain; returning 1.0")
+            return Double(1.0)
+        }
     }
 
     // MARK: - PRIVATE: Playback control

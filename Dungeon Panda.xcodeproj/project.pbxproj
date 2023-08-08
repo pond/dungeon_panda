@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 51;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -29,6 +29,7 @@
 		239A2DEC2645200100EFFDFF /* rain.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 239A2DEB2645200100EFFDFF /* rain.mp3 */; };
 		239D0990260FF45C00808088 /* UnfixableError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 239D098F260FF45C00808088 /* UnfixableError.swift */; };
 		239D099526102B1200808088 /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 239D099426102B1200808088 /* CloudKit.framework */; };
+		23D2E2232A820A64004D4CB6 /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 23D2E2222A820A64004D4CB6 /* Settings.bundle */; };
 		23DE6594263E6E8800C5A924 /* TitleFittingButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23DE6593263E6E8700C5A924 /* TitleFittingButton.swift */; };
 		62F3D4C17B2B4A841AEF4622 /* Pods_Dungeon_Panda.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B0A292A1198AB60CEC19805 /* Pods_Dungeon_Panda.framework */; };
 /* End PBXBuildFile section */
@@ -60,6 +61,7 @@
 		239D098F260FF45C00808088 /* UnfixableError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnfixableError.swift; sourceTree = "<group>"; };
 		239D099226102B0200808088 /* Dungeon Panda.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Dungeon Panda.entitlements"; sourceTree = "<group>"; };
 		239D099426102B1200808088 /* CloudKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CloudKit.framework; path = System/Library/Frameworks/CloudKit.framework; sourceTree = SDKROOT; };
+		23D2E2222A820A64004D4CB6 /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
 		23DE6593263E6E8700C5A924 /* TitleFittingButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TitleFittingButton.swift; sourceTree = "<group>"; };
 		3B0A292A1198AB60CEC19805 /* Pods_Dungeon_Panda.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Dungeon_Panda.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		67F6BEBF98F9A06DAEC68E47 /* Pods-Dungeon Panda.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Dungeon Panda.release.xcconfig"; path = "Target Support Files/Pods-Dungeon Panda/Pods-Dungeon Panda.release.xcconfig"; sourceTree = "<group>"; };
@@ -138,6 +140,7 @@
 				2339711125FD6BC500ACFCF7 /* Assets.xcassets */,
 				237B42F525FEA100000D5666 /* LICENSE */,
 				237B42F425FEA100000D5666 /* README.md */,
+				23D2E2222A820A64004D4CB6 /* Settings.bundle */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -252,6 +255,7 @@
 				237B42F625FEA100000D5666 /* README.md in Resources */,
 				2339710D25FD6BC300ACFCF7 /* Main.storyboard in Resources */,
 				237B42F725FEA100000D5666 /* LICENSE in Resources */,
+				23D2E2232A820A64004D4CB6 /* Settings.bundle in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
