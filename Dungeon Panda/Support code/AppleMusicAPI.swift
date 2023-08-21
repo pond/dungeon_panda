@@ -7,15 +7,18 @@
 
 import StoreKit
 import SwiftyJSON
+import OSLog
 
 // https://www.appcoda.com/musickit-music-api/
 // https://stackoverflow.com/questions/65057320/skcloudservicecontroller-requestusertoken-freezes-on-ios-14-2
 //
 class AppleMusicAPI {
 
+    let logger = Logger()
+
     // Update and release new app every <= 180 days - yes, for real :-/
     //
-    let developerToken = "eyJhbGciOiJFUzI1NiIsImtpZCI6IjNDUkdZNjhYQTgifQ.eyJpc3MiOiJYVDRWOTc2RDhZIiwiaWF0IjoxNjMxMzQyMzI3LCJleHAiOjE2NDY4OTQzMjd9.2_MknGyuv_jYl-VwsS62tcJAHb-4EmQ6oxptZvj3qtwj9GzgbTo1g186m1PYPU0s_wyz1qoX727MTvLo1Obi4A"
+    let developerToken = "eyJhbGciOiJFUzI1NiIsImtpZCI6IjNDUkdZNjhYQTgifQ.eyJpc3MiOiJYVDRWOTc2RDhZIiwiaWF0IjoxNjc0Njc3OTk1LCJleHAiOjE2OTAyMjk5OTV9.J9MU2XcGqbY_LSkuKv5QBvwdmDy2MGJCPuhWWixcrjlq4tDsITGBYMy3JqK5VRhShXilFN1KRHQwLwqqF_CNQg"
     var storeFrontID: String?
 
     func getUserToken(completionHandler: @escaping(Result<String, Error>) -> Void) -> Void {
@@ -26,6 +29,7 @@ class AppleMusicAPI {
                     completionHandler(.failure(error!))
                 }
                 else {
+                    self.logger.notice("User token is \(String(describing: userToken!))")
                     completionHandler(.success(userToken!))
                 }
             }
