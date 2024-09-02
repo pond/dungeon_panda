@@ -4832,6 +4832,15 @@ class StaticTracklistManager
                           endOffset: nil,
                              fadeIn: false,
                             fadeOut: false))
+
+        tracklist.add(Track(storeID: "1671953570",
+                        displayName: "Luther's Theme",
+                     altDisplayName: nil,
+                      volumePercent: 97,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
     }
 
     // =========================================================================
@@ -5906,15 +5915,6 @@ class StaticTracklistManager
 
         tracklist.add(Track(storeID: "1579598646",
                         displayName: "Tema Principale: Orchestra Dedicata Ai Maestri",
-                     altDisplayName: nil,
-                      volumePercent: 60,
-                        startOffset: 0,
-                          endOffset: nil,
-                             fadeIn: false,
-                            fadeOut: false))
-
-        tracklist.add(Track(storeID: "1759693351",
-                        displayName: "Low Performance Audio",
                      altDisplayName: nil,
                       volumePercent: 60,
                         startOffset: 0,
@@ -10562,6 +10562,15 @@ class StaticTracklistManager
                           endOffset: nil,
                              fadeIn: false,
                             fadeOut: false))
+
+        tracklist.add(Track(storeID: "1764821119",
+                        displayName: "Hoshizora",
+                     altDisplayName: nil,
+                      volumePercent: 64,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
     }
 
     // =========================================================================
@@ -10937,6 +10946,15 @@ class StaticTracklistManager
 
         tracklist.add(Track(storeID: "1759693350",
                         displayName: "High Performance Audio",
+                     altDisplayName: nil,
+                      volumePercent: 60,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1748370988",
+                        displayName: "In The Wires",
                      altDisplayName: nil,
                       volumePercent: 60,
                         startOffset: 0,
