@@ -9596,15 +9596,15 @@ class StaticTracklistManager
     }
 
     // =========================================================================
-    // Any - Valhalla Evil - Background
+    // Valhalla Evil - Background
     // =========================================================================
     //
-    /// Add the `Any - Valhalla Evil - Background` static Tracklist.
+    /// Add the `Valhalla Evil - Background` static Tracklist.
     ///
-    private func addAnyValhallaEvilBackground()
+    private func addValhallaEvilBackground()
     {
-        let tracklist = self.add(id: "any-valhalla evil-background",
-                        displayName: "Any - Valhalla Evil - Background",
+        let tracklist = self.add(id: "valhalla evil-background",
+                        displayName: "Valhalla Evil - Background",
                             version: 2,
                       volumePercent: 100,
                     autoSwitchAfter: nil)
@@ -9782,15 +9782,15 @@ class StaticTracklistManager
     }
 
     // =========================================================================
-    // Any - Valhalla Evil - Battle
+    // Valhalla Evil - Battle
     // =========================================================================
     //
-    /// Add the `Any - Valhalla Evil - Battle` static Tracklist.
+    /// Add the `Valhalla Evil - Battle` static Tracklist.
     ///
-    private func addAnyValhallaEvilBattle()
+    private func addValhallaEvilBattle()
     {
-        let tracklist = self.add(id: "any-valhalla evil-battle",
-                        displayName: "Any - Valhalla Evil - Battle",
+        let tracklist = self.add(id: "valhalla evil-battle",
+                        displayName: "Valhalla Evil - Battle",
                             version: 2,
                       volumePercent: 100,
                     autoSwitchAfter: nil)
@@ -10166,15 +10166,15 @@ class StaticTracklistManager
     }
 
     // =========================================================================
-    // Any - Valhalla Evil - Failure
+    // Valhalla Evil - Failure
     // =========================================================================
     //
-    /// Add the `Any - Valhalla Evil - Failure` static Tracklist.
+    /// Add the `Valhalla Evil - Failure` static Tracklist.
     ///
-    private func addAnyValhallaEvilFailure()
+    private func addValhallaEvilFailure()
     {
-        let tracklist = self.add(id: "any-valhalla evil-failure",
-                        displayName: "Any - Valhalla Evil - Failure",
+        let tracklist = self.add(id: "valhalla evil-failure",
+                        displayName: "Valhalla Evil - Failure",
                             version: 2,
                       volumePercent: 100,
                     autoSwitchAfter: nil)
@@ -10307,15 +10307,84 @@ class StaticTracklistManager
     }
 
     // =========================================================================
-    // Any - Valhalla Good - Background
+    // Valhalla Evil - Twisted
     // =========================================================================
     //
-    /// Add the `Any - Valhalla Good - Background` static Tracklist.
+    /// Add the `Valhalla Evil - Twisted` static Tracklist.
     ///
-    private func addAnyValhallaGoodBackground()
+    private func addValhallaEvilTwisted()
     {
-        let tracklist = self.add(id: "any-valhalla good-background",
-                        displayName: "Any - Valhalla Good - Background",
+        let tracklist = self.add(id: "valhalla evil-twisted",
+                        displayName: "Valhalla Evil - Twisted",
+                            version: 2,
+                      volumePercent: 100,
+                    autoSwitchAfter: nil)
+
+        tracklist.add(Track(storeID: "1094501232",
+                        displayName: "Vile World",
+                     altDisplayName: nil,
+                      volumePercent: 60,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "636431371",
+                        displayName: "Protektor",
+                     altDisplayName: nil,
+                      volumePercent: 72,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1689851275",
+                        displayName: "Next Gen Swag",
+                     altDisplayName: nil,
+                      volumePercent: 60,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1702859946",
+                        displayName: "Access To The System",
+                     altDisplayName: nil,
+                      volumePercent: 140,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1720512564",
+                        displayName: "Abyss Lane",
+                     altDisplayName: nil,
+                      volumePercent: 98,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1646521614",
+                        displayName: "Consensual Hallucination",
+                     altDisplayName: nil,
+                      volumePercent: 71,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+    }
+
+    // =========================================================================
+    // Valhalla Good - Background
+    // =========================================================================
+    //
+    /// Add the `Valhalla Good - Background` static Tracklist.
+    ///
+    private func addValhallaGoodBackground()
+    {
+        let tracklist = self.add(id: "valhalla good-background",
+                        displayName: "Valhalla Good - Background",
                             version: 2,
                       volumePercent: 100,
                     autoSwitchAfter: nil)
@@ -10574,15 +10643,81 @@ class StaticTracklistManager
     }
 
     // =========================================================================
-    // Any - Valhalla Good - Victory
+    // Valhalla Good - Quirky
     // =========================================================================
     //
-    /// Add the `Any - Valhalla Good - Victory` static Tracklist.
+    /// Add the `Valhalla Good - Quirky` static Tracklist.
     ///
-    private func addAnyValhallaGoodVictory()
+    private func addValhallaGoodQuirky()
     {
-        let tracklist = self.add(id: "any-valhalla good-victory",
-                        displayName: "Any - Valhalla Good - Victory",
+        let tracklist = self.add(id: "valhalla good-quirky",
+                        displayName: "Valhalla Good - Quirky",
+                            version: 2,
+                      volumePercent: 100,
+                    autoSwitchAfter: nil)
+
+        tracklist.add(Track(storeID: "1654331822",
+                        displayName: "Marimba",
+                     altDisplayName: nil,
+                      volumePercent: 60,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1727446074",
+                        displayName: "Snowplow",
+                     altDisplayName: nil,
+                      volumePercent: 60,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+    }
+
+    // =========================================================================
+    // Valhalla Good - Tavern
+    // =========================================================================
+    //
+    /// Add the `Valhalla Good - Tavern` static Tracklist.
+    ///
+    private func addValhallaGoodTavern()
+    {
+        let tracklist = self.add(id: "valhalla good-tavern",
+                        displayName: "Valhalla Good - Tavern",
+                            version: 2,
+                      volumePercent: 100,
+                    autoSwitchAfter: nil)
+
+        tracklist.add(Track(storeID: "1649038387",
+                        displayName: "Brooklyn. Friday. Love.",
+                     altDisplayName: nil,
+                      volumePercent: 60,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1652694836",
+                        displayName: "Bobbit's Path",
+                     altDisplayName: nil,
+                      volumePercent: 60,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+    }
+
+    // =========================================================================
+    // Valhalla Good - Victory
+    // =========================================================================
+    //
+    /// Add the `Valhalla Good - Victory` static Tracklist.
+    ///
+    private func addValhallaGoodVictory()
+    {
+        let tracklist = self.add(id: "valhalla good-victory",
+                        displayName: "Valhalla Good - Victory",
                             version: 2,
                       volumePercent: 100,
                     autoSwitchAfter: nil)
@@ -11413,6 +11548,102 @@ class StaticTracklistManager
                         displayName: "How It All Ended",
                      altDisplayName: nil,
                       volumePercent: 60,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+    }
+
+    // =========================================================================
+    // Any - Valhalla Sorrow
+    // =========================================================================
+    //
+    /// Add the `Any - Valhalla Sorrow` static Tracklist.
+    ///
+    private func addAnyValhallaSorrow()
+    {
+        let tracklist = self.add(id: "any-valhalla sorrow",
+                        displayName: "Any - Valhalla Sorrow",
+                            version: 2,
+                      volumePercent: 100,
+                    autoSwitchAfter: nil)
+
+        tracklist.add(Track(storeID: "1649038487",
+                        displayName: "Photograph",
+                     altDisplayName: nil,
+                      volumePercent: 103,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "636431534",
+                        displayName: "Cyber Commando",
+                     altDisplayName: nil,
+                      volumePercent: 60,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1649511769",
+                        displayName: "A Sense Of Furtive Unrest",
+                     altDisplayName: nil,
+                      volumePercent: 137,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1670557647",
+                        displayName: "Void",
+                     altDisplayName: nil,
+                      volumePercent: 60,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "691264368",
+                        displayName: "Theme Of Sadness",
+                     altDisplayName: nil,
+                      volumePercent: 98,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1704137846",
+                        displayName: "Lemniscate",
+                     altDisplayName: nil,
+                      volumePercent: 60,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1627033692",
+                        displayName: "Remembering The Departed",
+                     altDisplayName: nil,
+                      volumePercent: 91,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1729667300",
+                        displayName: "Starfall",
+                     altDisplayName: nil,
+                      volumePercent: 74,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1719928415",
+                        displayName: "Leave Without Me",
+                     altDisplayName: nil,
+                      volumePercent: 72,
                         startOffset: 0,
                           endOffset: nil,
                              fadeIn: false,
