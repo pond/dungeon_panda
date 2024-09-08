@@ -32,6 +32,20 @@ class StaticTracklistManager
         addAnyMagicAndMystery()
         addAnyHurry()
         addAnySorrow()
+
+        addValhallaGoodBackground()
+        addValhallaGoodTavern()
+        addValhallaGoodQuirky()
+        addValhallaGoodVictory()
+
+        addValhallaEvilBackground()
+        addValhallaEvilBattle()
+        addValhallaEvilTwisted()
+        addValhallaEvilFailure()
+
+        addAnyValhallaMagicAndMystery()
+        addAnyValhallaHurry()
+        addAnyValhallaSorrow()
     }
 
     /**
@@ -9593,6 +9607,24 @@ class StaticTracklistManager
                           endOffset: nil,
                              fadeIn: false,
                             fadeOut: false))
+
+        tracklist.add(Track(storeID: "1720031226",
+                        displayName: "The Fields Of Asphodel",
+                     altDisplayName: nil,
+                      volumePercent: 77,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1745059848",
+                        displayName: "Aqueous Grief",
+                     altDisplayName: nil,
+                      volumePercent: 71,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
     }
 
     // =========================================================================
@@ -9603,7 +9635,7 @@ class StaticTracklistManager
     ///
     private func addValhallaEvilBackground()
     {
-        let tracklist = self.add(id: "valhalla evil-background",
+        let tracklist = self.add(id: "valhalla-evil-background",
                         displayName: "Valhalla Evil - Background",
                             version: 2,
                       volumePercent: 100,
@@ -9789,7 +9821,7 @@ class StaticTracklistManager
     ///
     private func addValhallaEvilBattle()
     {
-        let tracklist = self.add(id: "valhalla evil-battle",
+        let tracklist = self.add(id: "valhalla-evil-battle",
                         displayName: "Valhalla Evil - Battle",
                             version: 2,
                       volumePercent: 100,
@@ -10173,11 +10205,11 @@ class StaticTracklistManager
     ///
     private func addValhallaEvilFailure()
     {
-        let tracklist = self.add(id: "valhalla evil-failure",
+        let tracklist = self.add(id: "valhalla-evil-failure",
                         displayName: "Valhalla Evil - Failure",
                             version: 2,
                       volumePercent: 100,
-                    autoSwitchAfter: nil)
+                    autoSwitchAfter: "valhalla-evil-background")
 
         tracklist.add(Track(storeID: "1533949896",
                         displayName: "Dance With Death",
@@ -10314,11 +10346,11 @@ class StaticTracklistManager
     ///
     private func addValhallaEvilTwisted()
     {
-        let tracklist = self.add(id: "valhalla evil-twisted",
+        let tracklist = self.add(id: "valhalla-evil-twisted",
                         displayName: "Valhalla Evil - Twisted",
                             version: 2,
                       volumePercent: 100,
-                    autoSwitchAfter: nil)
+                    autoSwitchAfter: "valhalla-evil-battle")
 
         tracklist.add(Track(storeID: "1094501232",
                         displayName: "Vile World",
@@ -10383,7 +10415,7 @@ class StaticTracklistManager
     ///
     private func addValhallaGoodBackground()
     {
-        let tracklist = self.add(id: "valhalla good-background",
+        let tracklist = self.add(id: "valhalla-good-background",
                         displayName: "Valhalla Good - Background",
                             version: 2,
                       volumePercent: 100,
@@ -10650,11 +10682,11 @@ class StaticTracklistManager
     ///
     private func addValhallaGoodQuirky()
     {
-        let tracklist = self.add(id: "valhalla good-quirky",
+        let tracklist = self.add(id: "valhalla-good-quirky",
                         displayName: "Valhalla Good - Quirky",
                             version: 2,
                       volumePercent: 100,
-                    autoSwitchAfter: nil)
+                    autoSwitchAfter: "valhalla-good-background")
 
         tracklist.add(Track(storeID: "1654331822",
                         displayName: "Marimba",
@@ -10683,11 +10715,11 @@ class StaticTracklistManager
     ///
     private func addValhallaGoodTavern()
     {
-        let tracklist = self.add(id: "valhalla good-tavern",
+        let tracklist = self.add(id: "valhalla-good-tavern",
                         displayName: "Valhalla Good - Tavern",
                             version: 2,
                       volumePercent: 100,
-                    autoSwitchAfter: nil)
+                    autoSwitchAfter: "valhalla-good-background")
 
         tracklist.add(Track(storeID: "1649038387",
                         displayName: "Brooklyn. Friday. Love.",
@@ -10716,11 +10748,11 @@ class StaticTracklistManager
     ///
     private func addValhallaGoodVictory()
     {
-        let tracklist = self.add(id: "valhalla good-victory",
+        let tracklist = self.add(id: "valhalla-good-victory",
                         displayName: "Valhalla Good - Victory",
                             version: 2,
                       volumePercent: 100,
-                    autoSwitchAfter: nil)
+                    autoSwitchAfter: "any-valhalla-magic-and-mystery")
 
         tracklist.add(Track(storeID: "1533949936",
                         displayName: "Game Over",
@@ -11106,7 +11138,7 @@ class StaticTracklistManager
     ///
     private func addAnyValhallaMagicAndMystery()
     {
-        let tracklist = self.add(id: "any-valhalla magic-and-mystery",
+        let tracklist = self.add(id: "any-valhalla-magic-and-mystery",
                         displayName: "Any - Valhalla Magic & Mystery",
                             version: 2,
                       volumePercent: 100,
@@ -11548,6 +11580,24 @@ class StaticTracklistManager
                         displayName: "How It All Ended",
                      altDisplayName: nil,
                       volumePercent: 60,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1745059866",
+                        displayName: "Dissolved Dawn",
+                     altDisplayName: nil,
+                      volumePercent: 93,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1499350340",
+                        displayName: "Sea Of Tranquility, Part 3",
+                     altDisplayName: nil,
+                      volumePercent: 77,
                         startOffset: 0,
                           endOffset: nil,
                              fadeIn: false,

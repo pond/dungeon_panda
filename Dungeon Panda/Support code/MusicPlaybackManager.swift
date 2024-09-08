@@ -112,6 +112,12 @@ class MusicPlaybackManager : NSObject
     /// set as Current.
     var targetPlaylist: Playlist?
 
+    /// A recent self-initiated volume change has happened. Ignore spurious system events
+    /// about this change; they are not user-initiated, probably! Set with a timer just before
+    /// each change is made, then cleared by that timer a short time after.
+    ///
+    var ignoreVolumeNotificationsForAWhileBecauseIChangedIt = true
+    
     /// Marks that a track fade-in operation is underway and volume change events should
     /// be ignored, since we're probably the source of them.
     var fadeInIsUnderway: Bool = false
@@ -305,12 +311,24 @@ class MusicPlaybackManager : NSObject
      */
     func systemVolumeDidChange(volume: Double)
     {
+        if self.ignoreVolumeNotificationsForAWhileBecauseIChangedIt == true
+        {
+            logger.debug("systemVolumeDidChange: Called - IGNORING - within the 'I did it' window")
+            return // NOTE EARLY EXIT
+        }
+        
         if self.fadeInIsUnderway == false && self.fadeOutIsUnderway == false && self.trackChangeIsUnderway == false
         {
+            logger.debug("systemVolumeDidChange: Called - looks like a user-initiated change; processing")
+
             let reverseScaledVolume = volume / currentVolumeScaleFactor()
             self.referenceSystemVolume = reverseScaledVolume
 
             logger.debug("User changed system volume to \(volume), scaled to \(reverseScaledVolume)")
+        }
+        else
+        {
+            logger.debug("systemVolumeDidChange: Called - looks like a self-initiated change; ignoring")
         }
     }
 
@@ -324,6 +342,9 @@ class MusicPlaybackManager : NSObject
     {
         if volume != nil
         {
+            self.ignoreVolumeNotificationsForAWhileBecauseIChangedIt = true
+            self.timerIgnoreVolumeChangeNotificationsStart()
+
             let scaledVolume = volume! * self.currentVolumeScaleFactor()
 
             if Thread.isMainThread
@@ -354,7 +375,7 @@ class MusicPlaybackManager : NSObject
             let tracklist            = self.playlistManager.getTracklistForPlaylist(playlist)
             let scale                = (Double(tracklist.volumePercent) / 100.0) * (Double(track.volumePercent) / 100.0)
 
-            logger.debug("currentVolumeScaleFactor: Ignoring track gain; returning \(scale)")
+            logger.debug("currentVolumeScaleFactor: Track gain found; returning \(scale)")
             return scale
         }
         else {
@@ -762,13 +783,15 @@ class MusicPlaybackManager : NSObject
     {
         logger.notice("effectivePlaybackStateDidStartPlaying: Called")
 
-        // (Removed in favour of notification hackery in ViewController)
+        // Track alterations in system volume by the user so that fade in/out
+        // etc. can all work relative to this user-chosen baseline.
         //
+        // (If 'true', see ViewController / NotificationCenter calls).
         //
-        // // Track alterations in system volume by the user so that fade in/out
-        // // etc. can all work relative to this user-chosen baseline.
-        // //
-        // ensureVolumeObserverIsPresent()
+        if self.appDelegate.useSystemVolumeNotificationsInsteadOfKvo == false
+        {
+            ensureVolumeObserverIsPresent()
+        }
 
         // Figure out fade-in or start-now
         //
@@ -913,7 +936,7 @@ class MusicPlaybackManager : NSObject
     }
 
     // MARK: - PRIVATE: Timers - fade-in
-
+    
     private func timerFadeInStart(duration: Double)
     {
         timerAdd("fade_in") {
@@ -1139,6 +1162,31 @@ class MusicPlaybackManager : NSObject
         timerCancel("post_fade_out_delay")
 
         transitionToNextSongNow()
+    }
+    
+    // MARK: - Timers - volume change notifications
+
+    private func timerIgnoreVolumeChangeNotificationsStart()
+    {
+        timerAdd("ignore_volume_change_notifications") {
+            return Timer.scheduledTimer(
+                timeInterval: 1,
+                      target: self,
+                    selector: #selector(self.timerIgnoreVolumeChangeNotificationsCompleted),
+                    userInfo: nil,
+                     repeats: false
+            )
+        }
+    }
+    
+    private func timerIgnoreVolumeChangeNotificationsCancel()
+    {
+        timerCancel("ignore_volume_change_notifications")
+    }
+
+    @objc private func timerIgnoreVolumeChangeNotificationsCompleted()
+    {
+        self.ignoreVolumeNotificationsForAWhileBecauseIChangedIt = false
     }
 
     // MARK: - PRIVATE: FADING IN AND OUT

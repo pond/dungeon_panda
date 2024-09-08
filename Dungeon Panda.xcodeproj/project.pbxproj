@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2327167C2C870CBB00853D17 /* Valhalla.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2327167A2C870CBB00853D17 /* Valhalla.storyboard */; };
 		2339710625FD6BC300ACFCF7 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2339710525FD6BC300ACFCF7 /* AppDelegate.swift */; };
 		2339710825FD6BC300ACFCF7 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2339710725FD6BC300ACFCF7 /* SceneDelegate.swift */; };
 		2339710A25FD6BC300ACFCF7 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2339710925FD6BC300ACFCF7 /* ViewController.swift */; };
@@ -35,6 +36,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		2327167B2C870CBB00853D17 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Valhalla.storyboard; sourceTree = "<group>"; };
 		2339710225FD6BC300ACFCF7 /* Dungeon Panda.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Dungeon Panda.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2339710525FD6BC300ACFCF7 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		2339710725FD6BC300ACFCF7 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -127,6 +129,7 @@
 		2339713225FEA03B00ACFCF7 /* UI */ = {
 			isa = PBXGroup;
 			children = (
+				2327167A2C870CBB00853D17 /* Valhalla.storyboard */,
 				2339710B25FD6BC300ACFCF7 /* Main.storyboard */,
 				2339711325FD6BC500ACFCF7 /* LaunchScreen.storyboard */,
 			);
@@ -256,6 +259,7 @@
 				2339710D25FD6BC300ACFCF7 /* Main.storyboard in Resources */,
 				237B42F725FEA100000D5666 /* LICENSE in Resources */,
 				23D2E2232A820A64004D4CB6 /* Settings.bundle in Resources */,
+				2327167C2C870CBB00853D17 /* Valhalla.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -330,6 +334,14 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXVariantGroup section */
+		2327167A2C870CBB00853D17 /* Valhalla.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				2327167B2C870CBB00853D17 /* Base */,
+			);
+			name = Valhalla.storyboard;
+			sourceTree = "<group>";
+		};
 		2339710B25FD6BC300ACFCF7 /* Main.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (

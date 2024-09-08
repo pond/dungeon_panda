@@ -33,12 +33,6 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
     {
         super.viewDidLoad()
 
-        self.playlistAndTrackName.text = "Not playing"
-        self.playPosition.text = "…"
-        self.positionSlider.setValue(0, animated: false)
-
-        self.appDelegate.musicPlaybackManager!.delegates.append(self)
-
         // Add the volume view.
         //
         // When placed to match bounds exactly, the view is actually displaced
@@ -56,6 +50,47 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
         self.volumeView!.setVolumeThumbImage(UIImage(named: "Volume slider"), for: .normal)
         self.positionSlider.setThumbImage(UIImage(named: "Position slider"), for: .normal)
 
+        // Obtain Apple Music authorisation if need be.
+        //
+        if self.appDelegate.musicAuthorizationStatus == nil
+        {
+            self.appDelegate.musicAuthorizationStatus = SKCloudServiceController.authorizationStatus()
+
+            switch self.appDelegate.musicAuthorizationStatus
+            {
+                case .authorized, .restricted:
+                    logger.notice("ViewController.viewDidLoad: User authorized access to Apple Music")
+                    musicAuthorizationIsGranted()
+                
+                case .denied:
+                    logger.notice("ViewController.viewDidLoad: User prohibited access to Apple Music")
+                    musicAuthorizationIsDenied()
+
+                default:
+                    logger.notice("ViewController.viewDidLoad: Requesting access to Apple Music")
+                    getMusicAuthorizationFromUser()
+            }
+        }
+        else
+        {
+            logger.notice("ViewController.viewDidLoad: Apple Music authorization has already been checked")
+        }
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+
+        self.playlistAndTrackName.text = "Not playing"
+        self.playPosition.text = "…"
+        self.positionSlider.setValue(0, animated: false)
+    }
+
+    override func viewDidAppear(_ animated: Bool)
+    {
+        super.viewDidAppear(animated)
+
+        self.appDelegate.musicPlaybackManager!.delegates.append(self)
+
         // Hackery mechanism to observe volume changes. KVO is also possible -
         // see MusicPlaybackManager's ensureVolumeObserverIsPresent - but when
         // the application has been in the background "for a while", iOS stops
@@ -63,37 +98,20 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
         // a way to stop that.
         //
         // https://stackoverflow.com/a/59720724
-
-         NotificationCenter.default.addObserver(
-                 self,
-             selector: #selector(handleVolumeChangedNotification(_:)),
-                 name: NSNotification.Name(rawValue: volumeChangedNotificationName()),
-               object: nil
-         )
-
-        // Obtain Apple Music authorisation if need be.
         //
-        let authorizationStatus = SKCloudServiceController.authorizationStatus()
-        if authorizationStatus == .authorized || authorizationStatus == .restricted
+        // Since in iOS 17 the notification fires randomly at any old time,
+        // regardless of whether the user changed volume, things get pretty
+        // wild. Switchable behaviour for least-worst option via AppDelegate.
+        //
+        if self.appDelegate.useSystemVolumeNotificationsInsteadOfKvo == true
         {
-            logger.notice("ViewController.viewDidLoad: User authorized access to Apple Music")
-            musicAuthorizationIsGranted()
+            NotificationCenter.default.addObserver(
+                self,
+                selector: #selector(handleVolumeChangedNotification(_:)),
+                name: NSNotification.Name(rawValue: volumeChangedNotificationName()),
+                object: nil
+            )
         }
-        else if authorizationStatus == .denied
-        {
-            logger.notice("ViewController.viewDidLoad: User prohibited access to Apple Music")
-            musicAuthorizationIsDenied()
-        }
-        else
-        {
-            logger.notice("ViewController.viewDidLoad: Requesting access to Apple Music")
-            getMusicAuthorizationFromUser()
-        }
-    }
-
-    override func viewDidAppear(_ animated: Bool)
-    {
-        super.viewDidAppear(animated)
 
         let volumeView = MPVolumeView()
         let hiddenSystemVolumeSlider = volumeView.subviews.first(where: { $0 is UISlider }) as? UISlider
@@ -132,14 +150,14 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
             )
         }
     }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        self.appDelegate.musicPlaybackManager!.delegates.removeAll(where: { $0 as! ViewController == self })
 
-    override func viewDidDisappear(_ animated: Bool)
-    {
         UIApplication.shared.endReceivingRemoteControlEvents()
-
         NotificationCenter.default.removeObserver(self)
 
-        super.viewWillDisappear(animated)
+        super.viewDidDisappear(animated)
     }
 
     // MARK: - OBSERVERS AND NOTIFICATION HANDLERS
@@ -333,14 +351,25 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
 
     func updateArtworkToCurrent(usingSize: CGSize)
     {
-        var imageToUse = self.currentArtworkImage
+        var imageToUse     = self.currentArtworkImage
+        let storyboardName = self.storyboard?.value(forKey: "name") as? String
 
         if let originalImage = imageToUse
         {
             let ciContext = CIContext(options: nil)
+            var ciFilter: CIFilter?
+            
+            if (storyboardName != nil && storyboardName == "Valhalla")
+            {
+                ciFilter = CIFilter(name: "CIPhotoEffectFade")
+            }
+            else
+            {
+                ciFilter = CIFilter(name: "CISepiaTone")
+            }
 
             if let coreImage = CIImage(image: originalImage),
-               let filter    = CIFilter(name: "CISepiaTone") // CIPhotoEffectFade is also decent
+               let filter    = ciFilter
             {
                 filter.setDefaults()
                 filter.setValue(coreImage, forKey: kCIInputImageKey)

@@ -19,7 +19,7 @@ class PlaylistManager {
     let appDelegate = UIApplication.shared.delegate as! AppDelegate
 
     let staticTracklistManager: StaticTracklistManager
-    let persistentContainer:    NSPersistentCloudKitContainer
+    let persistentContainer:    NSPersistentContainer // NSPersistentCloudKitContainer
 
     var playlists:                       [Playlist]                         = [Playlist]()
     var playlistsByID:                   [String:Playlist]                  = [:]
@@ -37,11 +37,11 @@ class PlaylistManager {
 
      - Parameters:
         - staticTracklistManager: StaticTracklistManager instance to be used as a source of all tracklist information
-        - persistentContainer: NSPersistentCloudKitContainer to be used for CoreData operations
+        - persistentContainer: NSPersistentCloudKitContainer or NSPersistentContainer to be used for CoreData operations
     */
     init(
         staticTracklistManager: StaticTracklistManager,
-           persistentContainer: NSPersistentCloudKitContainer
+           persistentContainer: NSPersistentContainer // NSPersistentCloudKitContainer
     )
     {
         logger.notice("PlaylistManager init")

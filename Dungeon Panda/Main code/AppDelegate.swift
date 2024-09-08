@@ -7,6 +7,7 @@
 
 import UIKit
 import CoreData
+import StoreKit
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -14,6 +15,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     public var staticTracklistManager: StaticTracklistManager?
     public var playlistManager: PlaylistManager?
     public var musicPlaybackManager: MusicPlaybackManager?
+    public var musicAuthorizationStatus: SKCloudServiceAuthorizationStatus? // Set in ViewController's 'viewDidLoad'
+    public var useSystemVolumeNotificationsInsteadOfKvo: Bool = false
 
     func application(
         _ application: UIApplication,
@@ -26,7 +29,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         return true
     }
-
+    
     // MARK: UISceneSession Lifecycle
 
     func application(
@@ -51,12 +54,27 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     // MARK: - Core Data stack
 
-    lazy var persistentContainer: NSPersistentCloudKitContainer = {
+    lazy var persistentContainer: NSPersistentContainer = {
+        let container   = NSPersistentContainer(name: "Dungeon_Panda")
+        let description = container.persistentStoreDescriptions.first
+        description?.setOption(true as NSNumber, forKey: NSPersistentHistoryTrackingKey)
+
+        container.loadPersistentStores {_, error in
+            if error != nil {
+                fatalError("persistentContainer: Core Data error - \(error!)")
+            }
+        }
+
+        return container
+    }()
+    
+    lazy var cloudKitPersistentContainer: NSPersistentCloudKitContainer = {
         let appTransactionAuthorName = "uk.org.pond.Dungeon-Panda"
 
         // Create a container that can load CloudKit-backed stores
         let container = NSPersistentCloudKitContainer(name: "Dungeon_Panda")
-
+        let description = container.persistentStoreDescriptions.first
+        description?.setOption(false as NSNumber, forKey: NSPersistentHistoryTrackingKey)
 
         container.loadPersistentStores(
             completionHandler:
