@@ -10898,7 +10898,7 @@ class StaticTracklistManager
     ///
     private func addAnyValhallaHurry()
     {
-        let tracklist = self.add(id: "any-valhalla hurry",
+        let tracklist = self.add(id: "any-valhalla-hurry",
                         displayName: "Any - Valhalla Hurry!",
                             version: 2,
                       volumePercent: 100,
@@ -11612,7 +11612,7 @@ class StaticTracklistManager
     ///
     private func addAnyValhallaSorrow()
     {
-        let tracklist = self.add(id: "any-valhalla sorrow",
+        let tracklist = self.add(id: "any-valhalla-sorrow",
                         displayName: "Any - Valhalla Sorrow",
                             version: 2,
                       volumePercent: 100,
