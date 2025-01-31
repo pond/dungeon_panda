@@ -6395,7 +6395,7 @@ class StaticTracklistManager
         let tracklist = self.add(id: "any-magic-and-mystery",
                         displayName: "Any - Magic & Mystery",
                             version: 2,
-                      volumePercent: 100,
+                      volumePercent: 90,
                     autoSwitchAfter: nil)
 
         tracklist.add(Track(storeID: "883501063",
