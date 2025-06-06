@@ -50,6 +50,19 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
         self.volumeView!.setVolumeThumbImage(UIImage(named: "Volume slider"), for: .normal)
         self.positionSlider.setThumbImage(UIImage(named: "Position slider"), for: .normal)
 
+        // Obtain the storyboard ID set up via selecting the Storyboard and
+        // then the ViewController entry in its tree of resources, then using
+        // the properties inspector to set "Storyboard ID".
+        //
+        // This will be "valhalla" or "main".
+        //
+        // See SceneDelegate for where we check which storyboard to show at
+        // launch in the first place, based on whatever last-played playlist
+        // was in use (if any).
+        //
+        let viewControllerStoryboardIdentifier = value(forKey: "storyboardIdentifier") as? String ?? "none"
+        self.appDelegate.musicPlaybackManager!.storyboardIdentifierHasBecome(identifier: viewControllerStoryboardIdentifier)
+
         // Obtain Apple Music authorisation if need be.
         //
         if self.appDelegate.musicAuthorizationStatus == nil
@@ -210,7 +223,7 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
             musicPlaybackManager.switchToPlaylist(playlistID: playlistID)
         }
     }
-
+    
     @IBAction func userIsMovingSlider()
     {
         self.ignorePositionUpdates = true

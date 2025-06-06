@@ -6,20 +6,41 @@
 //
 
 import UIKit
+import OSLog
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
+    let logger = Logger()
+    let appDelegate = UIApplication.shared.delegate as! AppDelegate
 
     func scene(
         _ scene: UIScene,
         willConnectTo session: UISceneSession,
         options connectionOptions: UIScene.ConnectionOptions
     ) {
-        // Use this method to optionally configure and attach the UIWindow `window` to the provided UIWindowScene `scene`.
-        // If using a storyboard, the `window` property will automatically be initialized and attached to the scene.
-        // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
-        guard let _ = (scene as? UIWindowScene) else { return }
+        let windowScene          = scene as? UIWindowScene
+        let lastPlayedPlaylistID = self.appDelegate.playlistManager!.currentPlaylist.playlistID
+
+        // If there's a prior session via CoreData indicating a Valhalla playlist
+        // then switch to the Valhalla storyboard immediately, so the application
+        // appears to launch in the right mode straight away. We do nothing if
+        // not, since the UI resources launch the Main storyboard by default.
+        //
+        // See also ViewController's viewDidLoad for where we change playlist if
+        // the storyboard is swapped between Main and Valhalla later by the user.
+        //
+        if lastPlayedPlaylistID != nil && windowScene != nil && lastPlayedPlaylistID!.contains("valhalla-")
+        {
+            let window                = UIWindow(windowScene: windowScene!)
+            let storyboard            = UIStoryboard(name: "Valhalla", bundle: nil)
+            let initialViewController = storyboard.instantiateInitialViewController()
+
+            window.rootViewController = initialViewController
+            self.window               = window
+
+            window.makeKeyAndVisible()
+        }
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {

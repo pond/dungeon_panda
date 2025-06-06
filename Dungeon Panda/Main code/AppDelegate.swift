@@ -16,7 +16,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     public var playlistManager: PlaylistManager?
     public var musicPlaybackManager: MusicPlaybackManager?
     public var musicAuthorizationStatus: SKCloudServiceAuthorizationStatus? // Set in ViewController's 'viewDidLoad'
-    public var useSystemVolumeNotificationsInsteadOfKvo: Bool = false
+    public var useSystemVolumeNotificationsInsteadOfKvo: Bool = true
 
     func application(
         _ application: UIApplication,

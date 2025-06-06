@@ -177,6 +177,45 @@ class MusicPlaybackManager : NSObject
 
     // MARK: - PUBLIC: Playback control
 
+    func storyboardIdentifierHasBecome(identifier: String)
+    {
+        let currentPlaylistID      = self.playlistManager.getPlayingPlaylist().id
+        var isFromTheAnySet        = false
+        var newPlaylistID: String? = nil
+
+        if self.firstTimePlaybackDidHappen && currentPlaylistID != nil
+        {
+            var interimPlaylistID = currentPlaylistID!
+
+            if interimPlaylistID.hasPrefix("any-")
+            {
+                isFromTheAnySet = true
+                interimPlaylistID = String(interimPlaylistID.dropFirst("any-".count))
+            }
+            
+            switch identifier
+            {
+                case "valhalla":
+                    if !interimPlaylistID.hasPrefix("valhalla-")
+                    {
+                        newPlaylistID = "valhalla-\(interimPlaylistID)"
+                    }
+
+                default: // "main"
+                    if interimPlaylistID.hasPrefix("valhalla-")
+                    {
+                        newPlaylistID = String(interimPlaylistID.dropFirst("valhalla-".count))
+                    }
+            }
+        }
+
+        if newPlaylistID != nil
+        {
+            if isFromTheAnySet { newPlaylistID = "any-" + newPlaylistID! }
+            self.switchToPlaylist(playlistID: newPlaylistID!)
+        }
+    }
+    
     /**
      Start playback after initial application launch. Called externally, when the view layer
      believes it is "safe" / sensible to do so. Can be called from any thread.
@@ -372,7 +411,7 @@ class MusicPlaybackManager : NSObject
                 self.timerIgnoreVolumeChangeNotificationsStart()
                                                                 
                 var scaledVolume = volume! * self.currentVolumeScaleFactor()
-                if scaledVolume > 1.0 { scaledVolume = 1.0 };
+                scaledVolume = makeSureValueIsBetween0and1(value: scaledVolume)
                 
                 if Thread.isMainThread
                 {
@@ -386,7 +425,7 @@ class MusicPlaybackManager : NSObject
                     }
                 }
             }
-            
+
             // If we're keeping the volume as-is for the first track played, then the
             // volume will "sound like" a certain level. But this track has a scale
             // factor and the next track does too; and that one will be applied using
@@ -468,6 +507,13 @@ class MusicPlaybackManager : NSObject
         }
         
         self.mediaPlayer.stop()
+
+        // Repeat registration of
+        
+        if self.appDelegate.useSystemVolumeNotificationsInsteadOfKvo == false
+        {
+            self.ensureVolumeObserverIsPresent()
+        }
 
         // Tell delegates that we're starting a new track. Playback might not
         // *actually* start for a while, but delegates need to know early. The
@@ -1313,7 +1359,7 @@ class MusicPlaybackManager : NSObject
 
         logger.debug("fade (\(fadeIn ? "in" : "out")): Starting");
 
-        let volumeAlterationsPerSecond = 5.0
+        let volumeAlterationsPerSecond = 10.0
         var currentStep                = 0
 
         return Timer.scheduledTimer(
