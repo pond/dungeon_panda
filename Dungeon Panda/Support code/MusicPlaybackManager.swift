@@ -390,6 +390,23 @@ class MusicPlaybackManager : NSObject
     }
 
     /**
+     Called internally, including from ViewController, to either get a good-enough approximation of
+     current system volume (*with* a possible ReplayGain factor applied) based on the UI slider
+     position, rather than needing a notification. This is mostly for Mac Catalyst, where system volume
+     notifications don't work. Will do nothing unless volume slider is known and value is non-zero.
+     */
+    func deduceApproximateSystemVolumeFromSliderIgnoringZero()
+    {
+        if self.hiddenSystemVolumeSlider != nil
+        {
+            let scaledSystemVolume = Double(self.hiddenSystemVolumeSlider!.value)
+            if scaledSystemVolume > 0 {
+                self.referenceSystemVolume = scaledSystemVolume / self.currentVolumeScaleFactor()
+            }
+        }
+    }
+
+    /**
      Called internally. Sets the volume, if a volume slider is known
      (see `setHiddenSystemVolumeSlider`).
 
@@ -506,7 +523,7 @@ class MusicPlaybackManager : NSObject
             logger.info("startPlayback: Fade in is NOT required")
 
             self.fadeInIsUnderway = false
-            
+
             self.setVolume(volume: self.referenceSystemVolume)
             self.fadeInOnNextPlaybackStartedEvent = false
         }
@@ -1137,6 +1154,14 @@ class MusicPlaybackManager : NSObject
             if timerUpdateLogOutputCounter % timerUpdateLogOutputEvery == 1
             {
                 logger.debug("timerPositionUpdatesFired: Internal playback state is 'playing'")
+            }
+
+            if ProcessInfo.processInfo.isMacCatalystApp
+            {
+                if self.fadeInIsUnderway == false && self.fadeOutIsUnderway == false
+                {
+                    self.deduceApproximateSystemVolumeFromSliderIgnoringZero()
+                }
             }
 
             if self.fadeOutIsUnderway == false

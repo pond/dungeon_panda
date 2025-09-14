@@ -138,6 +138,7 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
         logger.notice("Volume slider is \(String(describing: hiddenSystemVolumeSlider))")
 
         self.appDelegate.musicPlaybackManager!.setHiddenSystemVolumeSlider(hiddenSystemVolumeSlider)
+        self.appDelegate.musicPlaybackManager!.deduceApproximateSystemVolumeFromSliderIgnoringZero()
     }
 
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator)
