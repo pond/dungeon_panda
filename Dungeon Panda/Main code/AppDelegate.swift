@@ -7,7 +7,7 @@
 
 import UIKit
 import CoreData
-import StoreKit
+import MusicKit
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -15,7 +15,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     public var staticTracklistManager: StaticTracklistManager?
     public var playlistManager: PlaylistManager?
     public var musicPlaybackManager: MusicPlaybackManager?
-    public var musicAuthorizationStatus: SKCloudServiceAuthorizationStatus? // Set in ViewController's 'viewDidLoad'
+    public var musicAuthorizationStatus: MusicAuthorization.Status? // Set in ViewController's 'viewDidLoad'
     public var useSystemVolumeNotificationsInsteadOfKvo: Bool = true
 
     func application(
@@ -59,7 +59,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let description = container.persistentStoreDescriptions.first
         description?.setOption(true as NSNumber, forKey: NSPersistentHistoryTrackingKey)
 
-        container.loadPersistentStores {_, error in
+        container.loadPersistentStores{_, error in
             if error != nil {
                 fatalError("persistentContainer: Core Data error - \(error!)")
             }
