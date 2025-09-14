@@ -401,7 +401,7 @@ class MusicPlaybackManager : NSObject
         {
             let scaledSystemVolume = Double(self.hiddenSystemVolumeSlider!.value)
             if scaledSystemVolume > 0 {
-                self.referenceSystemVolume = scaledSystemVolume / self.currentVolumeScaleFactor()
+                self.referenceSystemVolume = scaledSystemVolume / self.currentVolumeScaleFactor(logOutcome: false)
             }
         }
     }
@@ -470,7 +470,7 @@ class MusicPlaybackManager : NSObject
      Return the current volume scale factor as Double less than or equal to 1, accounting for current
      tracklist and track relative volume percentages.
     */
-    func currentVolumeScaleFactor() -> Double
+    func currentVolumeScaleFactor(logOutcome: Bool = true) -> Double
     {
         let userDefaults = UserDefaults.standard
         let obeyVolume   = userDefaults.bool(forKey: "obey_track_volume")
@@ -480,11 +480,15 @@ class MusicPlaybackManager : NSObject
             let tracklist            = self.playlistManager.getTracklistForPlaylist(playlist)
             let scale                = (Double(tracklist.volumePercent) / 100.0) * (Double(track.volumePercent) / 100.0)
 
-            logger.debug("currentVolumeScaleFactor: Track gain found; returning \(scale)")
+            if logOutcome {
+                logger.debug("currentVolumeScaleFactor: Track gain found; returning \(scale)")
+            }
             return scale
         }
         else {
-            logger.debug("currentVolumeScaleFactor: Ignoring track gain; returning 1.0")
+            if logOutcome {
+                logger.debug("currentVolumeScaleFactor: Ignoring track gain; returning 1.0")
+            }
             return Double(1.0)
         }
     }
