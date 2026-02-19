@@ -3704,24 +3704,6 @@ class StaticTracklistManager
                              fadeIn: false,
                             fadeOut: false))
 
-        tracklist.add(Track(storeID: "1845992355",
-                        displayName: "Straight Through The Snowtide",
-                     altDisplayName: nil,
-                      volumePercent: 60,
-                        startOffset: 0,
-                          endOffset: nil,
-                             fadeIn: false,
-                            fadeOut: false))
-
-        tracklist.add(Track(storeID: "1845992357",
-                        displayName: "A Thirst That Cuts",
-                     altDisplayName: nil,
-                      volumePercent: 60,
-                        startOffset: 0,
-                          endOffset: nil,
-                             fadeIn: false,
-                            fadeOut: false))
-
         tracklist.add(Track(storeID: "1852044824",
                         displayName: "焚骨熔心",
                      altDisplayName: nil,
