@@ -305,16 +305,16 @@ class StaticTracklistManager
                              fadeIn: false,
                             fadeOut: false))
 
-        tracklist.add(Track(storeID: "1521641819",
+        tracklist.add(Track(storeID: "1846618509",
                         displayName: "Borderlines",
                      altDisplayName: nil,
-                      volumePercent: 91,
+                      volumePercent: 100,
                         startOffset: 0,
                           endOffset: nil,
                              fadeIn: false,
                             fadeOut: false))
 
-        tracklist.add(Track(storeID: "1536478364",
+        tracklist.add(Track(storeID: "1846911947",
                         displayName: "Rose Of Victory",
                      altDisplayName: nil,
                       volumePercent: 140,
@@ -1375,6 +1375,60 @@ class StaticTracklistManager
                           endOffset: nil,
                              fadeIn: false,
                             fadeOut: false))
+
+        tracklist.add(Track(storeID: "1305514613",
+                        displayName: "2万年後",
+                     altDisplayName: nil,
+                      volumePercent: 74,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1440967439",
+                        displayName: "ナノメタル-脅威-",
+                     altDisplayName: nil,
+                      volumePercent: 137,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1383145061",
+                        displayName: "地球の変移",
+                     altDisplayName: nil,
+                      volumePercent: 96,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1533984915",
+                        displayName: "S.T.A.Y.",
+                     altDisplayName: nil,
+                      volumePercent: 122,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "976836961",
+                        displayName: "The Opening",
+                     altDisplayName: nil,
+                      volumePercent: 73,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1832005123",
+                        displayName: "The Final Year Of Blossom",
+                     altDisplayName: nil,
+                      volumePercent: 95,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
     }
 
     // =========================================================================
@@ -1782,15 +1836,6 @@ class StaticTracklistManager
                         displayName: "We Have To Kill It",
                      altDisplayName: nil,
                       volumePercent: 62,
-                        startOffset: 0,
-                          endOffset: nil,
-                             fadeIn: false,
-                            fadeOut: false))
-
-        tracklist.add(Track(storeID: "1835139228",
-                        displayName: "The Power Ceremony",
-                     altDisplayName: nil,
-                      volumePercent: 68,
                         startOffset: 0,
                           endOffset: nil,
                              fadeIn: false,
@@ -3550,6 +3595,222 @@ class StaticTracklistManager
                           endOffset: nil,
                              fadeIn: false,
                             fadeOut: false))
+
+        tracklist.add(Track(storeID: "1305514629",
+                        displayName: "急襲",
+                     altDisplayName: nil,
+                      volumePercent: 60,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1305514769",
+                        displayName: "サーモバリック爆弾",
+                     altDisplayName: nil,
+                      volumePercent: 60,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1845992354",
+                        displayName: "To Light The Aeon Dark",
+                     altDisplayName: nil,
+                      volumePercent: 60,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1845992355",
+                        displayName: "Straight Through The Snowtide",
+                     altDisplayName: nil,
+                      volumePercent: 60,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1845992357",
+                        displayName: "A Thirst That Cuts",
+                     altDisplayName: nil,
+                      volumePercent: 60,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1845992364",
+                        displayName: "Syntyloitsut Of Koitar",
+                     altDisplayName: nil,
+                      volumePercent: 60,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1845992376",
+                        displayName: "Duckle 'Em Down!",
+                     altDisplayName: nil,
+                      volumePercent: 60,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1755313204",
+                        displayName: "激战 极帝城",
+                     altDisplayName: nil,
+                      volumePercent: 60,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1755313522",
+                        displayName: "激战 望山坞",
+                     altDisplayName: nil,
+                      volumePercent: 60,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1440743726",
+                        displayName: "Up Is Down",
+                     altDisplayName: nil,
+                      volumePercent: 64,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1383145062",
+                        displayName: "フツアの戦い方",
+                     altDisplayName: nil,
+                      volumePercent: 60,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "458401499",
+                        displayName: "The Crane",
+                     altDisplayName: nil,
+                      volumePercent: 140,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1845992355",
+                        displayName: "Straight Through The Snowtide",
+                     altDisplayName: nil,
+                      volumePercent: 60,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1845992357",
+                        displayName: "A Thirst That Cuts",
+                     altDisplayName: nil,
+                      volumePercent: 60,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1852044824",
+                        displayName: "焚骨熔心",
+                     altDisplayName: nil,
+                      volumePercent: 60,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1852045189",
+                        displayName: "红丝魇",
+                     altDisplayName: nil,
+                      volumePercent: 64,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1852045193",
+                        displayName: "雪嘶霜啸",
+                     altDisplayName: nil,
+                      volumePercent: 63,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1852045208",
+                        displayName: "藏器",
+                     altDisplayName: nil,
+                      volumePercent: 60,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1868640383",
+                        displayName: "驰风踏沙(敦煌·战斗)",
+                     altDisplayName: nil,
+                      volumePercent: 60,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1604302131",
+                        displayName: "象王行",
+                     altDisplayName: nil,
+                      volumePercent: 60,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1805745874",
+                        displayName: "乘龙狂客",
+                     altDisplayName: nil,
+                      volumePercent: 60,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1877191946",
+                        displayName: "For The Glory Of Sparta",
+                     altDisplayName: nil,
+                      volumePercent: 60,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1877192255",
+                        displayName: "Always United",
+                     altDisplayName: nil,
+                      volumePercent: 60,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1608575642",
+                        displayName: "Urgent Mission",
+                     altDisplayName: nil,
+                      volumePercent: 60,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
     }
 
     // =========================================================================
@@ -4039,6 +4300,24 @@ class StaticTracklistManager
                           endOffset: 197,
                              fadeIn: false,
                             fadeOut: true))
+
+        tracklist.add(Track(storeID: "1440967437",
+                        displayName: "星を喰う者",
+                     altDisplayName: nil,
+                      volumePercent: 60,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1440967445",
+                        displayName: "ビルサルドの反逆",
+                     altDisplayName: nil,
+                      volumePercent: 60,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
     }
 
     // =========================================================================
@@ -4172,10 +4451,10 @@ class StaticTracklistManager
                              fadeIn: false,
                             fadeOut: false))
 
-        tracklist.add(Track(storeID: "1536478369",
+        tracklist.add(Track(storeID: "1846911948",
                         displayName: "I Saw Your Ship",
                      altDisplayName: nil,
-                      volumePercent: 61,
+                      volumePercent: 67,
                         startOffset: 0,
                           endOffset: nil,
                              fadeIn: false,
@@ -5269,6 +5548,42 @@ class StaticTracklistManager
                           endOffset: nil,
                              fadeIn: false,
                             fadeOut: false))
+
+        tracklist.add(Track(storeID: "1790561405",
+                        displayName: "晨露曦生",
+                     altDisplayName: nil,
+                      volumePercent: 98,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1868640638",
+                        displayName: "水月静夜(月牙泉·夜)",
+                     altDisplayName: nil,
+                      volumePercent: 111,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1836081548",
+                        displayName: "雾隐鲸喃",
+                     altDisplayName: nil,
+                      volumePercent: 79,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1835902815",
+                        displayName: "与星星共眠(伴奏)",
+                     altDisplayName: nil,
+                      volumePercent: 92,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
     }
 
     // =========================================================================
@@ -5618,15 +5933,6 @@ class StaticTracklistManager
                              fadeIn: false,
                             fadeOut: false))
 
-        tracklist.add(Track(storeID: "1573696893",
-                        displayName: "Six-Eighty",
-                     altDisplayName: nil,
-                      volumePercent: 60,
-                        startOffset: 0,
-                          endOffset: nil,
-                             fadeIn: false,
-                            fadeOut: false))
-
         tracklist.add(Track(storeID: "1573697198",
                         displayName: "Unzari-Kettari",
                      altDisplayName: nil,
@@ -5649,6 +5955,24 @@ class StaticTracklistManager
                         displayName: "Rustport's Theme",
                      altDisplayName: nil,
                       volumePercent: 60,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1535563185",
+                        displayName: "Feeling Lucky, Slayer",
+                     altDisplayName: nil,
+                      volumePercent: 68,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1535563186",
+                        displayName: "Secrets Of The Alchemist",
+                     altDisplayName: nil,
+                      volumePercent: 83,
                         startOffset: 0,
                           endOffset: nil,
                              fadeIn: false,
@@ -5831,7 +6155,7 @@ class StaticTracklistManager
                              fadeIn: false,
                             fadeOut: false))
 
-        tracklist.add(Track(storeID: "1595923617",
+        tracklist.add(Track(storeID: "1832872884",
                         displayName: "Pocket's Lookin' Light",
                      altDisplayName: nil,
                       volumePercent: 60,
@@ -5840,7 +6164,7 @@ class StaticTracklistManager
                              fadeIn: false,
                             fadeOut: false))
 
-        tracklist.add(Track(storeID: "1595923621",
+        tracklist.add(Track(storeID: "1832872895",
                         displayName: "Runnin' From Lariette",
                      altDisplayName: nil,
                       volumePercent: 64,
@@ -5977,6 +6301,15 @@ class StaticTracklistManager
 
         tracklist.add(Track(storeID: "1725091096",
                         displayName: "The Boy With Green Hair",
+                     altDisplayName: nil,
+                      volumePercent: 60,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1845989209",
+                        displayName: "The Bustling Port Market",
                      altDisplayName: nil,
                       volumePercent: 60,
                         startOffset: 0,
@@ -6154,15 +6487,6 @@ class StaticTracklistManager
 
         tracklist.add(Track(storeID: "1525730814",
                         displayName: "Oméga Orchestre",
-                     altDisplayName: nil,
-                      volumePercent: 60,
-                        startOffset: 0,
-                          endOffset: nil,
-                             fadeIn: false,
-                            fadeOut: false))
-
-        tracklist.add(Track(storeID: "1544402246",
-                        displayName: "Town And Heart Beat",
                      altDisplayName: nil,
                       volumePercent: 60,
                         startOffset: 0,
@@ -6415,6 +6739,15 @@ class StaticTracklistManager
 
         tracklist.add(Track(storeID: "1481514853",
                         displayName: "Return To Skyhold",
+                     altDisplayName: nil,
+                      volumePercent: 60,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1846732533",
+                        displayName: "Towards The Blanks On The Map",
                      altDisplayName: nil,
                       volumePercent: 60,
                         startOffset: 0,
@@ -6895,6 +7228,24 @@ class StaticTracklistManager
                           endOffset: nil,
                              fadeIn: false,
                             fadeOut: false))
+
+        tracklist.add(Track(storeID: "1755313203",
+                        displayName: "洞天星云",
+                     altDisplayName: nil,
+                      volumePercent: 60,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1868640384",
+                        displayName: "千商盈集(月牙镇·昼)",
+                     altDisplayName: nil,
+                      volumePercent: 60,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
     }
 
     // =========================================================================
@@ -7127,10 +7478,10 @@ class StaticTracklistManager
                              fadeIn: false,
                             fadeOut: false))
 
-        tracklist.add(Track(storeID: "1521641808",
+        tracklist.add(Track(storeID: "1846618501",
                         displayName: "But Still We Go On",
                      altDisplayName: nil,
-                      volumePercent: 76,
+                      volumePercent: 84,
                         startOffset: 0,
                           endOffset: nil,
                              fadeIn: false,
@@ -9250,6 +9601,150 @@ class StaticTracklistManager
                           endOffset: nil,
                              fadeIn: false,
                             fadeOut: false))
+
+        tracklist.add(Track(storeID: "1842885723",
+                        displayName: "Uchawi's Hearth",
+                     altDisplayName: nil,
+                      volumePercent: 60,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1842886317",
+                        displayName: "Fire Swamps",
+                     altDisplayName: nil,
+                      volumePercent: 60,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1835139228",
+                        displayName: "The Power Ceremony",
+                     altDisplayName: nil,
+                      volumePercent: 68,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1727310159",
+                        displayName: "星河杳冥·箫",
+                     altDisplayName: nil,
+                      volumePercent: 91,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1383143739",
+                        displayName: "儀式",
+                     altDisplayName: nil,
+                      volumePercent: 91,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1859838059",
+                        displayName: "Tyson",
+                     altDisplayName: nil,
+                      volumePercent: 68,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1856803295",
+                        displayName: "The Fading Vale",
+                     altDisplayName: nil,
+                      volumePercent: 63,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1868640639",
+                        displayName: "梵音钟鸣(莫高窟·窟外)",
+                     altDisplayName: nil,
+                      volumePercent: 69,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1868640644",
+                        displayName: "离宫幽夜(白弥离宫·夜)",
+                     altDisplayName: nil,
+                      volumePercent: 104,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1868640646",
+                        displayName: "明镜尘外(迦陵境·氛围)",
+                     altDisplayName: nil,
+                      volumePercent: 88,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1868640649",
+                        displayName: "沙影寻境(山洞)",
+                     altDisplayName: nil,
+                      volumePercent: 104,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1836081555",
+                        displayName: "业海三涂",
+                     altDisplayName: nil,
+                      volumePercent: 60,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1766487700",
+                        displayName: "瀚海无朽",
+                     altDisplayName: nil,
+                      volumePercent: 62,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1869059425",
+                        displayName: "Everlasting Night",
+                     altDisplayName: nil,
+                      volumePercent: 84,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1845991794",
+                        displayName: "A Green Hill Remade",
+                     altDisplayName: nil,
+                      volumePercent: 60,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1845992061",
+                        displayName: "Secrets Cast In A Deep Cave",
+                     altDisplayName: nil,
+                      volumePercent: 60,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
     }
 
     // =========================================================================
@@ -10417,6 +10912,105 @@ class StaticTracklistManager
                           endOffset: nil,
                              fadeIn: false,
                             fadeOut: false))
+
+        tracklist.add(Track(storeID: "1305514751",
+                        displayName: "エクシフの伝承",
+                     altDisplayName: nil,
+                      volumePercent: 106,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1842888508",
+                        displayName: "Talamh",
+                     altDisplayName: nil,
+                      volumePercent: 73,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1727310148",
+                        displayName: "星天晴霁",
+                     altDisplayName: nil,
+                      volumePercent: 64,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1440967440",
+                        displayName: "メトフィエス-優しさ-",
+                     altDisplayName: nil,
+                      volumePercent: 140,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1790561407",
+                        displayName: "惘然旧忆",
+                     altDisplayName: nil,
+                      volumePercent: 140,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1868640642",
+                        displayName: "玉门残霜(玉门关·夜)",
+                     altDisplayName: nil,
+                      volumePercent: 106,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1440967628",
+                        displayName: "最後の一人",
+                     altDisplayName: nil,
+                      volumePercent: 60,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1845992070",
+                        displayName: "Votum Awaited In Vain",
+                     altDisplayName: nil,
+                      volumePercent: 60,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1865310248",
+                        displayName: "Where Footsteps Vanish Upward",
+                     altDisplayName: nil,
+                      volumePercent: 77,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1527680627",
+                        displayName: "September",
+                     altDisplayName: nil,
+                      volumePercent: 103,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1873909564",
+                        displayName: "Everlasting Dawn At Night",
+                     altDisplayName: nil,
+                      volumePercent: 94,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
     }
 
     // =========================================================================
@@ -10626,6 +11220,24 @@ class StaticTracklistManager
                         displayName: "Foldspace Router",
                      altDisplayName: nil,
                       volumePercent: 118,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1840093617",
+                        displayName: "Reverse Negative Entropy",
+                     altDisplayName: nil,
+                      volumePercent: 123,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1440967436",
+                        displayName: "神を見いだす者",
+                     altDisplayName: nil,
+                      volumePercent: 99,
                         startOffset: 0,
                           endOffset: nil,
                              fadeIn: false,
@@ -11059,6 +11671,24 @@ class StaticTracklistManager
                           endOffset: nil,
                              fadeIn: false,
                             fadeOut: false))
+
+        tracklist.add(Track(storeID: "1543966176",
+                        displayName: "Astrolab 22",
+                     altDisplayName: nil,
+                      volumePercent: 85,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1856647861",
+                        displayName: "FATE",
+                     altDisplayName: nil,
+                      volumePercent: 60,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
     }
 
     // =========================================================================
@@ -11296,6 +11926,15 @@ class StaticTracklistManager
                           endOffset: nil,
                              fadeIn: false,
                             fadeOut: false))
+
+        tracklist.add(Track(storeID: "1842890773",
+                        displayName: "Old Maid",
+                     altDisplayName: nil,
+                      volumePercent: 60,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
     }
 
     // =========================================================================
@@ -11456,15 +12095,6 @@ class StaticTracklistManager
                              fadeIn: false,
                             fadeOut: false))
 
-        tracklist.add(Track(storeID: "1710181758",
-                        displayName: "Alchemy",
-                     altDisplayName: nil,
-                      volumePercent: 60,
-                        startOffset: 0,
-                          endOffset: nil,
-                             fadeIn: false,
-                            fadeOut: false))
-
         tracklist.add(Track(storeID: "1714978315",
                         displayName: "Daydream",
                      altDisplayName: nil,
@@ -11593,6 +12223,33 @@ class StaticTracklistManager
 
         tracklist.add(Track(storeID: "1825613102",
                         displayName: "Wavelength",
+                     altDisplayName: nil,
+                      volumePercent: 60,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1543966177",
+                        displayName: "Missive Spatiale 1",
+                     altDisplayName: nil,
+                      volumePercent: 99,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1827511123",
+                        displayName: "Embrace",
+                     altDisplayName: nil,
+                      volumePercent: 84,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1854312250",
+                        displayName: "Free Fall",
                      altDisplayName: nil,
                       volumePercent: 60,
                         startOffset: 0,
@@ -11748,15 +12405,6 @@ class StaticTracklistManager
                         displayName: "Ivory Tower",
                      altDisplayName: nil,
                       volumePercent: 68,
-                        startOffset: 0,
-                          endOffset: nil,
-                             fadeIn: false,
-                            fadeOut: false))
-
-        tracklist.add(Track(storeID: "1710181559",
-                        displayName: "I Miss Daft Punk",
-                     altDisplayName: nil,
-                      volumePercent: 60,
                         startOffset: 0,
                           endOffset: nil,
                              fadeIn: false,
@@ -12040,15 +12688,6 @@ class StaticTracklistManager
 
         tracklist.add(Track(storeID: "1740176567",
                         displayName: "Again And Again",
-                     altDisplayName: nil,
-                      volumePercent: 60,
-                        startOffset: 0,
-                          endOffset: nil,
-                             fadeIn: false,
-                            fadeOut: false))
-
-        tracklist.add(Track(storeID: "1742714312",
-                        displayName: "Sky City",
                      altDisplayName: nil,
                       volumePercent: 60,
                         startOffset: 0,
@@ -12578,7 +13217,7 @@ class StaticTracklistManager
         tracklist.add(Track(storeID: "1499350340",
                         displayName: "Sea Of Tranquility, Part 3",
                      altDisplayName: nil,
-                      volumePercent: 77,
+                      volumePercent: 78,
                         startOffset: 0,
                           endOffset: nil,
                              fadeIn: false,
@@ -12606,6 +13245,42 @@ class StaticTracklistManager
                         displayName: "Drawbridge",
                      altDisplayName: nil,
                       volumePercent: 60,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1842891624",
+                        displayName: "Pool",
+                     altDisplayName: nil,
+                      volumePercent: 105,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1827511119",
+                        displayName: "Eclipse",
+                     altDisplayName: nil,
+                      volumePercent: 71,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1827511127",
+                        displayName: "Observe",
+                     altDisplayName: nil,
+                      volumePercent: 85,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1606037807",
+                        displayName: "Seiche Waves",
+                     altDisplayName: nil,
+                      volumePercent: 62,
                         startOffset: 0,
                           endOffset: nil,
                              fadeIn: false,
@@ -12693,6 +13368,24 @@ class StaticTracklistManager
                         displayName: "Leave Without Me",
                      altDisplayName: nil,
                       volumePercent: 72,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1543966185",
+                        displayName: "Planète Chaude",
+                     altDisplayName: nil,
+                      volumePercent: 101,
+                        startOffset: 0,
+                          endOffset: nil,
+                             fadeIn: false,
+                            fadeOut: false))
+
+        tracklist.add(Track(storeID: "1841947761",
+                        displayName: "She Needs You",
+                     altDisplayName: nil,
+                      volumePercent: 60,
                         startOffset: 0,
                           endOffset: nil,
                              fadeIn: false,
