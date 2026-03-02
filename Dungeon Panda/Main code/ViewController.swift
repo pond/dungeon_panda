@@ -8,7 +8,11 @@
 import UIKit
 import MediaPlayer
 import MusicKit
+import CoreAudio
 import OSLog
+
+// Hold a weak reference to the active ViewController (for Mac Catalyst builds)
+private weak var macCatalystVolumeCallbackViewController: ViewController?
 
 class ViewController: UIViewController, MusicPlaybackManagerDelegate {
     @IBOutlet weak var playButton: UIButton!
@@ -25,6 +29,7 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
     var labelTimer: Timer?
     var ignorePositionUpdates: Bool = false
     var currentArtworkImage: UIImage? = nil
+    var previousSystemVolume: Float32 = 0 // For Mac Catalyst builds only
 
     // MARK: - VIEW LIFECYCLE
 
@@ -123,14 +128,55 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
         // regardless of whether the user changed volume, things get pretty
         // wild. Switchable behaviour for least-worst option via AppDelegate.
         //
+        // NOTE: On Mac Catalyst, the mechanism is completely different and
+        //       fairly old-fashioned / under-documented, using CoreAudio and
+        //       C-like interfaces.
+        //
         if self.appDelegate.useSystemVolumeNotificationsInsteadOfKvo == true
         {
-            NotificationCenter.default.addObserver(
-                self,
-                selector: #selector(handleVolumeChangedNotification(_:)),
-                name: NSNotification.Name(rawValue: volumeChangedNotificationName()),
-                object: nil
-            )
+            #if targetEnvironment(macCatalyst)
+                macCatalystVolumeCallbackViewController = self
+
+                var size                       = UInt32(MemoryLayout<AudioDeviceID>.size)
+                var defaultAudioOutputDeviceID = kAudioObjectUnknown as AudioDeviceID
+                var deviceAddress              = AudioObjectPropertyAddress(
+                    mSelector: kAudioHardwarePropertyDefaultOutputDevice,
+                    mScope:    kAudioObjectPropertyScopeGlobal,
+                    mElement:  kAudioObjectPropertyElementMain
+                )
+
+                AudioObjectGetPropertyData(
+                    AudioObjectID(kAudioObjectSystemObject),
+                    &deviceAddress,
+                    0,
+                    nil,
+                    &size,
+                    &defaultAudioOutputDeviceID
+                )
+
+                var volumeAddress = AudioObjectPropertyAddress(
+                    mSelector: kAudioDevicePropertyVolumeScalar,
+                    mScope:    kAudioObjectPropertyScopeOutput,
+                    mElement:  kAudioObjectPropertyElementMain
+                )
+
+                // Add property listener with static function pointer instead of
+                // closure to avoid capture issues
+                //
+                AudioObjectAddPropertyListener(
+                    defaultAudioOutputDeviceID,
+                    &volumeAddress,
+                    ViewController.macCatalystAudioVolumeChangedCBPointer,
+                    nil
+                )
+            #else
+                NotificationCenter.default.addObserver(
+                    self,
+                    selector: #selector(handleVolumeChangedNotification(_:)),
+                    name: NSNotification.Name(rawValue: volumeChangedNotificationName()),
+                    object: nil
+                )
+            #endif
         }
 
         let hiddenSystemVolumeSlider = self.volumeView!.subviews.first(where: { $0 is UISlider }) as? UISlider
@@ -737,5 +783,42 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
         labelText.append(trackText)
 
         return labelText
+    }
+    
+    // MARK: - Catalyst audio volume workaround
+    
+    // C-compatible static function pointer for AudioObjectAddPropertyListener on Catalyst builds
+    //
+    private static let macCatalystAudioVolumeChangedCBPointer: AudioObjectPropertyListenerProc = { audioObjectID, numberOfAddresses, addresses, clientData in
+        return macCatalystVolumeCallbackViewController?.macCatalystAudioVolumeChangedCB(
+            audioObjectID:     audioObjectID,
+            numberOfAddresses: numberOfAddresses,
+            addresses:         addresses,
+            clientData:        clientData
+        ) ?? noErr
+    }
+    
+    // Instance method called from the static callback function pointer; performs volume update on main thread
+    //
+    private func macCatalystAudioVolumeChangedCB(audioObjectID: AudioObjectID, numberOfAddresses: UInt32, addresses: UnsafePointer<AudioObjectPropertyAddress>, clientData: UnsafeMutableRawPointer?) -> OSStatus {
+        var currentSystemVolume: Float32 = 0
+        var size = UInt32(MemoryLayout<Float32>.size)
+        var volumeAddress = AudioObjectPropertyAddress(
+            mSelector: kAudioDevicePropertyVolumeScalar,
+            mScope:    kAudioObjectPropertyScopeOutput,
+            mElement:  kAudioObjectPropertyElementMain
+        )
+
+        AudioObjectGetPropertyData(audioObjectID, &volumeAddress, 0, nil, &size, &currentSystemVolume)
+
+        if currentSystemVolume != macCatalystVolumeCallbackViewController?.previousSystemVolume
+        {
+            macCatalystVolumeCallbackViewController?.previousSystemVolume = currentSystemVolume
+            DispatchQueue.main.async {
+                macCatalystVolumeCallbackViewController?.appDelegate.musicPlaybackManager?.systemVolumeDidChange(volume: Double(currentSystemVolume))
+            }
+        }
+
+        return noErr
     }
 }
