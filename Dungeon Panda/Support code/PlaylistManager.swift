@@ -8,7 +8,7 @@
 import Foundation
 import CoreData
 import UIKit
-import MediaPlayer
+import MusicKit
 import OSLog
 
 /**
@@ -249,71 +249,6 @@ class PlaylistManager {
     {
         let (_, _, index) = nowPlaying()
         return index
-    }
-
-    /**
-     Return a media player queue descriptor for a given playlist, with the store IDs laid out in
-     playlist order, the start item set according to that playlist's current playback index and
-     start/end offsets configured for each track.
-
-     - Parameter playlist: Playlist of interest
-     - Returns: Media player queue descriptor, for use with e.g. "setQueue:with:".
-    */
-    func getQueueDescriptorFor(playlist: Playlist) -> MPMusicPlayerStoreQueueDescriptor
-    {
-        let descriptor = MPMusicPlayerStoreQueueDescriptor(storeIDs: playlist.storeIDs)
-        let tracklist  = staticTracklistManager.getTracklistBy(tracklistID: playlist.id!)
-
-        for storeID in playlist.storeIDs
-        {
-            let track = tracklist.getTrackBy(storeID: storeID)
-
-            if track.startOffset != 0
-            {
-                descriptor.setStartTime(track.startOffset, forItemWithStoreID: storeID)
-            }
-
-            if track.endOffset != nil
-            {
-                descriptor.setEndTime(track.endOffset!, forItemWithStoreID: storeID)
-            }
-        }
-
-        descriptor.startItemID = getTrackByIndex(
-            playlist: playlist,
-            index:    getCurrentPlaybackIndexFor(playlist: playlist)
-        ).storeID
-
-        return descriptor
-    }
-
-    /**
-     Return a media player queue descriptor for a given Ttrack, with start/end offsets configured. The queue
-     will be set up to include just the given Track and no others.
-
-     - Parameter track: Track of interest
-     - Returns: Media player queue descriptor, for use with e.g. "setQueue:with:".
-     */
-    func getQueueDescriptorFor(track: Track) -> MPMusicPlayerStoreQueueDescriptor
-    {
-        let descriptor = MPMusicPlayerStoreQueueDescriptor(storeIDs: [track.storeID])
-
-        if track.startOffset != 0
-        {
-            descriptor.setStartTime(track.startOffset, forItemWithStoreID: track.storeID)
-        }
-
-        // MusicPlaybackManager now does this manually via timers. The Apple
-        // Music API is simply far too horribly broken to rely on the below.
-        //
-        //        if track.endOffset != nil
-        //        {
-        //            descriptor.setEndTime(track.endOffset!, forItemWithStoreID: track.storeID)
-        //        }
-
-        descriptor.startItemID = track.storeID
-
-        return descriptor
     }
 
     // MARK: - GENERAL INTERFACE

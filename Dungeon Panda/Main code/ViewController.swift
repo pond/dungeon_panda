@@ -6,8 +6,8 @@
 //
 
 import UIKit
-import StoreKit
 import MediaPlayer
+import MusicKit
 import OSLog
 
 class ViewController: UIViewController, MusicPlaybackManagerDelegate {
@@ -19,7 +19,6 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
     @IBOutlet weak var albumArtImageView: UIImageView!
 
     let logger      = Logger()
-    let appleMusic  = AppleMusicAPI()
     let appDelegate = UIApplication.shared.delegate as! AppDelegate
 
     var volumeView: MPVolumeView?
@@ -39,10 +38,12 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
         // some distance vertically above the requested region, actually
         // spilling out if its container. Sigh.
         //
-        let bounds = CGRect(x: 0,
-                            y: 7,
-                            width: self.volumeParentView.bounds.width,
-                            height: self.volumeParentView.bounds.height)
+        let bounds = CGRect(
+            x: 0,
+            y: 7,
+            width: self.volumeParentView.bounds.width,
+            height: self.volumeParentView.bounds.height
+        )
 
         self.volumeView = MPVolumeView(frame: bounds)
         self.volumeParentView.addSubview(self.volumeView!)
@@ -67,7 +68,14 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
         //
         if self.appDelegate.musicAuthorizationStatus == nil
         {
-            self.appDelegate.musicAuthorizationStatus = SKCloudServiceController.authorizationStatus()
+            self.appDelegate.musicAuthorizationStatus = MusicAuthorization.currentStatus
+            
+            if self.appDelegate.musicAuthorizationStatus == .notDetermined
+            {
+                Task {
+                    self.appDelegate.musicAuthorizationStatus = await MusicAuthorization.request()
+                }
+            }
 
             switch self.appDelegate.musicAuthorizationStatus
             {
@@ -80,8 +88,7 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
                     musicAuthorizationIsDenied()
 
                 default:
-                    logger.notice("ViewController.viewDidLoad: Requesting access to Apple Music")
-                    getMusicAuthorizationFromUser()
+                    logger.notice("ViewController.viewDidLoad: Unrecognised response! Assuming authorised...")
             }
         }
         else
@@ -127,10 +134,10 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
         }
 
         let hiddenSystemVolumeSlider = self.volumeView!.subviews.first(where: { $0 is UISlider }) as? UISlider
-        // iOS 14, 15: let hiddenSystemVolumeSlider = self.volumeView!.subviews.first(where: { $0 is UISlider }) as? UISlider
         logger.notice("Volume slider is \(String(describing: hiddenSystemVolumeSlider))")
 
         self.appDelegate.musicPlaybackManager!.setHiddenSystemVolumeSlider(hiddenSystemVolumeSlider)
+        self.appDelegate.musicPlaybackManager!.deduceApproximateSystemVolumeFromSliderIgnoringZero()
     }
 
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator)
@@ -251,7 +258,17 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
 
     func playbackStarted(playbackManager: MusicPlaybackManager, inPlaylist: Playlist, withTrack: Track)
     {
-        let labelText = attributedLabelText(playlistName: inPlaylist.displayName, trackTitle: withTrack.displayName)
+        var playlistName      = inPlaylist.displayName ?? ""
+        let droppablePrefixes = ["Any - ", "Valhalla "]
+
+        for droppablePrefix in droppablePrefixes
+        {
+            if playlistName.hasPrefix(droppablePrefix) {
+                playlistName = String(playlistName.dropFirst(droppablePrefix.count))
+            }
+        }
+
+        let labelText = attributedLabelText(playlistName: playlistName, trackTitle: withTrack.displayName)
 
         self.playlistAndTrackName.attributedText = labelText
         self.playPosition.text = "⏳"
@@ -324,34 +341,47 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
 
     func playbackPaused(playbackManager: MusicPlaybackManager)
     {
-//         self.dumpPlaylists()
     }
 
     func playbackResumed(playbackManager: MusicPlaybackManager)
     {
     }
 
-    func playbackArtworkWasDetermined(artwork: MPMediaItemArtwork)
+    func playbackArtworkWasDetermined(artwork: MusicKit.Artwork)
     {
         let rect       = UIScreen.main.bounds
         let longest    = max(rect.width, rect.height)
         let size       = CGSize(width: longest, height: longest)
-        var imageToUse = artwork.image(at: size)
+        let urlToUse   = artwork.url(width: Int(longest), height: Int(longest))
 
-        if imageToUse == nil && artwork.bounds.width > 0
+        if urlToUse != nil
         {
-            imageToUse = artwork.image(at: CGSize(width: artwork.bounds.width, height: artwork.bounds.height))
-        }
+            Task
+            {
+                do
+                {
+                    let (data, _) = try await URLSession.shared.data(from: urlToUse!)
+                    let imageToUse = UIImage(data: data)
 
-        self.currentArtworkImage = imageToUse
-        updateArtworkToCurrent(usingSize: size)
+                    if imageToUse != nil
+                    {
+                        DispatchQueue.main.async
+                        {
+                            self.currentArtworkImage = imageToUse
+                            self.updateArtworkToCurrent(usingSize: size)
+                        }
+                    }
+                }
+                catch {}
+            }
+        }
     }
 
     func playbackArtworkWillBeInvalid()
     {
-        // Right now this is ignored, as the animation effect isn't great and a
-        // cross-fade between different album artwork is nice. Kept around "
-        // just in case".
+        // Right now this is ignored, as the animation effect isn't great and
+        // a cross-fade between different album artwork is nice. Kept around
+        // "just in case".
         //
         // let rect    = UIScreen.main.bounds
         // let longest = max(rect.width, rect.height)
@@ -669,35 +699,7 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
         let minutesDisplay   = minutes > 0 ? "\(minutes)m " : ""
         let secondsDisplay   = minutes > 0 && seconds < 10 ? "0\(seconds)s"  : "\(seconds)s"
 
-        self.playPosition.text = "-\(minutesDisplay)\(secondsDisplay)"
-    }
-
-    private func getMusicAuthorizationFromUser()
-    {
-        SKCloudServiceController.requestAuthorization { (status) in
-            if status == .authorized || status == .restricted
-            {
-                self.logger.notice("getMusicAuthorizationFromUser: User authorized access to Apple Music")
-
-                AppleMusicAPI().getUserToken(
-                    completionHandler: { result in
-                        switch result {
-                            case .failure(let error):
-                                self.logger.critical("getMusicAuthorizationFromUser: ERROR - User token failure - \(String(describing: error))")
-                                UnfixableError().display(message: error.localizedDescription, using: self)
-
-                            case .success(let userToken):
-                                self.logger.notice("getMusicAuthorizationFromUser: User token \(userToken) retrieved; starting playback")
-                                self.musicAuthorizationIsGranted()
-                        }
-                    }
-                )
-            }
-            else
-            {
-                self.musicAuthorizationIsDenied()
-            }
-        }
+        self.playPosition.text = "\(minutesDisplay)\(secondsDisplay)"
     }
 
     private func musicAuthorizationIsGranted()
@@ -735,80 +737,5 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
         labelText.append(trackText)
 
         return labelText
-    }
-
-    private func searchFor(searchTerm: String)
-    {
-        self.appleMusic.searchAppleMusicWith(
-            searchTerm: searchTerm,
-            completionHandler: { result in
-                switch result {
-                case .failure(let error):
-                    print("Failed:")
-                    print(error)
-                case .success(let songs):
-                    print("Success:")
-                    for song in songs {
-                        print(song)
-                    }
-                }
-            }
-        )
-    }
-
-    private func dumpPlaylists()
-    {
-        SKCloudServiceController.requestAuthorization { (status) in
-            if status == .authorized {
-                self.appleMusic.getAllLibraryPlaylists(
-                    completionHandler: { result in
-                        switch result {
-                        case .failure(let error):
-                            print("Failed:")
-                            print(error)
-
-                        case .success(let playlists):
-                            print("")
-                            print("Success:")
-
-                            let semaphore = DispatchSemaphore(value: 1)
-
-                            DispatchQueue.global().async
-                            {
-                                for playlist in playlists {
-                                    print(playlist)
-                                    if playlist.name.starts(with: "D&D") {
-                                        semaphore.wait()
-                                        print("")
-                                        print(String(repeating: "*", count: 80))
-                                        print(playlist.name)
-                                        print(String(repeating: "*", count: 80))
-                                        print("")
-                                        self.appleMusic.getLibraryPlaylistSongs(
-                                            playlistID: playlist.id,
-                                            catalogueOnly: false,
-                                            completionHandler: { result in
-                                                switch result {
-                                                case .failure(let error):
-                                                    print("Failed:")
-                                                    print(error)
-                                                case .success(let songs):
-                                                    print("Success:")
-                                                    for song in songs {
-                                                        print(song)
-                                                    }
-                                                }
-
-                                                semaphore.signal()
-                                            }
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
-                )
-            }
-        }
     }
 }

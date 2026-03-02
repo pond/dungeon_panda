@@ -15,7 +15,6 @@
 		2339711025FD6BC300ACFCF7 /* Dungeon_Panda.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 2339710E25FD6BC300ACFCF7 /* Dungeon_Panda.xcdatamodeld */; };
 		2339711225FD6BC500ACFCF7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2339711125FD6BC500ACFCF7 /* Assets.xcassets */; };
 		2339711525FD6BC500ACFCF7 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2339711325FD6BC500ACFCF7 /* LaunchScreen.storyboard */; };
-		2339712225FD7A3B00ACFCF7 /* AppleMusicAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2339712125FD7A3B00ACFCF7 /* AppleMusicAPI.swift */; };
 		2339712525FD7A6000ACFCF7 /* Song.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2339712425FD7A6000ACFCF7 /* Song.swift */; };
 		2339712925FDF1F700ACFCF7 /* LibraryPlaylist.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2339712825FDF1F700ACFCF7 /* LibraryPlaylist.swift */; };
 		237B42F625FEA100000D5666 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 237B42F425FEA100000D5666 /* README.md */; };
@@ -32,7 +31,6 @@
 		239D099526102B1200808088 /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 239D099426102B1200808088 /* CloudKit.framework */; };
 		23D2E2232A820A64004D4CB6 /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 23D2E2222A820A64004D4CB6 /* Settings.bundle */; };
 		23DE6594263E6E8800C5A924 /* TitleFittingButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23DE6593263E6E8700C5A924 /* TitleFittingButton.swift */; };
-		62F3D4C17B2B4A841AEF4622 /* Pods_Dungeon_Panda.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B0A292A1198AB60CEC19805 /* Pods_Dungeon_Panda.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -45,7 +43,6 @@
 		2339710F25FD6BC300ACFCF7 /* Dungeon_Panda.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Dungeon_Panda.xcdatamodel; sourceTree = "<group>"; };
 		2339711125FD6BC500ACFCF7 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		2339711425FD6BC500ACFCF7 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
-		2339712125FD7A3B00ACFCF7 /* AppleMusicAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleMusicAPI.swift; sourceTree = "<group>"; };
 		2339712425FD7A6000ACFCF7 /* Song.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Song.swift; sourceTree = "<group>"; };
 		2339712825FDF1F700ACFCF7 /* LibraryPlaylist.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryPlaylist.swift; sourceTree = "<group>"; };
 		237B42F425FEA100000D5666 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = SOURCE_ROOT; };
@@ -65,9 +62,6 @@
 		239D099426102B1200808088 /* CloudKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CloudKit.framework; path = System/Library/Frameworks/CloudKit.framework; sourceTree = SDKROOT; };
 		23D2E2222A820A64004D4CB6 /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
 		23DE6593263E6E8700C5A924 /* TitleFittingButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TitleFittingButton.swift; sourceTree = "<group>"; };
-		3B0A292A1198AB60CEC19805 /* Pods_Dungeon_Panda.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Dungeon_Panda.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		67F6BEBF98F9A06DAEC68E47 /* Pods-Dungeon Panda.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Dungeon Panda.release.xcconfig"; path = "Target Support Files/Pods-Dungeon Panda/Pods-Dungeon Panda.release.xcconfig"; sourceTree = "<group>"; };
-		BF3CDA325AFA8CEA7F327259 /* Pods-Dungeon Panda.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Dungeon Panda.debug.xcconfig"; path = "Target Support Files/Pods-Dungeon Panda/Pods-Dungeon Panda.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -75,7 +69,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				62F3D4C17B2B4A841AEF4622 /* Pods_Dungeon_Panda.framework in Frameworks */,
 				239D099526102B1200808088 /* CloudKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -88,7 +81,6 @@
 			children = (
 				237B430C25FF3B13000D5666 /* Dungeon Panda */,
 				2339710325FD6BC300ACFCF7 /* Products */,
-				60B8E497AFA0FAE0047C310A /* Pods */,
 				7BDEC6E4220C762C973AECBE /* Frameworks */,
 			);
 			sourceTree = "<group>";
@@ -151,7 +143,6 @@
 		237B42F325FEA0DD000D5666 /* Support code */ = {
 			isa = PBXGroup;
 			children = (
-				2339712125FD7A3B00ACFCF7 /* AppleMusicAPI.swift */,
 				23854C5E2607064500909DB1 /* MusicPlaybackManager.swift */,
 				23854C6A26087FE900909DB1 /* StaticTracklistManager.swift */,
 				23854C6D26087FF400909DB1 /* PlaylistManager.swift */,
@@ -175,20 +166,10 @@
 			path = "Dungeon Panda";
 			sourceTree = "<group>";
 		};
-		60B8E497AFA0FAE0047C310A /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-				BF3CDA325AFA8CEA7F327259 /* Pods-Dungeon Panda.debug.xcconfig */,
-				67F6BEBF98F9A06DAEC68E47 /* Pods-Dungeon Panda.release.xcconfig */,
-			);
-			path = Pods;
-			sourceTree = "<group>";
-		};
 		7BDEC6E4220C762C973AECBE /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
 				239D099426102B1200808088 /* CloudKit.framework */,
-				3B0A292A1198AB60CEC19805 /* Pods_Dungeon_Panda.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -200,11 +181,9 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 2339711925FD6BC500ACFCF7 /* Build configuration list for PBXNativeTarget "Dungeon Panda" */;
 			buildPhases = (
-				187BEDFA86EA54C189089577 /* [CP] Check Pods Manifest.lock */,
 				233970FE25FD6BC300ACFCF7 /* Sources */,
 				233970FF25FD6BC300ACFCF7 /* Frameworks */,
 				2339710025FD6BC300ACFCF7 /* Resources */,
-				2BD5BFD72D7B55A6D45DF580 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -221,8 +200,9 @@
 		233970FA25FD6BC300ACFCF7 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				BuildIndependentTargetsInParallel = YES;
 				LastSwiftUpdateCheck = 1240;
-				LastUpgradeCheck = 1240;
+				LastUpgradeCheck = 1640;
 				TargetAttributes = {
 					2339710125FD6BC300ACFCF7 = {
 						CreatedOnToolsVersion = 12.4;
@@ -265,59 +245,12 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
-/* Begin PBXShellScriptBuildPhase section */
-		187BEDFA86EA54C189089577 /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-Dungeon Panda-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-		2BD5BFD72D7B55A6D45DF580 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Dungeon Panda/Pods-Dungeon Panda-frameworks-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			inputPaths = (
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Dungeon Panda/Pods-Dungeon Panda-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Dungeon Panda/Pods-Dungeon Panda-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-/* End PBXShellScriptBuildPhase section */
-
 /* Begin PBXSourcesBuildPhase section */
 		233970FE25FD6BC300ACFCF7 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 				2339712525FD7A6000ACFCF7 /* Song.swift in Sources */,
-				2339712225FD7A3B00ACFCF7 /* AppleMusicAPI.swift in Sources */,
 				23854C6B26087FE900909DB1 /* StaticTracklistManager.swift in Sources */,
 				2339710A25FD6BC300ACFCF7 /* ViewController.swift in Sources */,
 				238493B8260324A6005DA4D7 /* Track.swift in Sources */,
@@ -400,8 +333,10 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = XT4V976D8Y;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -461,8 +396,10 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = XT4V976D8Y;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -483,14 +420,12 @@
 		};
 		2339711A25FD6BC500ACFCF7 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = BF3CDA325AFA8CEA7F327259 /* Pods-Dungeon Panda.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "Dungeon Panda/Dungeon Panda.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = XT4V976D8Y;
 				INFOPLIST_FILE = "Dungeon Panda/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -500,6 +435,9 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "uk.org.pond.Dungeon-Panda";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = YES;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -507,14 +445,12 @@
 		};
 		2339711B25FD6BC500ACFCF7 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 67F6BEBF98F9A06DAEC68E47 /* Pods-Dungeon Panda.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "Dungeon Panda/Dungeon Panda.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = XT4V976D8Y;
 				INFOPLIST_FILE = "Dungeon Panda/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -524,6 +460,9 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "uk.org.pond.Dungeon-Panda";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = YES;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};

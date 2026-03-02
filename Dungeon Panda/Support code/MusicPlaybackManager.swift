@@ -6,9 +6,11 @@
 //
 
 import Foundation
-import UIKit
+import AVFoundation
 import CoreData
-import MediaPlayer
+import UIKit
+import MusicKit
+import Combine
 import OSLog
 
 protocol MusicPlaybackManagerDelegate
@@ -41,10 +43,10 @@ protocol MusicPlaybackManagerDelegate
         playbackManager: MusicPlaybackManager
     )
 
-    /// The artwork for the currently playing item has been determined (FSVO "determined", given lots
-    /// of bugs in the MediaPlayer API when it comes to providing non-`nil`, but still missing artwork).
+    /// The artwork for the currently playing item has been determined. WARNING: This may
+    /// be called from a non-main thread.
     func playbackArtworkWasDetermined(
-        artwork: MPMediaItemArtwork
+        artwork: MusicKit.Artwork
     )
 
     /// The current media item is expected to change very soon, invalidating any artwork that may be
@@ -57,7 +59,7 @@ class MusicPlaybackManager : NSObject
     public var delegates: [MusicPlaybackManagerDelegate] = []
 
     let appDelegate = UIApplication.shared.delegate as! AppDelegate
-    let mediaPlayer = MPMusicPlayerApplicationController.applicationQueuePlayer
+    let musicPlayer = ApplicationMusicPlayer.shared
     let logger = Logger()
 
     /// Various timers, accessed by internally defined private timer name.
@@ -88,9 +90,12 @@ class MusicPlaybackManager : NSObject
 
     /// See `watchdogTimerWaitTime` for details; this time is used when the application
     /// is not active.
-    ///
     let watchdogTimerInactiveWaitTime = 4.0
-    
+
+    /// Avoid flooding logs with timer position updates by only updating every "n" seconds.
+    var timerUpdateLogOutputCounter = 0
+    let timerUpdateLogOutputEvery = 20
+
     /// A hidden volume slider given to us by the main view when it loads. This is
     /// an horrific hack arising from the bewildering lack of any way to simply set
     /// the playback volume for a MusicKit player.
@@ -102,6 +107,10 @@ class MusicPlaybackManager : NSObject
 
     /// The PlaylistManager used for all playlist operations; set via `init`.
     var playlistManager: PlaylistManager
+    
+    /// This is set to `false` as soon as any track begins to play. It's used to figure out if we should
+    /// consider the current volume reference and then apply ReplayGain, or not.
+    var firstTimePlaybackDidHappen = false;
 
     /// Time when playback was most recently started for a new track.
     var mostRecentPlaybackStartTimeInSeconds: TimeInterval?
@@ -111,15 +120,6 @@ class MusicPlaybackManager : NSObject
     /// their mind, these might change a few times before finally becoming
     /// set as Current.
     var targetPlaylist: Playlist?
-
-    /// Avoid flooding logs with timer position updates by only updating every "n" seconds.
-    var timerUpdateLogOutputCounter = 0
-    let timerUpdateLogOutputEvery = 20
-    
-    /// A recent self-initiated volume change has happened. Ignore spurious system events
-    /// about this change; they are not user-initiated, probably! Set with a timer just before
-    /// each change is made, then cleared by that timer a short time after.
-    var ignoreVolumeNotificationsForAWhileBecauseIChangedIt = false
     
     /// Marks that a track fade-in operation is underway and volume change events should
     /// be ignored, since we're probably the source of them.
@@ -136,43 +136,43 @@ class MusicPlaybackManager : NSObject
     /// Marks that fade-in should run once actual playback starts on the next track.
     var fadeInOnNextPlaybackStartedEvent: Bool = false
 
-    /// Solve multiple repeated "state did change" notifications when the state did not actually change.
-    /// "Not playing" means paused, stopped, interrupted or seeking.
-    var currentlyPlaying = false
+    /// A recent self-initiated volume change has happened. Ignore spurious system events
+    /// about this change; they are not user-initiated, probably! Set with a timer just before
+    /// each change is made, then cleared by that timer a short time after.
+    var ignoreVolumeNotificationsForAWhileBecauseIChangedIt = false
 
     /// Solve multiple repeated "state did change" notifications when the state did not actually change.
     /// Seeking happens applies to movements forwards or backwards.
     var currentlySeeking = false
-    
-    /// This is set to `false` as soon as any track begins to play. It's used to figure out if we should
-    /// consider the current volume reference and then apply ReplayGain, or not.
-    var firstTimePlaybackDidHappen = false;
+
+    /// Solve multiple repeated "state did change" notifications when the state did not actually change.
+    /// "Not playing" means paused, stopped, interrupted or seeking.
+    var currentlyPlaying = false
+
+    /// It's hard in MusicKit to know the current item's duration (!) so it must be fetched and stored up
+    /// front. Likewise, artwork (which must be fetched separately via URL, sigh).
+    var currentItemDuration: TimeInterval = 0.0
+    var currentItemArtwork: MusicKit.Artwork?
+
+    private var musicPlayerStateObservationCancellable: AnyCancellable?
 
     init(playlistManager: PlaylistManager)
     {
-        self.playlistManager         = playlistManager
-        self.mediaPlayer.repeatMode  = .none
-        self.mediaPlayer.shuffleMode = .off
-
+        self.playlistManager = playlistManager
         super.init()
 
-        NotificationCenter.default.addObserver(
-                self,
-            selector: #selector(playbackStateDidChange),
-                name: .MPMusicPlayerControllerPlaybackStateDidChange,
-              object: nil
-        )
-
-        // Currently not needed:
+        // Subscribe to state updates from the music player instance.
         //
-        // NotificationCenter.default.addObserver(
-        //         self,
-        //     selector: #selector(nowPlayingItemDidChange),
-        //         name: .MPMusicPlayerControllerNowPlayingItemDidChange,
-        //       object: nil
-        // )
+        musicPlayerStateObservationCancellable = self.musicPlayer
+            .state
+            .objectWillChange
+            .receive(on: DispatchQueue.main)
+            .sink { _ in self.playbackStateDidChange() }
+    }
 
-        self.mediaPlayer.beginGeneratingPlaybackNotifications()
+    deinit
+    {
+        musicPlayerStateObservationCancellable?.cancel()
     }
 
     // MARK: - PUBLIC: Playback control
@@ -226,7 +226,7 @@ class MusicPlaybackManager : NSObject
         // soon, system volume is not readable from the UI volume control
         // even when we work off view-did-appear in the view layer.
         //
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.75)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.00)
         {
             // Track alterations in system volume by the user so that fade in/out
             // etc. can all work relative to this user-chosen baseline.
@@ -299,7 +299,7 @@ class MusicPlaybackManager : NSObject
             relativePosition = 0.1
         }
 
-        self.mediaPlayer.currentPlaybackTime = relativePosition
+        self.musicPlayer.playbackTime = relativePosition
 
         if self.referenceSystemVolume != nil
         {
@@ -314,12 +314,15 @@ class MusicPlaybackManager : NSObject
 
     func pause()
     {
-        self.mediaPlayer.pause()
+        self.musicPlayer.pause()
     }
 
     func resume()
     {
-        self.mediaPlayer.play()
+        Task
+        {
+            try await self.musicPlayer.play()
+        }
     }
 
     // MARK: - PUBLIC: VOLUME
@@ -370,10 +373,8 @@ class MusicPlaybackManager : NSObject
         if self.ignoreVolumeNotificationsForAWhileBecauseIChangedIt == true
         {
             logger.debug("systemVolumeDidChange: Called - IGNORING - within the 'I did it' window")
-            return // NOTE EARLY EXIT
         }
-        
-        if self.fadeInIsUnderway == false && self.fadeOutIsUnderway == false && self.trackChangeIsUnderway == false
+        else if self.fadeInIsUnderway == false && self.fadeOutIsUnderway == false && self.trackChangeIsUnderway == false
         {
             logger.debug("systemVolumeDidChange: Called - looks like a user-initiated change; processing")
 
@@ -385,6 +386,23 @@ class MusicPlaybackManager : NSObject
         else
         {
             logger.debug("systemVolumeDidChange: Called - looks like a self-initiated change; ignoring")
+        }
+    }
+
+    /**
+     Called internally, including from ViewController, to either get a good-enough approximation of
+     current system volume (*with* a possible ReplayGain factor applied) based on the UI slider
+     position, rather than needing a notification. This is mostly for Mac Catalyst, where system volume
+     notifications don't work. Will do nothing unless volume slider is known and value is non-zero.
+     */
+    func deduceApproximateSystemVolumeFromSliderIgnoringZero()
+    {
+        if self.hiddenSystemVolumeSlider != nil
+        {
+            let scaledSystemVolume = Double(self.hiddenSystemVolumeSlider!.value)
+            if scaledSystemVolume > 0 {
+                self.referenceSystemVolume = scaledSystemVolume / self.currentVolumeScaleFactor(logOutcome: false)
+            }
         }
     }
 
@@ -405,7 +423,11 @@ class MusicPlaybackManager : NSObject
             // but then the application is quit and restarted. Now that reduced
             // volume is considered startup reference. We must account for it.
             //
-            if self.firstTimePlaybackDidHappen == true
+            // That said, if fading in, a reference volume exists and we're
+            // being asked to set to zero, this is a fade-in track playing as
+            // the very first track after startup; we *should* set to zero.
+            //
+            if self.firstTimePlaybackDidHappen == true || (self.fadeInIsUnderway == true && self.referenceSystemVolume != nil && volume == 0.0)
             {
                 self.ignoreVolumeNotificationsForAWhileBecauseIChangedIt = true
                 self.timerIgnoreVolumeChangeNotificationsStart()
@@ -448,7 +470,7 @@ class MusicPlaybackManager : NSObject
      Return the current volume scale factor as Double less than or equal to 1, accounting for current
      tracklist and track relative volume percentages.
     */
-    func currentVolumeScaleFactor() -> Double
+    func currentVolumeScaleFactor(logOutcome: Bool = true) -> Double
     {
         let userDefaults = UserDefaults.standard
         let obeyVolume   = userDefaults.bool(forKey: "obey_track_volume")
@@ -458,11 +480,15 @@ class MusicPlaybackManager : NSObject
             let tracklist            = self.playlistManager.getTracklistForPlaylist(playlist)
             let scale                = (Double(tracklist.volumePercent) / 100.0) * (Double(track.volumePercent) / 100.0)
 
-            logger.debug("currentVolumeScaleFactor: Track gain found; returning \(scale)")
+            if logOutcome {
+                logger.debug("currentVolumeScaleFactor: Track gain found; returning \(scale)")
+            }
             return scale
         }
         else {
-            logger.debug("currentVolumeScaleFactor: Ignoring track gain; returning 1.0")
+            if logOutcome {
+                logger.debug("currentVolumeScaleFactor: Ignoring track gain; returning 1.0")
+            }
             return Double(1.0)
         }
     }
@@ -501,15 +527,16 @@ class MusicPlaybackManager : NSObject
             logger.info("startPlayback: Fade in is NOT required")
 
             self.fadeInIsUnderway = false
-            
+
             self.setVolume(volume: self.referenceSystemVolume)
             self.fadeInOnNextPlaybackStartedEvent = false
         }
         
-        self.mediaPlayer.stop()
+        self.musicPlayer.stop()
 
-        // Repeat registration of
-        
+        // Repeat registration of volume observer, mostly out of paranoia but
+        // it *might* get dropped by stopping the media player.
+        //
         if self.appDelegate.useSystemVolumeNotificationsInsteadOfKvo == false
         {
             self.ensureVolumeObserverIsPresent()
@@ -530,43 +557,66 @@ class MusicPlaybackManager : NSObject
             }
         }
 
+        self.currentItemDuration = 0
         self.currentlyPlaying = false
         self.currentlySeeking = false
         self.mostRecentPlaybackStartTimeInSeconds = Date().timeIntervalSince1970
 
         self.timerPositionUpdatesStart()
 
-        // https://stackoverflow.com/a/66472117
+        // ...and to mix in SFX - "var player: AVAudioPlayer?" somewhere,
+        // then...
         //
-        DispatchQueue(label: "uk.org.pond.DungeonPanda.playqueue").async
+        // let audioSession = AVAudioSession.sharedInstance()
+        // try! audioSession.setCategory(
+        //     .playback,
+        //     mode: .default,
+        //     options: AVAudioSession.CategoryOptions.mixWithOthers
+        // )
+        //
+        // try! audioSession.setActive(true)
+        //
+        // let resourcePath = Bundle.main.resourcePath
+        // let itemName     = "rain.mp3"
+        // let path         = resourcePath! + "/" + itemName
+        //
+        // self.player = try! AVAudioPlayer(contentsOf: URL(fileURLWithPath: path))
+        // self.player?.prepareToPlay()
+        // self.player?.rate = 1.0
+        // self.player?.volume = 0.3
+        // self.player?.numberOfLoops = -1 // Loop continuously
+        // self.player?.play()
+
+        Task
         {
-            // ...and to mix in SFX - "var player: AVAudioPlayer?" somewhere,
-            // then...
-            //
-            // let audioSession = AVAudioSession.sharedInstance()
-            // try! audioSession.setCategory(
-            //     .playback,
-            //     mode: .default,
-            //     options: AVAudioSession.CategoryOptions.mixWithOthers
-            // )
-            //
-            // try! audioSession.setActive(true)
-            //
-            // let resourcePath = Bundle.main.resourcePath
-            // let itemName     = "rain.mp3"
-            // let path         = resourcePath! + "/" + itemName
-            //
-            // self.player = try! AVAudioPlayer(contentsOf: URL(fileURLWithPath: path))
-            // self.player?.prepareToPlay()
-            // self.player?.rate = 1.0
-            // self.player?.volume = 0.3
-            // self.player?.numberOfLoops = -1 // Loop continuously
-            // self.player?.play()
+            let songId       = MusicItemID(rawValue: track.storeID)
+            let songRequest  = MusicCatalogResourceRequest<MusicKit.Song>(matching: \.id, equalTo: songId)
+            let songResponse = try await songRequest.response()
 
-            let descriptor = self.playlistManager.getQueueDescriptorFor(track: track)
+            guard let song = songResponse.items.first else {
+                logger.warning("startPlayback: Cannot find song with Store ID \(track.storeID)")
+                self.startPlayingNextTrackNow()
+                return
+            }
 
-            self.mediaPlayer.setQueue(with: descriptor)
-            self.mediaPlayer.play()
+            self.currentItemDuration = song.duration ?? 0.0
+            self.currentItemArtwork  = song.artwork
+            self.musicPlayer.queue   = [song]
+
+            try await self.musicPlayer.prepareToPlay()
+
+            self.delegates.forEach
+            {
+                (delegate) in
+                if self.currentItemArtwork != nil
+                {
+                    delegate.playbackArtworkWasDetermined(artwork: self.currentItemArtwork!)
+                }
+            }
+
+            try await self.musicPlayer.play()
+
+            self.musicPlayer.playbackTime = track.startOffset
         }
     }
 
@@ -577,22 +627,14 @@ class MusicPlaybackManager : NSObject
     private func getRemainingDuration() -> Double?
     {
         let playingTrack        = self.playlistManager.getPlayingTrack()
-        let currentItemDuration = self.mediaPlayer.nowPlayingItem?.playbackDuration
-        let currentItemPosition = self.mediaPlayer.currentPlaybackTime
-        let trackEndOffset      = playingTrack.endOffset ?? currentItemDuration
+        let currentItemPosition = self.musicPlayer.playbackTime
+        let trackEndOffset      = playingTrack.endOffset ?? self.currentItemDuration
 
-        // The "< 5" is really to try and catch yet more bugs in the Apple Music
-        // API where it fails to report the duration on some tracks for a while,
-        // where "a while" is "who knows how long, it's a buggy mess". The value
-        // returned might be zero or just low - no way to know, since this is
-        // all buggy undefined behaviour - so just take any small value to mean
-        // that Apple Music messed up again => we don't know the duration.
+        // The "< 5" is only there to try and catch bugs in the Apple Music API
+        // where a duration is missing or appears to be wrong. Assume anything
+        // below 5 seconds must mean "don't know".
         //
-        let remainingItemDuration = currentItemDuration == nil || trackEndOffset == nil || currentItemDuration! < 5 ?
-                                    nil :
-                                    trackEndOffset! - currentItemPosition
-
-        return remainingItemDuration
+        return self.currentItemDuration < 5 ? nil : trackEndOffset - currentItemPosition
     }
 
     /**
@@ -638,7 +680,7 @@ class MusicPlaybackManager : NSObject
 
         var effectiveFadeOutDuration = 0.0
 
-        if (forceImmediate == false && self.mediaPlayer.playbackState == .playing)
+        if (forceImmediate == false && self.musicPlayer.state.playbackStatus == .playing)
         {
             let safetyMargin          = 0.5
             let remainingItemDuration = getRemainingDuration()
@@ -665,8 +707,7 @@ class MusicPlaybackManager : NSObject
     }
 
     /**
-     Immediately moves to the next song in this, or a new target playlist according to the
-     `targetPlaylist` optional instance variable. No fade-out is performed.
+     Immediately moves to the next song in the current playlist. No fade-out is performed.
     */
     private func startPlayingNextTrackNow()
     {
@@ -703,25 +744,11 @@ class MusicPlaybackManager : NSObject
 
     // MARK: - PRIVATE: Playback state change handlers
 
-    @objc private func playbackStateDidChange()
+    private func playbackStateDidChange()
     {
-        let newState   = self.mediaPlayer.playbackState
-        let stateNames = [
-           "stopped",
-           "playing",
-           "paused",
-           "interrupted",
-           "seekingForward",
-           "seekingBackward",
-        ]
+        let newState = self.musicPlayer.state.playbackStatus
 
-        // Done because String(describing: ...) or "\(...)" for newState does
-        // NOT give the enum value's name; it always just prints the type name
-        // instead ("MPMusicPlaybackState"), which is extremely unhelpful.
-        //
-        let stateName = stateNames[newState.rawValue]
-
-        logger.notice("playbackStateDidChange: Called, state \(newState.rawValue) - \(stateName), playhead \(String(describing: self.mediaPlayer.currentPlaybackTime)), duration \(String(describing: self.mediaPlayer.nowPlayingItem?.playbackDuration))")
+        logger.notice("playbackStateDidChange: Called, state \(String(describing: newState)), playhead \(String(describing: self.musicPlayer.playbackTime)), duration \(String(describing: self.currentItemDuration))")
 
         switch newState
         {
@@ -757,10 +784,10 @@ class MusicPlaybackManager : NSObject
                     // room is needed at the start, too.
                     //
                     if (
-                        self.mediaPlayer.nowPlayingItem == nil ||
+                        self.musicPlayer.queue.currentEntry == nil ||
                         (
-                            self.mediaPlayer.currentPlaybackTime <= self.mediaPlayer.nowPlayingItem!.playbackDuration - 1.5 &&
-                            self.mediaPlayer.currentPlaybackTime >= 1.5
+                            self.musicPlayer.playbackTime <= self.currentItemDuration - 1.5 &&
+                            self.musicPlayer.playbackTime >= 1.5
                         )
                     )
                     {
@@ -882,15 +909,10 @@ class MusicPlaybackManager : NSObject
             self.setVolume(volume: self.referenceSystemVolume)
         }
 
-        let artwork = self.mediaPlayer.nowPlayingItem?.artwork
-
-        self.delegates.forEach{ (delegate) in
+        self.delegates.forEach
+        {
+            (delegate) in
             delegate.playbackResumed(playbackManager: self)
-
-            if artwork != nil
-            {
-                delegate.playbackArtworkWasDetermined(artwork: artwork!)
-            }
         }
 
         self.firstTimePlaybackDidHappen = true;
@@ -1065,7 +1087,7 @@ class MusicPlaybackManager : NSObject
         
         if timerUpdateLogOutputCounter % timerUpdateLogOutputEvery == 1
         {
-            logger.debug("timerPositionUpdatesFired: Called - most recent start time \(String(describing: self.mostRecentPlaybackStartTimeInSeconds)), playhead \(String(describing: self.mediaPlayer.currentPlaybackTime)), duration \(String(describing: self.mediaPlayer.nowPlayingItem?.playbackDuration))")
+            logger.debug("timerPositionUpdatesFired: Called - most recent start time \(String(describing: self.mostRecentPlaybackStartTimeInSeconds)), playhead \(String(describing: self.musicPlayer.playbackTime)), duration \(String(describing: self.currentItemDuration))")
         }
 
         let appropriateWatchdogTime: Double;
@@ -1084,7 +1106,7 @@ class MusicPlaybackManager : NSObject
 
         // If the media player says it's playing, we can't quite trust it but it's a start...
         //
-        if self.mediaPlayer.playbackState == .playing
+        if self.musicPlayer.state.playbackStatus == .playing
         {
             if timerUpdateLogOutputCounter % timerUpdateLogOutputEvery == 1
             {
@@ -1122,8 +1144,8 @@ class MusicPlaybackManager : NSObject
                         playbackManager: self,
                              inPlaylist: currentPlaylist,
                               withTrack: currentTrack,
-                               position: self.mediaPlayer.currentPlaybackTime,
-                               duration: self.mediaPlayer.nowPlayingItem!.playbackDuration
+                               position: self.musicPlayer.playbackTime,
+                               duration: self.currentItemDuration
                     )
                 }
             }
@@ -1136,6 +1158,14 @@ class MusicPlaybackManager : NSObject
             if timerUpdateLogOutputCounter % timerUpdateLogOutputEvery == 1
             {
                 logger.debug("timerPositionUpdatesFired: Internal playback state is 'playing'")
+            }
+
+            if ProcessInfo.processInfo.isMacCatalystApp
+            {
+                if self.fadeInIsUnderway == false && self.fadeOutIsUnderway == false
+                {
+                    self.deduceApproximateSystemVolumeFromSliderIgnoringZero()
+                }
             }
 
             if self.fadeOutIsUnderway == false
@@ -1169,11 +1199,11 @@ class MusicPlaybackManager : NSObject
                 {
                     if currentTrack.fadeOut
                     {
-                        logger.debug("timerPositionUpdatesFired: Track reached considered-ended time; starting next imminently")
+                        logger.debug("timerPositionUpdatesFired: Track reached fade-out time; starting fade imminently")
                     }
                     else
                     {
-                        logger.debug("timerPositionUpdatesFired: Track reached fade-out time; starting fade imminently")
+                        logger.debug("timerPositionUpdatesFired: Track reached considered-ended time; starting next imminently")
                     }
 
                     self.endTrackAndStartNext()
@@ -1213,8 +1243,8 @@ class MusicPlaybackManager : NSObject
 //        //
 //        else if (
 //            self.mostRecentPlaybackStartTimeInSeconds == nil &&
-//            self.mediaPlayer.currentPlaybackTime <= currentTrack.startOffset &&
-//            self.mediaPlayer.playbackState == .paused
+//            self.musicPlayer.currentPlaybackTime <= currentTrack.startOffset &&
+//            self.musicPlayer.playbackState == .paused
 //        )
 //        {
 //            logger.debug("timerPositionUpdatesFired: Track ended completely; starting next")
@@ -1278,7 +1308,7 @@ class MusicPlaybackManager : NSObject
         logger.debug("timerFadeOutFinished: Called")
 
         self.trackChangeIsUnderway = true
-        self.mediaPlayer.pause()
+        self.musicPlayer.pause()
 
         timerCancel("fade_out")
         timerPostFadeOutDelayStart()
