@@ -8,7 +8,13 @@
 import UIKit
 import MediaPlayer
 import MusicKit
+import CoreAudio
 import OSLog
+
+#if targetEnvironment(macCatalyst)
+    // Hold a weak reference to the active ViewController
+    private weak var macCatalystVolumeCallbackViewController: ViewController?
+#endif
 
 class ViewController: UIViewController, MusicPlaybackManagerDelegate {
     @IBOutlet weak var playButton: UIButton!
@@ -25,6 +31,10 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
     var labelTimer: Timer?
     var ignorePositionUpdates: Bool = false
     var currentArtworkImage: UIImage? = nil
+
+    #if targetEnvironment(macCatalyst)
+        var previousSystemVolume: Float32 = 0
+    #endif
 
     // MARK: - VIEW LIFECYCLE
 
@@ -69,7 +79,7 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
         if self.appDelegate.musicAuthorizationStatus == nil
         {
             self.appDelegate.musicAuthorizationStatus = MusicAuthorization.currentStatus
-            
+
             if self.appDelegate.musicAuthorizationStatus == .notDetermined
             {
                 Task {
@@ -79,16 +89,16 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
 
             switch self.appDelegate.musicAuthorizationStatus
             {
-                case .authorized, .restricted:
-                    logger.notice("ViewController.viewDidLoad: User authorized access to Apple Music")
-                    musicAuthorizationIsGranted()
-                
-                case .denied:
-                    logger.notice("ViewController.viewDidLoad: User prohibited access to Apple Music")
-                    musicAuthorizationIsDenied()
+            case .authorized, .restricted:
+                logger.notice("ViewController.viewDidLoad: User authorized access to Apple Music")
+                musicAuthorizationIsGranted()
 
-                default:
-                    logger.notice("ViewController.viewDidLoad: Unrecognised response! Assuming authorised...")
+            case .denied:
+                logger.notice("ViewController.viewDidLoad: User prohibited access to Apple Music")
+                musicAuthorizationIsDenied()
+
+            default:
+                logger.notice("ViewController.viewDidLoad: Unrecognised response! Assuming authorised...")
             }
         }
         else
@@ -96,7 +106,7 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
             logger.notice("ViewController.viewDidLoad: Apple Music authorization has already been checked")
         }
     }
-    
+
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
@@ -123,14 +133,55 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
         // regardless of whether the user changed volume, things get pretty
         // wild. Switchable behaviour for least-worst option via AppDelegate.
         //
+        // NOTE: On Mac Catalyst, the mechanism is completely different and
+        //       fairly old-fashioned / under-documented, using CoreAudio and
+        //       C-like interfaces.
+        //
         if self.appDelegate.useSystemVolumeNotificationsInsteadOfKvo == true
         {
+#if targetEnvironment(macCatalyst)
+            macCatalystVolumeCallbackViewController = self
+
+            var size                       = UInt32(MemoryLayout<AudioDeviceID>.size)
+            var defaultAudioOutputDeviceID = kAudioObjectUnknown as AudioDeviceID
+            var deviceAddress              = AudioObjectPropertyAddress(
+                mSelector: kAudioHardwarePropertyDefaultOutputDevice,
+                mScope:    kAudioObjectPropertyScopeGlobal,
+                mElement:  kAudioObjectPropertyElementMain
+            )
+
+            AudioObjectGetPropertyData(
+                AudioObjectID(kAudioObjectSystemObject),
+                &deviceAddress,
+                0,
+                nil,
+                &size,
+                &defaultAudioOutputDeviceID
+            )
+
+            var volumeAddress = AudioObjectPropertyAddress(
+                mSelector: kAudioDevicePropertyVolumeScalar,
+                mScope:    kAudioObjectPropertyScopeOutput,
+                mElement:  kAudioObjectPropertyElementMain
+            )
+
+            // Add property listener with static function pointer instead of
+            // closure to avoid capture issues
+            //
+            AudioObjectAddPropertyListener(
+                defaultAudioOutputDeviceID,
+                &volumeAddress,
+                ViewController.macCatalystAudioVolumeChangedCBPointer,
+                nil
+            )
+#else
             NotificationCenter.default.addObserver(
                 self,
                 selector: #selector(handleVolumeChangedNotification(_:)),
                 name: NSNotification.Name(rawValue: volumeChangedNotificationName()),
                 object: nil
             )
+#endif
         }
 
         let hiddenSystemVolumeSlider = self.volumeView!.subviews.first(where: { $0 is UISlider }) as? UISlider
@@ -153,7 +204,7 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
             var targetAlpha: CGFloat = 1.0
 
             if self.albumArtImageView.bounds.size.width  < 200 ||
-               self.albumArtImageView.bounds.size.height < 200
+                self.albumArtImageView.bounds.size.height < 200
             {
                 targetAlpha = 0.0
             }
@@ -169,7 +220,7 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
             )
         }
     }
-    
+
     override func viewDidDisappear(_ animated: Bool) {
         self.appDelegate.musicPlaybackManager!.delegates.removeAll(where: { $0 as! ViewController == self })
 
@@ -230,7 +281,7 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
             musicPlaybackManager.switchToPlaylist(playlistID: playlistID)
         }
     }
-    
+
     @IBAction func userIsMovingSlider()
     {
         self.ignorePositionUpdates = true
@@ -286,24 +337,24 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
 
             self.labelTimer = Timer.scheduledTimer(
                 withTimeInterval: 5.0,
-                         repeats: true
+                repeats: true
             )
             { timer in
                 var newLabelText : NSMutableAttributedString
 
                 newLabelText = showingAlt
-                             ? self.attributedLabelText(playlistName: inPlaylist.displayName, trackTitle: withTrack.displayName)
-                             : self.attributedLabelText(playlistName: inPlaylist.displayName, trackTitle: altDisplayName)
+                ? self.attributedLabelText(playlistName: inPlaylist.displayName, trackTitle: withTrack.displayName)
+                : self.attributedLabelText(playlistName: inPlaylist.displayName, trackTitle: altDisplayName)
 
                 showingAlt = !showingAlt
 
                 UIView.transition(
-                          with: self.playlistAndTrackName,
-                      duration: 0.25,
-                       options: .transitionCrossDissolve,
+                    with: self.playlistAndTrackName,
+                    duration: 0.25,
+                    options: .transitionCrossDissolve,
                     animations: { [weak self] in
-                                    self!.playlistAndTrackName.attributedText = newLabelText
-                                },
+                        self!.playlistAndTrackName.attributedText = newLabelText
+                    },
                     completion: nil
                 )
             }
@@ -400,7 +451,7 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
         {
             let ciContext = CIContext(options: nil)
             var ciFilter: CIFilter?
-            
+
             if (storyboardName != nil && storyboardName == "Valhalla")
             {
                 ciFilter = CIFilter(name: "CIPhotoEffectFade")
@@ -436,13 +487,13 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
         if let imageView = self.albumArtImageView
         {
             UIView.transition(
-                      with: imageView,
-                  duration: 2.0,
-                   options: .transitionCrossDissolve,
+                with: imageView,
+                duration: 2.0,
+                options: .transitionCrossDissolve,
                 animations:
-                {
-                    imageView.image = imageToUse
-                },
+                    {
+                        imageView.image = imageToUse
+                    },
                 completion: nil
             )
         }
@@ -459,12 +510,12 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
 
         let scale = UIScreen.main.scale
         let size  = CGSize(
-             width: context!.width,
+            width: context!.width,
             height: context!.height
         )
 
         return CGSize(
-             width: size.width / scale,
+            width: size.width / scale,
             height: size.height / scale
         )
     }
@@ -584,13 +635,13 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
 
         // Build context: one byte per pixel, no alpha
         if let context = CGContext.init(
-                        data: nil,
-                       width: Int(width),
-                      height: Int(height),
+            data: nil,
+            width: Int(width),
+            height: Int(height),
             bitsPerComponent: Int(8),
-                 bytesPerRow: 0,
-                       space: colorSpace,
-                  bitmapInfo: CGImageAlphaInfo.noneSkipLast.rawValue
+            bytesPerRow: 0,
+            space: colorSpace,
+            bitmapInfo: CGImageAlphaInfo.noneSkipLast.rawValue
         )
         {
             // Replicate image using new color space
@@ -641,15 +692,15 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
      Based on https://apprize.best/apple/drawing/8.html
 
      - Parameters:
-         - artworkImage: Image to process
-         - minSize: Minimum size (so long as the artwork is larger than any one edge, its size is used))
-    */
+     - artworkImage: Image to process
+     - minSize: Minimum size (so long as the artwork is larger than any one edge, its size is used))
+     */
     func processArtwork(artworkImage: UIImage, minSize: CGSize?) -> UIImage?
     {
         let imageRect = minSize == nil ||
-            (artworkImage.size.width >= minSize!.width || artworkImage.size.height > minSize!.height)
-            ? CGRect(x: 0, y: 0, width: artworkImage.size.width, height: artworkImage.size.height)
-            : CGRect(x: 0, y: 0, width:          minSize!.width, height:          minSize!.height)
+        (artworkImage.size.width >= minSize!.width || artworkImage.size.height > minSize!.height)
+        ? CGRect(x: 0, y: 0, width: artworkImage.size.width, height: artworkImage.size.height)
+        : CGRect(x: 0, y: 0, width:          minSize!.width, height:          minSize!.height)
 
         let multiplier = CGFloat(UIDevice.current.userInterfaceIdiom == .pad ? 0.02 : 0.035)
         let edges      = imageRect.width * multiplier
@@ -657,7 +708,7 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
         let path       = UIBezierPath(roundedRect: insetRect, cornerRadius: edges * 1.5)
 
         if let mask = drawIntoImage(
-                    size: imageRect.size,
+            size: imageRect.size,
             drawingBlock: {
                 if let context = UIGraphicsGetCurrentContext()
                 {
@@ -676,7 +727,7 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
         )
         {
             let result = drawIntoImage(
-                        size: imageRect.size,
+                size: imageRect.size,
                 drawingBlock: {
                     applyMaskToContext(mask: mask)
                     artworkImage.draw(in: imageRect)
@@ -738,4 +789,45 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
 
         return labelText
     }
+
+    // MARK: - CATALYST VOLUME SUPPORT
+
+    #if targetEnvironment(macCatalyst)
+
+        // C-compatible static function pointer for AudioObjectAddPropertyListener on Catalyst builds
+        //
+        private static let macCatalystAudioVolumeChangedCBPointer: AudioObjectPropertyListenerProc = { audioObjectID, numberOfAddresses, addresses, clientData in
+            return macCatalystVolumeCallbackViewController?.macCatalystAudioVolumeChangedCB(
+                audioObjectID:     audioObjectID,
+                numberOfAddresses: numberOfAddresses,
+                addresses:         addresses,
+                clientData:        clientData
+            ) ?? noErr
+        }
+
+        // Instance method called from the static callback function pointer; performs volume update on main thread
+        //
+        private func macCatalystAudioVolumeChangedCB(audioObjectID: AudioObjectID, numberOfAddresses: UInt32, addresses: UnsafePointer<AudioObjectPropertyAddress>, clientData: UnsafeMutableRawPointer?) -> OSStatus {
+            var currentSystemVolume: Float32 = 0
+            var size = UInt32(MemoryLayout<Float32>.size)
+            var volumeAddress = AudioObjectPropertyAddress(
+                mSelector: kAudioDevicePropertyVolumeScalar,
+                mScope:    kAudioObjectPropertyScopeOutput,
+                mElement:  kAudioObjectPropertyElementMain
+            )
+
+            AudioObjectGetPropertyData(audioObjectID, &volumeAddress, 0, nil, &size, &currentSystemVolume)
+
+            if currentSystemVolume != macCatalystVolumeCallbackViewController?.previousSystemVolume
+            {
+                macCatalystVolumeCallbackViewController?.previousSystemVolume = currentSystemVolume
+                DispatchQueue.main.async {
+                    macCatalystVolumeCallbackViewController?.appDelegate.musicPlaybackManager?.systemVolumeDidChange(volume: Double(currentSystemVolume))
+                }
+            }
+
+            return noErr
+        }
+
+    #endif
 }

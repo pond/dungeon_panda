@@ -303,6 +303,7 @@ class MusicPlaybackManager : NSObject
 
         if self.referenceSystemVolume != nil
         {
+            logger.debug("Set volume to system reference")
             setVolume(volume: self.referenceSystemVolume)
         }
     }
@@ -416,6 +417,8 @@ class MusicPlaybackManager : NSObject
     {
         if volume != nil
         {
+            logger.debug("setVolume: set \(String(describing: volume))")
+            
             // If this is the first track played since the application started,
             // then setting the volume yields creep if using ReplayGain - we
             // would've already adjusted prior. Suppose the volume would be
@@ -514,12 +517,19 @@ class MusicPlaybackManager : NSObject
             delegate.playbackArtworkWillBeInvalid()
         }
 
+        // Mute playback to avoid any glitches with system volume restoration on
+        // remote devices that may lag a while before actually stopping playback
+        // of a prior track. Either a fade-in next starts soon, or a started-play
+        // event fires and system reference volume is restored.
+        //
+        logger.debug("Set volume to zero")
+        self.setVolume(volume: 0.0)
+
         if track.fadeIn
         {
             logger.info("startPlayback: Fade in is required")
 
             self.fadeInIsUnderway = true
-            self.setVolume(volume: 0.0)
             self.fadeInOnNextPlaybackStartedEvent = true
         }
         else
@@ -527,11 +537,9 @@ class MusicPlaybackManager : NSObject
             logger.info("startPlayback: Fade in is NOT required")
 
             self.fadeInIsUnderway = false
-
-            self.setVolume(volume: self.referenceSystemVolume)
             self.fadeInOnNextPlaybackStartedEvent = false
         }
-        
+
         self.musicPlayer.stop()
 
         // Repeat registration of volume observer, mostly out of paranoia but
@@ -836,7 +844,7 @@ class MusicPlaybackManager : NSObject
                 // and rely upon here.
                 //
                 logger.notice("playbackStateDidChange: Playback: Making sure update timer is running")
-                self.timerPositionUpdatesStart()
+                self.timerPositionUpdatesStart(andRunNow: true)
 
             default:
                 logger.notice("playbackStateDidChange: Unknown event, ignoring")
@@ -906,6 +914,8 @@ class MusicPlaybackManager : NSObject
         }
         else
         {
+            logger.debug("Set volume to system reference")
+
             self.setVolume(volume: self.referenceSystemVolume)
         }
 
@@ -929,10 +939,13 @@ class MusicPlaybackManager : NSObject
 
         if self.trackChangeIsUnderway == false
         {
+            logger.notice("effectivePlaybackStateDidHaltPlayback: Halt all and restore volume - no track change is underway")
+
             timerCancelAll()
 
             if self.referenceSystemVolume != nil
             {
+                logger.debug("Set volume to system reference")
                 setVolume(volume: self.referenceSystemVolume)
             }
 
@@ -955,6 +968,7 @@ class MusicPlaybackManager : NSObject
 
         if self.referenceSystemVolume != nil
         {
+            logger.debug("Set volume to system reference")
             setVolume(volume: self.referenceSystemVolume)
         }
     }
@@ -1063,7 +1077,7 @@ class MusicPlaybackManager : NSObject
 
     // MARK: - PRIVATE: Timers - position update
 
-    private func timerPositionUpdatesStart()
+    private func timerPositionUpdatesStart(andRunNow: Bool = false)
     {
         timerAdd("position_updates") {
             return Timer.scheduledTimer(
@@ -1073,6 +1087,11 @@ class MusicPlaybackManager : NSObject
                     userInfo: nil,
                      repeats: true
             )
+        }
+
+        if andRunNow
+        {
+            self.timerPositionUpdatesFired()
         }
     }
 
@@ -1428,8 +1447,7 @@ class MusicPlaybackManager : NSObject
                 if newVolume < toVolume { newVolume = toVolume } // Allow for rounding
             }
 
-            // logger.debug("fade (\(fadeIn ? "in" : "out")): Step \(currentStep) sets volume \(newVolume) for target \(toVolume)")
-
+            self.logger.debug("Fade (\(fadeIn ? "in" : "out")): Step \(currentStep) sets volume \(newVolume) for target \(toVolume)")
             self.setVolume(volume: newVolume)
             currentStep += 1
 

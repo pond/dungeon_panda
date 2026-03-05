@@ -29,7 +29,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         return true
     }
-    
+
+    // MARK: Mac Catalyst overrides
+
+    #if targetEnvironment(macCatalyst)
+        override func buildMenu(with builder: UIMenuBuilder) {
+            super.buildMenu(with: builder)
+            builder.remove(menu: .edit)
+            builder.remove(menu: .format)
+            builder.remove(menu: .help)  // There's still a "Help" menu, but it only has the Search field (which is what we want)
+        }
+    #endif
+
     // MARK: UISceneSession Lifecycle
 
     func application(
