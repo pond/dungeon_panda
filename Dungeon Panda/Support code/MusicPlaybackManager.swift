@@ -46,7 +46,7 @@ protocol MusicPlaybackManagerDelegate
     /// The artwork for the currently playing item has been determined. WARNING: This may
     /// be called from a non-main thread.
     func playbackArtworkWasDetermined(
-        artwork: MusicKit.Artwork
+        artwork: MusicKit.Artwork?
     )
 
     /// The current media item is expected to change very soon, invalidating any artwork that may be
@@ -611,20 +611,27 @@ class MusicPlaybackManager : NSObject
             self.currentItemArtwork  = song.artwork
             self.musicPlayer.queue   = [song]
 
-            try await self.musicPlayer.prepareToPlay()
-
-            self.delegates.forEach
-            {
-                (delegate) in
-                if self.currentItemArtwork != nil
+            #if targetEnvironment(simulator)
+                self.delegates.forEach
                 {
-                    delegate.playbackArtworkWasDetermined(artwork: self.currentItemArtwork!)
+                    (delegate) in
+                    delegate.playbackArtworkWasDetermined(artwork: nil)
                 }
-            }
+            #else
+                try await self.musicPlayer.prepareToPlay()
 
-            try await self.musicPlayer.play()
+                self.delegates.forEach
+                {
+                    (delegate) in
+                    if self.currentItemArtwork != nil
+                    {
+                        delegate.playbackArtworkWasDetermined(artwork: self.currentItemArtwork!)
+                    }
+                }
 
-            self.musicPlayer.playbackTime = track.startOffset
+                try await self.musicPlayer.play()
+                self.musicPlayer.playbackTime = track.startOffset
+            #endif
         }
     }
 

@@ -74,36 +74,32 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
         let viewControllerStoryboardIdentifier = value(forKey: "storyboardIdentifier") as? String ?? "none"
         self.appDelegate.musicPlaybackManager!.storyboardIdentifierHasBecome(identifier: viewControllerStoryboardIdentifier)
 
-        // Obtain Apple Music authorisation if need be.
-        //
-        if self.appDelegate.musicAuthorizationStatus == nil
-        {
-            self.appDelegate.musicAuthorizationStatus = MusicAuthorization.currentStatus
-
-            if self.appDelegate.musicAuthorizationStatus == .notDetermined
-            {
-                Task {
-                    self.appDelegate.musicAuthorizationStatus = await MusicAuthorization.request()
-                }
-            }
-
-            switch self.appDelegate.musicAuthorizationStatus
-            {
-            case .authorized, .restricted:
-                logger.notice("ViewController.viewDidLoad: User authorized access to Apple Music")
-                musicAuthorizationIsGranted()
-
-            case .denied:
-                logger.notice("ViewController.viewDidLoad: User prohibited access to Apple Music")
-                musicAuthorizationIsDenied()
-
-            default:
-                logger.notice("ViewController.viewDidLoad: Unrecognised response! Assuming authorised...")
-            }
-        }
-        else
-        {
+        guard self.appDelegate.musicAuthorizationStatus == nil else {
             logger.notice("ViewController.viewDidLoad: Apple Music authorization has already been checked")
+            return
+        }
+
+        Task {
+            let status = MusicAuthorization.currentStatus
+
+            if status == .notDetermined {
+                self.appDelegate.musicAuthorizationStatus = await MusicAuthorization.request()
+            } else {
+                self.appDelegate.musicAuthorizationStatus = status
+            }
+            
+            switch self.appDelegate.musicAuthorizationStatus {
+                case .authorized, .restricted:
+                    logger.notice("ViewController.viewDidLoad: User authorized access to Apple Music")
+                    await MainActor.run { musicAuthorizationIsGranted() }
+                
+                case .denied:
+                    logger.notice("ViewController.viewDidLoad: User prohibited access to Apple Music")
+                    await MainActor.run { musicAuthorizationIsDenied() }
+                
+                default:
+                    logger.notice("ViewController.viewDidLoad: Unrecognised response! Assuming authorised...")
+            }
         }
     }
 
@@ -398,32 +394,49 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
     {
     }
 
-    func playbackArtworkWasDetermined(artwork: MusicKit.Artwork)
+    func playbackArtworkWasDetermined(artwork: MusicKit.Artwork?)
     {
-        let rect       = UIScreen.main.bounds
-        let longest    = max(rect.width, rect.height)
-        let size       = CGSize(width: longest, height: longest)
-        let urlToUse   = artwork.url(width: Int(longest), height: Int(longest))
-
-        if urlToUse != nil
+        let rect    = UIScreen.main.bounds
+        let longest = max(rect.width, rect.height)
+        let size    = CGSize(width: longest, height: longest)
+        
+        if artwork == nil // (assume simulator build)
         {
-            Task
-            {
-                do
-                {
-                    let (data, _) = try await URLSession.shared.data(from: urlToUse!)
-                    let imageToUse = UIImage(data: data)
+            let imageToUse = UIImage(named: "Static/cover-poa")
 
-                    if imageToUse != nil
+            if imageToUse != nil
+            {
+                DispatchQueue.main.async
+                {
+                    self.currentArtworkImage = imageToUse
+                    self.updateArtworkToCurrent(usingSize: size)
+                }
+            }
+        }
+        else // (assume real device)
+        {
+            let urlToUse   = artwork!.url(width: Int(longest), height: Int(longest))
+
+            if urlToUse != nil
+            {
+                Task
+                {
+                    do
                     {
-                        DispatchQueue.main.async
+                        let (data, _) = try await URLSession.shared.data(from: urlToUse!)
+                        let imageToUse = UIImage(data: data)
+
+                        if imageToUse != nil
                         {
-                            self.currentArtworkImage = imageToUse
-                            self.updateArtworkToCurrent(usingSize: size)
+                            DispatchQueue.main.async
+                            {
+                                self.currentArtworkImage = imageToUse
+                                self.updateArtworkToCurrent(usingSize: size)
+                            }
                         }
                     }
+                    catch {}
                 }
-                catch {}
             }
         }
     }
@@ -767,7 +780,7 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
     /**
      Return attributed text to assign to a UILabel which describes the given playlist name and track title.
 
-     - Parameters:
+     - Parameters:w
      - playlistName: Optional playlist name to use.
      - trackTitle: Title of track to use.
 
