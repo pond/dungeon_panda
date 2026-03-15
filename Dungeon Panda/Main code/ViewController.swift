@@ -776,39 +776,6 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
 
     // MARK: - PRIVATE (GENERAL)
 
-    private func checkMusicAuthorization() async {
-        let resolvedStatus: MusicAuthorization.Status
-        let status = MusicAuthorization.currentStatus
-
-        self.appDelegate.musicAuthorizationStatus = status
-
-        guard self.appDelegate.musicAuthorizationStatus == nil else {
-            logger.notice("ViewController.viewDidLoad: Apple Music authorization has already been checked")
-            return
-        }
-
-        if status == .notDetermined {
-            resolvedStatus = await MusicAuthorization.request()
-            self.appDelegate.musicAuthorizationStatus = resolvedStatus
-        } else {
-            resolvedStatus = status
-        }
-
-        switch resolvedStatus {
-            case .authorized, .restricted:
-                logger.notice("ViewController.viewDidLoad: User authorized access to Apple Music")
-                await MainActor.run { musicAuthorizationIsGranted() }
-
-            case .denied:
-                logger.notice("ViewController.viewDidLoad: User denied access to Apple Music")
-                await MainActor.run { musicAuthorizationIsDenied() }
-
-            default:
-                logger.notice("ViewController.viewDidLoad: Unrecognised response! Assuming denied!")
-                await MainActor.run { musicAuthorizationIsDenied() }
-        }
-    }
-
     private func setPlayPositionTextFor(duration: Float, position: Float)
     {
         let remainingTime    = duration - position
@@ -834,7 +801,7 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
     /**
      Return attributed text to assign to a UILabel which describes the given playlist name and track title.
 
-     - Parameters:w
+     - Parameters:
      - playlistName: Optional playlist name to use.
      - trackTitle: Title of track to use.
 
