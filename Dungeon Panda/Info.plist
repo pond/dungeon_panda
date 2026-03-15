@@ -21,7 +21,9 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSAppleMusicUsageDescription</key>
-	<string>Dungeon Panda streams from Apple Music, so it needs permission to use your Apple Music subscription. Dungeon Panda only streams using its own playlists. It does not read or change your library.</string>
+	<string>Dungeon Panda streams from Apple Music, so needs access to your Apple Music subscription to do that. Dungeon Panda uses its own internal playlists; it never reads or changes your library.</string>
+  <key>LSApplicationCategoryType</key>
+  <string>public.app-category.music</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

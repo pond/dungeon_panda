@@ -44,21 +44,33 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
 
         // Add the volume view.
         //
-        // When placed to match bounds exactly, the view is actually displaced
-        // some distance vertically above the requested region, actually
-        // spilling out if its container. Sigh.
-        //
-        let bounds = CGRect(
-            x: 0,
-            y: 7,
-            width: self.volumeParentView.bounds.width,
-            height: self.volumeParentView.bounds.height
-        )
+        #if targetEnvironment(simulator)
+            let bounds = CGRect(
+                x: 0,
+                y: 0,
+                width: self.volumeParentView.bounds.width,
+                height: self.volumeParentView.bounds.height
+            )
+            let mockSlider = UISlider(frame: bounds)
+            mockSlider.setThumbImage(UIImage(named: "Volume slider"), for: .normal)
+            self.volumeParentView.addSubview(mockSlider)
+        #else
+            // When placed to match bounds exactly, the view is actually displaced
+            // some distance vertically above the requested region, actually
+            // spilling out if its container. Sigh.
+            //
+            let bounds = CGRect(
+                x: 0,
+                y: 7,
+                width: self.volumeParentView.bounds.width,
+                height: self.volumeParentView.bounds.height
+            )
 
-        self.volumeView = MPVolumeView(frame: bounds)
-        self.volumeParentView.addSubview(self.volumeView!)
+            self.volumeView = MPVolumeView(frame: bounds)
+            self.volumeParentView.addSubview(self.volumeView!)
+            self.volumeView!.setVolumeThumbImage(UIImage(named: "Volume slider"), for: .normal)
+        #endif
 
-        self.volumeView!.setVolumeThumbImage(UIImage(named: "Volume slider"), for: .normal)
         self.positionSlider.setThumbImage(UIImage(named: "Position slider"), for: .normal)
 
         // Obtain the storyboard ID set up via selecting the Storyboard and
@@ -74,6 +86,8 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
         let viewControllerStoryboardIdentifier = value(forKey: "storyboardIdentifier") as? String ?? "none"
         self.appDelegate.musicPlaybackManager!.storyboardIdentifierHasBecome(identifier: viewControllerStoryboardIdentifier)
 
+        // Obtain Apple Music authorisation if need be.
+        //
         guard self.appDelegate.musicAuthorizationStatus == nil else {
             logger.notice("ViewController.viewDidLoad: Apple Music authorization has already been checked")
             return
@@ -87,18 +101,19 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
             } else {
                 self.appDelegate.musicAuthorizationStatus = status
             }
-            
+
             switch self.appDelegate.musicAuthorizationStatus {
                 case .authorized, .restricted:
-                    logger.notice("ViewController.viewDidLoad: User authorized access to Apple Music")
+                    logger.notice("ViewController.viewDidLoad: User granted access to Apple Music")
                     await MainActor.run { musicAuthorizationIsGranted() }
-                
+
                 case .denied:
                     logger.notice("ViewController.viewDidLoad: User prohibited access to Apple Music")
                     await MainActor.run { musicAuthorizationIsDenied() }
-                
+
                 default:
                     logger.notice("ViewController.viewDidLoad: Unrecognised response! Assuming authorised...")
+                    await MainActor.run { musicAuthorizationIsGranted() }
             }
         }
     }
@@ -135,52 +150,57 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
         //
         if self.appDelegate.useSystemVolumeNotificationsInsteadOfKvo == true
         {
-#if targetEnvironment(macCatalyst)
-            macCatalystVolumeCallbackViewController = self
+            #if targetEnvironment(macCatalyst)
+                macCatalystVolumeCallbackViewController = self
 
-            var size                       = UInt32(MemoryLayout<AudioDeviceID>.size)
-            var defaultAudioOutputDeviceID = kAudioObjectUnknown as AudioDeviceID
-            var deviceAddress              = AudioObjectPropertyAddress(
-                mSelector: kAudioHardwarePropertyDefaultOutputDevice,
-                mScope:    kAudioObjectPropertyScopeGlobal,
-                mElement:  kAudioObjectPropertyElementMain
-            )
+                var size                       = UInt32(MemoryLayout<AudioDeviceID>.size)
+                var defaultAudioOutputDeviceID = kAudioObjectUnknown as AudioDeviceID
+                var deviceAddress              = AudioObjectPropertyAddress(
+                    mSelector: kAudioHardwarePropertyDefaultOutputDevice,
+                    mScope:    kAudioObjectPropertyScopeGlobal,
+                    mElement:  kAudioObjectPropertyElementMain
+                )
 
-            AudioObjectGetPropertyData(
-                AudioObjectID(kAudioObjectSystemObject),
-                &deviceAddress,
-                0,
-                nil,
-                &size,
-                &defaultAudioOutputDeviceID
-            )
+                AudioObjectGetPropertyData(
+                    AudioObjectID(kAudioObjectSystemObject),
+                    &deviceAddress,
+                    0,
+                    nil,
+                    &size,
+                    &defaultAudioOutputDeviceID
+                )
 
-            var volumeAddress = AudioObjectPropertyAddress(
-                mSelector: kAudioDevicePropertyVolumeScalar,
-                mScope:    kAudioObjectPropertyScopeOutput,
-                mElement:  kAudioObjectPropertyElementMain
-            )
+                var volumeAddress = AudioObjectPropertyAddress(
+                    mSelector: kAudioDevicePropertyVolumeScalar,
+                    mScope:    kAudioObjectPropertyScopeOutput,
+                    mElement:  kAudioObjectPropertyElementMain
+                )
 
-            // Add property listener with static function pointer instead of
-            // closure to avoid capture issues
-            //
-            AudioObjectAddPropertyListener(
-                defaultAudioOutputDeviceID,
-                &volumeAddress,
-                ViewController.macCatalystAudioVolumeChangedCBPointer,
-                nil
-            )
-#else
-            NotificationCenter.default.addObserver(
-                self,
-                selector: #selector(handleVolumeChangedNotification(_:)),
-                name: NSNotification.Name(rawValue: volumeChangedNotificationName()),
-                object: nil
-            )
-#endif
+                // Add property listener with static function pointer instead of
+                // closure to avoid capture issues
+                //
+                AudioObjectAddPropertyListener(
+                    defaultAudioOutputDeviceID,
+                    &volumeAddress,
+                    ViewController.macCatalystAudioVolumeChangedCBPointer,
+                    nil
+                )
+            #else
+                NotificationCenter.default.addObserver(
+                    self,
+                    selector: #selector(handleVolumeChangedNotification(_:)),
+                    name: NSNotification.Name(rawValue: volumeChangedNotificationName()),
+                    object: nil
+                )
+            #endif
         }
 
-        let hiddenSystemVolumeSlider = self.volumeView!.subviews.first(where: { $0 is UISlider }) as? UISlider
+        #if targetEnvironment(simulator)
+            let hiddenSystemVolumeSlider: UISlider? = nil
+        #else
+            let hiddenSystemVolumeSlider = self.volumeView!.subviews.first(where: { $0 is UISlider }) as? UISlider
+        #endif
+
         logger.notice("Volume slider is \(String(describing: hiddenSystemVolumeSlider))")
 
         self.appDelegate.musicPlaybackManager!.setHiddenSystemVolumeSlider(hiddenSystemVolumeSlider)
@@ -399,14 +419,15 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
         let rect    = UIScreen.main.bounds
         let longest = max(rect.width, rect.height)
         let size    = CGSize(width: longest, height: longest)
-        
+
         if artwork == nil // (assume simulator build)
         {
-            let imageToUse = UIImage(named: "Static/cover-poa")
-
-            if imageToUse != nil
+            DispatchQueue.main.async
             {
-                DispatchQueue.main.async
+                let storyboardName = self.storyboard?.value(forKey: "name") as? String
+                let imageToUse     = UIImage(named: storyboardName == "valhalla" ? "cover-poa.png" : "cover-pr.png")
+
+                if imageToUse != nil
                 {
                     self.currentArtworkImage = imageToUse
                     self.updateArtworkToCurrent(usingSize: size)
@@ -754,6 +775,39 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
     }
 
     // MARK: - PRIVATE (GENERAL)
+
+    private func checkMusicAuthorization() async {
+        let resolvedStatus: MusicAuthorization.Status
+        let status = MusicAuthorization.currentStatus
+
+        self.appDelegate.musicAuthorizationStatus = status
+
+        guard self.appDelegate.musicAuthorizationStatus == nil else {
+            logger.notice("ViewController.viewDidLoad: Apple Music authorization has already been checked")
+            return
+        }
+
+        if status == .notDetermined {
+            resolvedStatus = await MusicAuthorization.request()
+            self.appDelegate.musicAuthorizationStatus = resolvedStatus
+        } else {
+            resolvedStatus = status
+        }
+
+        switch resolvedStatus {
+            case .authorized, .restricted:
+                logger.notice("ViewController.viewDidLoad: User authorized access to Apple Music")
+                await MainActor.run { musicAuthorizationIsGranted() }
+
+            case .denied:
+                logger.notice("ViewController.viewDidLoad: User denied access to Apple Music")
+                await MainActor.run { musicAuthorizationIsDenied() }
+
+            default:
+                logger.notice("ViewController.viewDidLoad: Unrecognised response! Assuming denied!")
+                await MainActor.run { musicAuthorizationIsDenied() }
+        }
+    }
 
     private func setPlayPositionTextFor(duration: Float, position: Float)
     {
