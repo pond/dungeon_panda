@@ -46,7 +46,7 @@ protocol MusicPlaybackManagerDelegate
     /// The artwork for the currently playing item has been determined. WARNING: This may
     /// be called from a non-main thread.
     func playbackArtworkWasDetermined(
-        artwork: MusicKit.Artwork
+        artwork: MusicKit.Artwork?
     )
 
     /// The current media item is expected to change very soon, invalidating any artwork that may be
@@ -565,12 +565,17 @@ class MusicPlaybackManager : NSObject
             }
         }
 
+        self.mostRecentPlaybackStartTimeInSeconds = Date().timeIntervalSince1970
         self.currentItemDuration = 0
         self.currentlyPlaying = false
         self.currentlySeeking = false
-        self.mostRecentPlaybackStartTimeInSeconds = Date().timeIntervalSince1970
 
-        self.timerPositionUpdatesStart()
+        #if targetEnvironment(simulator)
+            self.currentItemDuration = 205 // Arbitrary, 3m 25s for display
+            self.timerPositionUpdatesStart(andRunNow: true)
+        #else
+            self.timerPositionUpdatesStart()
+        #endif
 
         // ...and to mix in SFX - "var player: AVAudioPlayer?" somewhere,
         // then...
@@ -597,34 +602,41 @@ class MusicPlaybackManager : NSObject
 
         Task
         {
-            let songId       = MusicItemID(rawValue: track.storeID)
-            let songRequest  = MusicCatalogResourceRequest<MusicKit.Song>(matching: \.id, equalTo: songId)
-            let songResponse = try await songRequest.response()
-
-            guard let song = songResponse.items.first else {
-                logger.warning("startPlayback: Cannot find song with Store ID \(track.storeID)")
-                self.startPlayingNextTrackNow()
-                return
-            }
-
-            self.currentItemDuration = song.duration ?? 0.0
-            self.currentItemArtwork  = song.artwork
-            self.musicPlayer.queue   = [song]
-
-            try await self.musicPlayer.prepareToPlay()
-
-            self.delegates.forEach
-            {
-                (delegate) in
-                if self.currentItemArtwork != nil
+            #if targetEnvironment(simulator)
+                self.delegates.forEach
                 {
-                    delegate.playbackArtworkWasDetermined(artwork: self.currentItemArtwork!)
+                    (delegate) in
+                    delegate.playbackArtworkWasDetermined(artwork: nil)
                 }
-            }
+            #else
+                let songId       = MusicItemID(rawValue: track.storeID)
+                let songRequest  = MusicCatalogResourceRequest<MusicKit.Song>(matching: \.id, equalTo: songId)
+                let songResponse = try await songRequest.response()
 
-            try await self.musicPlayer.play()
+                guard let song = songResponse.items.first else {
+                    logger.warning("startPlayback: Cannot find song with Store ID \(track.storeID)")
+                    self.startPlayingNextTrackNow()
+                    return
+                }
 
-            self.musicPlayer.playbackTime = track.startOffset
+                self.currentItemDuration = song.duration ?? 0.0
+                self.currentItemArtwork  = song.artwork
+                self.musicPlayer.queue   = [song]
+
+                try await self.musicPlayer.prepareToPlay()
+
+                self.delegates.forEach
+                {
+                    (delegate) in
+                    if self.currentItemArtwork != nil
+                    {
+                        delegate.playbackArtworkWasDetermined(artwork: self.currentItemArtwork!)
+                    }
+                }
+
+                try await self.musicPlayer.play()
+                self.musicPlayer.playbackTime = track.startOffset
+            #endif
         }
     }
 
@@ -634,15 +646,19 @@ class MusicPlaybackManager : NSObject
     */
     private func getRemainingDuration() -> Double?
     {
-        let playingTrack        = self.playlistManager.getPlayingTrack()
-        let currentItemPosition = self.musicPlayer.playbackTime
-        let trackEndOffset      = playingTrack.endOffset ?? self.currentItemDuration
+        #if targetEnvironment(simulator)
+            return 126 // No significance, just a number for display purposes
+        #else
+            let playingTrack        = self.playlistManager.getPlayingTrack()
+            let currentItemPosition = self.musicPlayer.playbackTime
+            let trackEndOffset      = playingTrack.endOffset ?? self.currentItemDuration
 
-        // The "< 5" is only there to try and catch bugs in the Apple Music API
-        // where a duration is missing or appears to be wrong. Assume anything
-        // below 5 seconds must mean "don't know".
-        //
-        return self.currentItemDuration < 5 ? nil : trackEndOffset - currentItemPosition
+            // The "< 5" is only there to try and catch bugs in the Apple Music API
+            // where a duration is missing or appears to be wrong. Assume anything
+            // below 5 seconds must mean "don't know".
+            //
+            return self.currentItemDuration < 5 ? nil : trackEndOffset - currentItemPosition
+        #endif
     }
 
     /**
@@ -1123,9 +1139,15 @@ class MusicPlaybackManager : NSObject
 
         let (currentPlaylist, currentTrack, _) = self.playlistManager.nowPlaying();
 
+        #if targetEnvironment(simulator)
+            let playbackStatus = MusicPlayer.PlaybackStatus.playing
+        #else
+            let playbackStatus = self.musicPlayer.state.playbackStatus
+        #endif
+
         // If the media player says it's playing, we can't quite trust it but it's a start...
         //
-        if self.musicPlayer.state.playbackStatus == .playing
+        if playbackStatus == .playing
         {
             if timerUpdateLogOutputCounter % timerUpdateLogOutputEvery == 1
             {
@@ -1157,13 +1179,19 @@ class MusicPlaybackManager : NSObject
                     self.mostRecentPlaybackStartTimeInSeconds = nil
                     self.effectivePlaybackStateDidStartPlaying()
                 }
-                
+
+                #if targetEnvironment(simulator)
+                    let playbackTime = self.currentItemDuration - remainingItemDuration!
+                #else
+                    let playbackTime = self.musicPlayer.playbackTime
+                #endif
+
                 self.delegates.forEach { (delegate) in
                     delegate.playbackProgressChanged(
                         playbackManager: self,
                              inPlaylist: currentPlaylist,
                               withTrack: currentTrack,
-                               position: self.musicPlayer.playbackTime,
+                               position: playbackTime,
                                duration: self.currentItemDuration
                     )
                 }
@@ -1214,19 +1242,21 @@ class MusicPlaybackManager : NSObject
                 //   or it won't be still in a "playing" state anyway, so we won't even have
                 //   tried to calculate remaining time and in that case, again, it's "nil".
                 //
-                if remainingItemDuration == nil || remainingItemDuration! <= trackConsideredFinishedWithThisRemaining
-                {
-                    if currentTrack.fadeOut
+                #if !targetEnvironment(simulator)
+                    if remainingItemDuration == nil || remainingItemDuration! <= trackConsideredFinishedWithThisRemaining
                     {
-                        logger.debug("timerPositionUpdatesFired: Track reached fade-out time; starting fade imminently")
-                    }
-                    else
-                    {
-                        logger.debug("timerPositionUpdatesFired: Track reached considered-ended time; starting next imminently")
-                    }
+                        if currentTrack.fadeOut
+                        {
+                            logger.debug("timerPositionUpdatesFired: Track reached fade-out time; starting fade imminently")
+                        }
+                        else
+                        {
+                            logger.debug("timerPositionUpdatesFired: Track reached considered-ended time; starting next imminently")
+                        }
 
-                    self.endTrackAndStartNext()
-                }
+                        self.endTrackAndStartNext()
+                    }
+                #endif
             }
         }
 
