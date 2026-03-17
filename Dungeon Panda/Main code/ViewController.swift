@@ -46,13 +46,15 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
         //
         #if targetEnvironment(simulator)
             let bounds = CGRect(
-                x: 0,
-                y: 0,
-                width: self.volumeParentView.bounds.width,
+                     x: 0,
+                     y: 0,
+                 width: self.volumeParentView.bounds.width,
                 height: self.volumeParentView.bounds.height
             )
+
             let mockSlider = UISlider(frame: bounds)
             mockSlider.setThumbImage(UIImage(named: "Volume slider"), for: .normal)
+
             self.volumeParentView.addSubview(mockSlider)
         #else
             // When placed to match bounds exactly, the view is actually displaced
@@ -60,9 +62,9 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
             // spilling out if its container. Sigh.
             //
             let bounds = CGRect(
-                x: 0,
-                y: 7,
-                width: self.volumeParentView.bounds.width,
+                     x: 0,
+                     y: 7,
+                 width: self.volumeParentView.bounds.width,
                 height: self.volumeParentView.bounds.height
             )
 
@@ -186,6 +188,7 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
                     nil
                 )
             #else
+                NotificationCenter.default.removeObserver(self)
                 NotificationCenter.default.addObserver(
                     self,
                     selector: #selector(handleVolumeChangedNotification(_:)),
@@ -220,15 +223,15 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
             var targetAlpha: CGFloat = 1.0
 
             if self.albumArtImageView.bounds.size.width  < 200 ||
-                self.albumArtImageView.bounds.size.height < 200
+               self.albumArtImageView.bounds.size.height < 200
             {
                 targetAlpha = 0.0
             }
 
             UIView.transition(
-                with: self.playlistAndTrackName,
-                duration: 0.25,
-                options: .transitionCrossDissolve,
+                      with: self.playlistAndTrackName,
+                  duration: 0.25,
+                   options: .transitionCrossDissolve,
                 animations: { [weak self] in
                     self!.albumArtImageView.alpha = targetAlpha
                 },
@@ -353,21 +356,21 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
 
             self.labelTimer = Timer.scheduledTimer(
                 withTimeInterval: 5.0,
-                repeats: true
+                        repeats: true
             )
             { timer in
                 var newLabelText : NSMutableAttributedString
 
                 newLabelText = showingAlt
-                ? self.attributedLabelText(playlistName: inPlaylist.displayName, trackTitle: withTrack.displayName)
-                : self.attributedLabelText(playlistName: inPlaylist.displayName, trackTitle: altDisplayName)
+                             ? self.attributedLabelText(playlistName: inPlaylist.displayName, trackTitle: withTrack.displayName)
+                             : self.attributedLabelText(playlistName: inPlaylist.displayName, trackTitle: altDisplayName)
 
                 showingAlt = !showingAlt
 
                 UIView.transition(
-                    with: self.playlistAndTrackName,
-                    duration: 0.25,
-                    options: .transitionCrossDissolve,
+                          with: self.playlistAndTrackName,
+                      duration: 0.25,
+                       options: .transitionCrossDissolve,
                     animations: { [weak self] in
                         self!.playlistAndTrackName.attributedText = newLabelText
                     },
@@ -521,13 +524,12 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
         if let imageView = self.albumArtImageView
         {
             UIView.transition(
-                with: imageView,
-                duration: 2.0,
-                options: .transitionCrossDissolve,
-                animations:
-                    {
-                        imageView.image = imageToUse
-                    },
+                      with: imageView,
+                  duration: 2.0,
+                   options: .transitionCrossDissolve,
+                animations: {
+                                imageView.image = imageToUse
+                            },
                 completion: nil
             )
         }
@@ -544,12 +546,12 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
 
         let scale = UIScreen.main.scale
         let size  = CGSize(
-            width: context!.width,
+            width:  context!.width,
             height: context!.height
         )
 
         return CGSize(
-            width: size.width / scale,
+            width:  size.width  / scale,
             height: size.height / scale
         )
     }
@@ -669,13 +671,13 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
 
         // Build context: one byte per pixel, no alpha
         if let context = CGContext.init(
-            data: nil,
-            width: Int(width),
-            height: Int(height),
+                        data: nil,
+                       width: Int(width),
+                      height: Int(height),
             bitsPerComponent: Int(8),
-            bytesPerRow: 0,
-            space: colorSpace,
-            bitmapInfo: CGImageAlphaInfo.noneSkipLast.rawValue
+                 bytesPerRow: 0,
+                       space: colorSpace,
+                  bitmapInfo: CGImageAlphaInfo.noneSkipLast.rawValue
         )
         {
             // Replicate image using new color space
@@ -726,15 +728,15 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
      Based on https://apprize.best/apple/drawing/8.html
 
      - Parameters:
-     - artworkImage: Image to process
-     - minSize: Minimum size (so long as the artwork is larger than any one edge, its size is used))
-     */
+        - artworkImage: Image to process
+        - minSize: Minimum size (so long as the artwork is larger than any one edge, its size is used))
+    */
     func processArtwork(artworkImage: UIImage, minSize: CGSize?) -> UIImage?
     {
         let imageRect = minSize == nil ||
-        (artworkImage.size.width >= minSize!.width || artworkImage.size.height > minSize!.height)
-        ? CGRect(x: 0, y: 0, width: artworkImage.size.width, height: artworkImage.size.height)
-        : CGRect(x: 0, y: 0, width:          minSize!.width, height:          minSize!.height)
+            (artworkImage.size.width >= minSize!.width || artworkImage.size.height > minSize!.height)
+            ? CGRect(x: 0, y: 0, width: artworkImage.size.width, height: artworkImage.size.height)
+            : CGRect(x: 0, y: 0, width:          minSize!.width, height:          minSize!.height)
 
         let multiplier = CGFloat(UIDevice.current.userInterfaceIdiom == .pad ? 0.02 : 0.035)
         let edges      = imageRect.width * multiplier
@@ -742,7 +744,7 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
         let path       = UIBezierPath(roundedRect: insetRect, cornerRadius: edges * 1.5)
 
         if let mask = drawIntoImage(
-            size: imageRect.size,
+                    size: imageRect.size,
             drawingBlock: {
                 if let context = UIGraphicsGetCurrentContext()
                 {
@@ -761,7 +763,7 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
         )
         {
             let result = drawIntoImage(
-                size: imageRect.size,
+                        size: imageRect.size,
                 drawingBlock: {
                     applyMaskToContext(mask: mask)
                     artworkImage.draw(in: imageRect)
@@ -802,11 +804,11 @@ class ViewController: UIViewController, MusicPlaybackManagerDelegate {
      Return attributed text to assign to a UILabel which describes the given playlist name and track title.
 
      - Parameters:
-     - playlistName: Optional playlist name to use.
-     - trackTitle: Title of track to use.
+        - playlistName: Optional playlist name to use.
+        - trackTitle: Title of track to use.
 
      - Returns: Attributed text for use in e.g. a UILabel.
-     */
+    */
     private func attributedLabelText(playlistName: String?, trackTitle: String) -> NSMutableAttributedString
     {
         let fontSize      = CGFloat(22)
