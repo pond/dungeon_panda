@@ -511,8 +511,6 @@ class MusicPlaybackManager : NSObject
 
         timerCancelAll()
 
-        self.trackChangeIsUnderway = false
-
         self.delegates.forEach { (delegate) in
             delegate.playbackArtworkWillBeInvalid()
         }
@@ -522,7 +520,7 @@ class MusicPlaybackManager : NSObject
         // of a prior track. Either a fade-in next starts soon, or a started-play
         // event fires and system reference volume is restored.
         //
-        logger.debug("Set volume to zero")
+        self.trackChangeIsUnderway = true
         self.setVolume(volume: 0.0)
 
         if track.fadeIn
@@ -919,6 +917,8 @@ class MusicPlaybackManager : NSObject
     {
         logger.notice("effectivePlaybackStateDidStartPlaying: Called")
 
+        self.trackChangeIsUnderway = false
+
         // Figure out fade-in or start-now
         //
         if self.fadeInOnNextPlaybackStartedEvent
@@ -981,6 +981,8 @@ class MusicPlaybackManager : NSObject
         logger.notice("effectivePlaybackStateDidStartSeeking: Called")
 
         timerCancelAll(except: "position_updates")
+
+        self.trackChangeIsUnderway = false
 
         if self.referenceSystemVolume != nil
         {
